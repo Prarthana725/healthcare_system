@@ -1,6 +1,7 @@
 const medicineQueries = require('../db/medicineQueries');
 
 class MedicineController {
+
     // Get all medicines
     async getAll(req, res) {
         try {
