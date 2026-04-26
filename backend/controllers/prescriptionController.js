@@ -1,4 +1,5 @@
 const prescriptionQueries = require('../db/prescriptionQueries');
+const billQueries = require('../db/billQueries');
 
 // Helper function to group prescriptions
 function groupPrescriptions(rows) {
@@ -104,10 +105,18 @@ class PrescriptionController {
 
             const result = await prescriptionQueries.createPrescriptionWithDetails(patient_id, doctor_id, date, details);
 
+            // Get the generated bill details
+            const billDetails = await billQueries.getBillByPrescription(result.prescriptionId);
+
             res.status(201).json({
-                message: 'Prescription created successfully with automatic stock reduction',
+                message: 'Prescription created successfully with automatic stock reduction and bill generation',
                 prescriptionId: result.prescriptionId,
-                totalBill: result.totalAmount
+                bill: {
+                    bill_id: billDetails.bill_id,
+                    total_amount: billDetails.total_amount,
+                    status: billDetails.status,
+                    bill_date: billDetails.bill_date
+                }
             });
 
         } catch (error) {

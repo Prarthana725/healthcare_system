@@ -12,7 +12,7 @@ class BillController {
         }
     }
 
-    // Get bill details by prescription ID
+    // Get bill details by bill ID
     async getById(req, res) {
         try {
             const { id } = req.params;
@@ -23,14 +23,17 @@ class BillController {
 
             // Group details
             const bill = {
-                bill_id: billDetails[0].prescription_id,
+                bill_id: billDetails[0].bill_id,
+                prescription_id: billDetails[0].prescription_id,
                 patient_id: billDetails[0].patient_id,
                 patient_name: billDetails[0].patient_name,
                 patient_phone: billDetails[0].phone,
+                patient_age: billDetails[0].age,
                 doctor_id: billDetails[0].doctor_id,
                 doctor_name: billDetails[0].doctor_name,
                 doctor_specialization: billDetails[0].specialization,
-                date: billDetails[0].date,
+                bill_date: billDetails[0].bill_date,
+                status: billDetails[0].status,
                 items: billDetails.filter(row => row.item_id).map(row => ({
                     item_id: row.item_id,
                     medicine_id: row.medicine_id,
@@ -40,7 +43,7 @@ class BillController {
                     item_total: row.item_total
                 })),
                 total_items: billDetails.filter(row => row.item_id).length,
-                total_amount: billDetails.filter(row => row.item_id).reduce((sum, row) => sum + row.item_total, 0)
+                total_amount: billDetails[0].total_amount
             };
             res.json(bill);
         } catch (error) {
@@ -110,6 +113,7 @@ class BillController {
 
             const bill = {
                 bill_id: billData[0].bill_id,
+                prescription_id: billData[0].prescription_id,
                 patient_id: billData[0].patient_id,
                 patient_name: billData[0].patient_name,
                 patient_age: billData[0].age,
@@ -118,6 +122,7 @@ class BillController {
                 doctor_name: billData[0].doctor_name,
                 doctor_specialization: billData[0].specialization,
                 bill_date: billData[0].bill_date,
+                status: billData[0].status,
                 items: billData.filter(row => row.item_id).map(row => ({
                     medicine_id: row.medicine_id,
                     medicine_name: row.medicine_name,
@@ -128,7 +133,7 @@ class BillController {
                 summary: {
                     total_items: billData.filter(row => row.item_id).length,
                     total_quantity: billData.filter(row => row.item_id).reduce((sum, row) => sum + row.quantity, 0),
-                    total_amount: billData.filter(row => row.item_id).reduce((sum, row) => sum + row.item_total, 0)
+                    total_amount: billData[0].total_amount
                 }
             };
             res.json(bill);
@@ -137,6 +142,27 @@ class BillController {
             res.status(500).json({ error: 'Failed to generate bill' });
         }
     }
-}
+
+    // Update bill status
+    async updateStatus(req, res) {
+        try {
+            const { id } = req.params;
+            const { status } = req.body;
+
+            if (!['pending', 'paid', 'cancelled'].includes(status)) {
+                return res.status(400).json({ error: 'Invalid status. Must be pending, paid, or cancelled' });
+            }
+
+            const result = await billQueries.updateBillStatus(id, status);
+            if (result.affectedRows === 0) {
+                return res.status(404).json({ error: 'Bill not found' });
+            }
+
+            res.json({ message: 'Bill status updated successfully', bill_id: id, status });
+        } catch (error) {
+            console.error('Error updating bill status:', error);
+            res.status(500).json({ error: 'Failed to update bill status' });
+        }
+    }
 
 module.exports = new BillController();
