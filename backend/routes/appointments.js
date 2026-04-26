@@ -11,5 +11,3 @@ router.delete('/:id', appointmentController.delete);
 router.get('/', appointmentController.getAll);
 
 module.exports = router;
-
-module.exports = router;

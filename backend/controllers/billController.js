@@ -164,5 +164,6 @@ class BillController {
             res.status(500).json({ error: 'Failed to update bill status' });
         }
     }
+}
 
 module.exports = new BillController();

@@ -11,5 +11,3 @@ router.delete('/:id', prescriptionController.delete);
 router.get('/', prescriptionController.getAll);
 
 module.exports = router;
-
-module.exports = router;

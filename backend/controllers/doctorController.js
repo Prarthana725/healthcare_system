@@ -87,6 +87,21 @@ class DoctorController {
         }
     }
 
+    // Get doctor with all related data (appointments, prescriptions, bills)
+    async getWithAllData(req, res) {
+        try {
+            const { id } = req.params;
+            const doctorData = await doctorQueries.getDoctorWithAllData(id);
+            if (!doctorData) {
+                return res.status(404).json({ error: 'Doctor not found' });
+            }
+            res.json(doctorData);
+        } catch (error) {
+            console.error('Error fetching doctor with all data:', error);
+            res.status(500).json({ error: 'Failed to fetch doctor data' });
+        }
+    }
+
     // Delete doctor
     async delete(req, res) {
         try {

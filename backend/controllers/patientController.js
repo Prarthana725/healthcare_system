@@ -61,6 +61,21 @@ class PatientController {
         }
     }
 
+    // Get patient with all related data (appointments, prescriptions, bills)
+    async getWithAllData(req, res) {
+        try {
+            const { id } = req.params;
+            const patientData = await patientQueries.getPatientWithAllData(id);
+            if (!patientData) {
+                return res.status(404).json({ error: 'Patient not found' });
+            }
+            res.json(patientData);
+        } catch (error) {
+            console.error('Error fetching patient with all data:', error);
+            res.status(500).json({ error: 'Failed to fetch patient data' });
+        }
+    }
+
     // Delete patient
     async delete(req, res) {
         try {
