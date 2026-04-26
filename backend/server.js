@@ -41,6 +41,19 @@ app.post("/add-medicine", (req, res) => {
     );
 });
 
+app.get("/appointments", (req, res) => {
+    db.query(
+        `SELECT p.name AS patient, d.name AS doctor, a.date
+     FROM appointments a
+     JOIN patients p ON a.patient_id = p.patient_id
+     JOIN doctors d ON a.doctor_id = d.doctor_id`,
+        (err, result) => {
+            if (err) throw err;
+            res.json(result);
+        }
+    );
+});
+
 // Start server
 app.listen(5000, () => {
     console.log("Server running on port 5000");
