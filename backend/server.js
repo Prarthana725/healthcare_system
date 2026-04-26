@@ -1,60 +1,37 @@
-const express = require("express");
-const mysql = require("mysql");
-const cors = require("cors");
+const express = require('express');
+const cors = require('cors');
+const { getConnection } = require('./db/connection');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Database connection
-const db = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "",
-    database: "healthcare_db"
-});
+// Import routes
+const patientRoutes = require('./routes/patients');
+const doctorRoutes = require('./routes/doctors');
+const medicineRoutes = require('./routes/medicines');
+const appointmentRoutes = require('./routes/appointments');
+const prescriptionRoutes = require('./routes/prescriptions');
+
+// Use routes
+app.use('/api/patients', patientRoutes);
+app.use('/api/doctors', doctorRoutes);
+app.use('/api/medicines', medicineRoutes);
+app.use('/api/appointments', appointmentRoutes);
+app.use('/api/prescriptions', prescriptionRoutes);
 
 // Test route
-app.get("/", (req, res) => {
-    res.send("Backend running");
+app.get('/', (req, res) => {
+    res.send('Healthcare & Inventory Management System Backend');
 });
 
-// Get medicines
-app.get("/medicines", (req, res) => {
-    db.query("SELECT * FROM medicines", (err, result) => {
-        if (err) throw err;
-        res.json(result);
-    });
-});
-
-// Add medicine
-app.post("/add-medicine", (req, res) => {
-    const { name, quantity } = req.body;
-
-    db.query(
-        "INSERT INTO medicines (name, quantity) VALUES (?, ?)",
-        [name, quantity],
-        (err, result) => {
-            if (err) throw err;
-            res.send("Medicine added");
-        }
-    );
-});
-
-app.get("/appointments", (req, res) => {
-    db.query(
-        `SELECT p.name AS patient, d.name AS doctor, a.date
-     FROM appointments a
-     JOIN patients p ON a.patient_id = p.patient_id
-     JOIN doctors d ON a.doctor_id = d.doctor_id`,
-        (err, result) => {
-            if (err) throw err;
-            res.json(result);
-        }
-    );
-});
-
-// Start server
-app.listen(5000, () => {
-    console.log("Server running on port 5000");
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, async () => {
+    console.log(`Server running on port ${PORT}`);
+    // Test DB connection
+    try {
+        await getConnection();
+    } catch (error) {
+        console.error('Failed to connect to database');
+    }
 });
