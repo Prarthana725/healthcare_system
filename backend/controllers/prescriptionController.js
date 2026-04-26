@@ -82,24 +82,42 @@ class PrescriptionController {
         }
     }
 
-    // Create new prescription with details
+    // Create new prescription with details (with stock checking and reduction)
     async create(req, res) {
         try {
             const { patient_id, doctor_id, date, details } = req.body;
+
             if (!patient_id || !doctor_id || !date) {
                 return res.status(400).json({ error: 'Missing required fields: patient_id, doctor_id, date' });
             }
-            const result = await prescriptionQueries.createPrescription(patient_id, doctor_id, date);
-            const prescriptionId = result.insertId;
 
-            if (details && details.length > 0) {
-                for (const detail of details) {
-                    await prescriptionQueries.addPrescriptionDetail(prescriptionId, detail.medicine_id, detail.quantity);
+            if (!details || !Array.isArray(details) || details.length === 0) {
+                return res.status(400).json({ error: 'At least one medicine detail is required' });
+            }
+
+            // Validate details format
+            for (const detail of details) {
+                if (!detail.medicine_id || !detail.quantity || detail.quantity <= 0) {
+                    return res.status(400).json({ error: 'Each medicine detail must have medicine_id and positive quantity' });
                 }
             }
-            res.status(201).json({ message: 'Prescription created successfully', prescriptionId });
+
+            const result = await prescriptionQueries.createPrescriptionWithDetails(patient_id, doctor_id, date, details);
+
+            res.status(201).json({
+                message: 'Prescription created successfully with automatic stock reduction',
+                prescriptionId: result.prescriptionId,
+                totalBill: result.totalAmount
+            });
+
         } catch (error) {
             console.error('Error creating prescription:', error);
+
+            // Handle specific stock errors
+            if (error.message.includes('Insufficient stock') || error.message.includes('not found')) {
+                return res.status(400).json({ error: error.message });
+            }
+
             res.status(500).json({ error: 'Failed to create prescription' });
         }
     }
@@ -135,6 +153,18 @@ class PrescriptionController {
         } catch (error) {
             console.error('Error deleting prescription:', error);
             res.status(500).json({ error: 'Failed to delete prescription' });
+        }
+    }
+
+    // Get prescription bill total
+    async getBillTotal(req, res) {
+        try {
+            const { id } = req.params;
+            const result = await prescriptionQueries.getPrescriptionBillTotal(id);
+            res.json({ prescriptionId: id, totalAmount: result.total_amount });
+        } catch (error) {
+            console.error('Error getting bill total:', error);
+            res.status(500).json({ error: 'Failed to get bill total' });
         }
     }
 }

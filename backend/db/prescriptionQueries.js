@@ -60,24 +60,67 @@ class PrescriptionQueries {
         return rows;
     }
 
-    // Create prescription
-    async createPrescription(patientId, doctorId, date) {
+    // Create prescription with details, stock checking, and automatic stock reduction
+    async createPrescriptionWithDetails(patientId, doctorId, date, details) {
         const connection = await getConnection();
-        const [result] = await connection.execute(
-            'INSERT INTO prescriptions (patient_id, doctor_id, date) VALUES (?, ?, ?)',
-            [patientId, doctorId, date]
-        );
-        return result;
-    }
+        await connection.beginTransaction();
 
-    // Add prescription detail
-    async addPrescriptionDetail(prescriptionId, medicineId, quantity) {
-        const connection = await getConnection();
-        const [result] = await connection.execute(
-            'INSERT INTO prescription_details (prescription_id, medicine_id, quantity) VALUES (?, ?, ?)',
-            [prescriptionId, medicineId, quantity]
-        );
-        return result;
+        try {
+            // Step 1: Check stock availability for all medicines
+            for (const detail of details) {
+                const [stockCheck] = await connection.execute(
+                    'SELECT quantity FROM medicines WHERE medicine_id = ?',
+                    [detail.medicine_id]
+                );
+
+                if (stockCheck.length === 0) {
+                    throw new Error(`Medicine with ID ${detail.medicine_id} not found`);
+                }
+
+                if (stockCheck[0].quantity < detail.quantity) {
+                    throw new Error(`Insufficient stock for medicine ID ${detail.medicine_id}. Available: ${stockCheck[0].quantity}, Requested: ${detail.quantity}`);
+                }
+            }
+
+            // Step 2: Insert prescription
+            const [prescriptionResult] = await connection.execute(
+                'INSERT INTO prescriptions (patient_id, doctor_id, date) VALUES (?, ?, ?)',
+                [patientId, doctorId, date]
+            );
+            const prescriptionId = prescriptionResult.insertId;
+
+            // Step 3: Insert prescription details and reduce stock
+            for (const detail of details) {
+                // Insert detail
+                await connection.execute(
+                    'INSERT INTO prescription_details (prescription_id, medicine_id, quantity) VALUES (?, ?, ?)',
+                    [prescriptionId, detail.medicine_id, detail.quantity]
+                );
+
+                // Reduce stock (this will also trigger the database trigger)
+                await connection.execute(
+                    'UPDATE medicines SET quantity = quantity - ? WHERE medicine_id = ?',
+                    [detail.quantity, detail.medicine_id]
+                );
+            }
+
+            // Step 4: Calculate total bill using the database function
+            const [billResult] = await connection.execute(
+                'SELECT CalculateBillTotal(?) AS total_amount',
+                [prescriptionId]
+            );
+
+            await connection.commit();
+
+            return {
+                prescriptionId,
+                totalAmount: billResult[0].total_amount
+            };
+
+        } catch (error) {
+            await connection.rollback();
+            throw error;
+        }
     }
 
     // Update prescription (header only)
@@ -90,19 +133,14 @@ class PrescriptionQueries {
         return result;
     }
 
-    // Delete prescription and its details
-    async deletePrescription(prescriptionId) {
+    // Get prescription bill total using database function
+    async getPrescriptionBillTotal(prescriptionId) {
         const connection = await getConnection();
-        await connection.beginTransaction();
-        try {
-            await connection.execute('DELETE FROM prescription_details WHERE prescription_id = ?', [prescriptionId]);
-            const [result] = await connection.execute('DELETE FROM prescriptions WHERE prescription_id = ?', [prescriptionId]);
-            await connection.commit();
-            return result;
-        } catch (error) {
-            await connection.rollback();
-            throw error;
-        }
+        const [rows] = await connection.execute(
+            'SELECT CalculateBillTotal(?) AS total_amount',
+            [prescriptionId]
+        );
+        return rows[0];
     }
 }
 

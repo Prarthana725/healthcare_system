@@ -5,6 +5,7 @@ const prescriptionController = require('../controllers/prescriptionController');
 router.post('/', prescriptionController.create);
 router.get('/patient/:patientId', prescriptionController.getByPatient);
 router.get('/:id', prescriptionController.getById);
+router.get('/:id/bill', prescriptionController.getBillTotal);
 router.put('/:id', prescriptionController.update);
 router.delete('/:id', prescriptionController.delete);
 router.get('/', prescriptionController.getAll);
