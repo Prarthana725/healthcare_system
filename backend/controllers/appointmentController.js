@@ -1,38 +1,53 @@
-const { getConnection } = require('../db/connection');
+const appointmentQueries = require('../db/appointmentQueries');
 
 class AppointmentController {
-    // Get all appointments with patient and doctor names
+    // Get all appointments with patient and doctor names (JOIN query)
     async getAll(req, res) {
         try {
-            const connection = await getConnection();
-            // Using stored procedure
-            const [rows] = await connection.execute('CALL GetAppointments()');
-            res.json(rows[0]); // Procedures return array of arrays
+            const appointments = await appointmentQueries.getAllAppointments();
+            res.json(appointments);
         } catch (error) {
-            console.error(error);
+            console.error('Error fetching appointments:', error);
             res.status(500).json({ error: 'Failed to fetch appointments' });
         }
     }
 
-    // Get appointment by ID with joins
+    // Get appointment by ID with details (JOIN query)
     async getById(req, res) {
         try {
             const { id } = req.params;
-            const connection = await getConnection();
-            const [rows] = await connection.execute(`
-                SELECT a.appointment_id, p.name AS patient_name, d.name AS doctor_name, a.date
-                FROM appointments a
-                JOIN patients p ON a.patient_id = p.patient_id
-                JOIN doctors d ON a.doctor_id = d.doctor_id
-                WHERE a.appointment_id = ?
-            `, [id]);
-            if (rows.length === 0) {
+            const appointments = await appointmentQueries.getAppointmentById(id);
+            if (appointments.length === 0) {
                 return res.status(404).json({ error: 'Appointment not found' });
             }
-            res.json(rows[0]);
+            res.json(appointments[0]);
         } catch (error) {
-            console.error(error);
+            console.error('Error fetching appointment:', error);
             res.status(500).json({ error: 'Failed to fetch appointment' });
+        }
+    }
+
+    // Get appointments by patient (JOIN query)
+    async getByPatient(req, res) {
+        try {
+            const { patientId } = req.params;
+            const appointments = await appointmentQueries.getAppointmentsByPatient(patientId);
+            res.json(appointments);
+        } catch (error) {
+            console.error('Error fetching patient appointments:', error);
+            res.status(500).json({ error: 'Failed to fetch appointments' });
+        }
+    }
+
+    // Get appointments by doctor (JOIN query)
+    async getByDoctor(req, res) {
+        try {
+            const { doctorId } = req.params;
+            const appointments = await appointmentQueries.getAppointmentsByDoctor(doctorId);
+            res.json(appointments);
+        } catch (error) {
+            console.error('Error fetching doctor appointments:', error);
+            res.status(500).json({ error: 'Failed to fetch appointments' });
         }
     }
 
@@ -40,14 +55,13 @@ class AppointmentController {
     async create(req, res) {
         try {
             const { patient_id, doctor_id, date } = req.body;
-            const connection = await getConnection();
-            const [result] = await connection.execute(
-                'INSERT INTO appointments (patient_id, doctor_id, date) VALUES (?, ?, ?)',
-                [patient_id, doctor_id, date]
-            );
-            res.status(201).json({ message: 'Appointment created', id: result.insertId });
+            if (!patient_id || !doctor_id || !date) {
+                return res.status(400).json({ error: 'Missing required fields: patient_id, doctor_id, date' });
+            }
+            const result = await appointmentQueries.createAppointment(patient_id, doctor_id, date);
+            res.status(201).json({ message: 'Appointment created successfully', appointmentId: result.insertId });
         } catch (error) {
-            console.error(error);
+            console.error('Error creating appointment:', error);
             res.status(500).json({ error: 'Failed to create appointment' });
         }
     }
@@ -57,17 +71,16 @@ class AppointmentController {
         try {
             const { id } = req.params;
             const { patient_id, doctor_id, date } = req.body;
-            const connection = await getConnection();
-            const [result] = await connection.execute(
-                'UPDATE appointments SET patient_id = ?, doctor_id = ?, date = ? WHERE appointment_id = ?',
-                [patient_id, doctor_id, date, id]
-            );
+            if (!patient_id || !doctor_id || !date) {
+                return res.status(400).json({ error: 'Missing required fields: patient_id, doctor_id, date' });
+            }
+            const result = await appointmentQueries.updateAppointment(id, patient_id, doctor_id, date);
             if (result.affectedRows === 0) {
                 return res.status(404).json({ error: 'Appointment not found' });
             }
-            res.json({ message: 'Appointment updated' });
+            res.json({ message: 'Appointment updated successfully' });
         } catch (error) {
-            console.error(error);
+            console.error('Error updating appointment:', error);
             res.status(500).json({ error: 'Failed to update appointment' });
         }
     }
@@ -76,14 +89,13 @@ class AppointmentController {
     async delete(req, res) {
         try {
             const { id } = req.params;
-            const connection = await getConnection();
-            const [result] = await connection.execute('DELETE FROM appointments WHERE appointment_id = ?', [id]);
+            const result = await appointmentQueries.deleteAppointment(id);
             if (result.affectedRows === 0) {
                 return res.status(404).json({ error: 'Appointment not found' });
             }
-            res.json({ message: 'Appointment deleted' });
+            res.json({ message: 'Appointment deleted successfully' });
         } catch (error) {
-            console.error(error);
+            console.error('Error deleting appointment:', error);
             res.status(500).json({ error: 'Failed to delete appointment' });
         }
     }

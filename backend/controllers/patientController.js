@@ -1,14 +1,13 @@
-const { getConnection } = require('../db/connection');
+const patientQueries = require('../db/patientQueries');
 
 class PatientController {
     // Get all patients
     async getAll(req, res) {
         try {
-            const connection = await getConnection();
-            const [rows] = await connection.execute('SELECT * FROM patients');
-            res.json(rows);
+            const patients = await patientQueries.getAllPatients();
+            res.json(patients);
         } catch (error) {
-            console.error(error);
+            console.error('Error fetching patients:', error);
             res.status(500).json({ error: 'Failed to fetch patients' });
         }
     }
@@ -17,14 +16,13 @@ class PatientController {
     async getById(req, res) {
         try {
             const { id } = req.params;
-            const connection = await getConnection();
-            const [rows] = await connection.execute('SELECT * FROM patients WHERE patient_id = ?', [id]);
-            if (rows.length === 0) {
+            const patients = await patientQueries.getPatientById(id);
+            if (patients.length === 0) {
                 return res.status(404).json({ error: 'Patient not found' });
             }
-            res.json(rows[0]);
+            res.json(patients[0]);
         } catch (error) {
-            console.error(error);
+            console.error('Error fetching patient:', error);
             res.status(500).json({ error: 'Failed to fetch patient' });
         }
     }
@@ -33,14 +31,13 @@ class PatientController {
     async create(req, res) {
         try {
             const { name, age, phone } = req.body;
-            const connection = await getConnection();
-            const [result] = await connection.execute(
-                'INSERT INTO patients (name, age, phone) VALUES (?, ?, ?)',
-                [name, age, phone]
-            );
-            res.status(201).json({ message: 'Patient created', id: result.insertId });
+            if (!name || !age || !phone) {
+                return res.status(400).json({ error: 'Missing required fields: name, age, phone' });
+            }
+            const result = await patientQueries.createPatient(name, age, phone);
+            res.status(201).json({ message: 'Patient created successfully', patientId: result.insertId });
         } catch (error) {
-            console.error(error);
+            console.error('Error creating patient:', error);
             res.status(500).json({ error: 'Failed to create patient' });
         }
     }
@@ -50,17 +47,16 @@ class PatientController {
         try {
             const { id } = req.params;
             const { name, age, phone } = req.body;
-            const connection = await getConnection();
-            const [result] = await connection.execute(
-                'UPDATE patients SET name = ?, age = ?, phone = ? WHERE patient_id = ?',
-                [name, age, phone, id]
-            );
+            if (!name || !age || !phone) {
+                return res.status(400).json({ error: 'Missing required fields: name, age, phone' });
+            }
+            const result = await patientQueries.updatePatient(id, name, age, phone);
             if (result.affectedRows === 0) {
                 return res.status(404).json({ error: 'Patient not found' });
             }
-            res.json({ message: 'Patient updated' });
+            res.json({ message: 'Patient updated successfully' });
         } catch (error) {
-            console.error(error);
+            console.error('Error updating patient:', error);
             res.status(500).json({ error: 'Failed to update patient' });
         }
     }
@@ -69,14 +65,13 @@ class PatientController {
     async delete(req, res) {
         try {
             const { id } = req.params;
-            const connection = await getConnection();
-            const [result] = await connection.execute('DELETE FROM patients WHERE patient_id = ?', [id]);
+            const result = await patientQueries.deletePatient(id);
             if (result.affectedRows === 0) {
                 return res.status(404).json({ error: 'Patient not found' });
             }
-            res.json({ message: 'Patient deleted' });
+            res.json({ message: 'Patient deleted successfully' });
         } catch (error) {
-            console.error(error);
+            console.error('Error deleting patient:', error);
             res.status(500).json({ error: 'Failed to delete patient' });
         }
     }

@@ -1,14 +1,24 @@
-const { getConnection } = require('../db/connection');
+const doctorQueries = require('../db/doctorQueries');
 
 class DoctorController {
     // Get all doctors
     async getAll(req, res) {
         try {
-            const connection = await getConnection();
-            const [rows] = await connection.execute('SELECT * FROM doctors');
-            res.json(rows);
+            const doctors = await doctorQueries.getAllDoctors();
+            res.json(doctors);
         } catch (error) {
-            console.error(error);
+            console.error('Error fetching doctors:', error);
+            res.status(500).json({ error: 'Failed to fetch doctors' });
+        }
+    }
+
+    // Get doctors with appointment count (JOIN query)
+    async getAllWithAppointments(req, res) {
+        try {
+            const doctors = await doctorQueries.getAllDoctorsWithAppointments();
+            res.json(doctors);
+        } catch (error) {
+            console.error('Error fetching doctors with appointments:', error);
             res.status(500).json({ error: 'Failed to fetch doctors' });
         }
     }
@@ -17,14 +27,28 @@ class DoctorController {
     async getById(req, res) {
         try {
             const { id } = req.params;
-            const connection = await getConnection();
-            const [rows] = await connection.execute('SELECT * FROM doctors WHERE doctor_id = ?', [id]);
-            if (rows.length === 0) {
+            const doctors = await doctorQueries.getDoctorById(id);
+            if (doctors.length === 0) {
                 return res.status(404).json({ error: 'Doctor not found' });
             }
-            res.json(rows[0]);
+            res.json(doctors[0]);
         } catch (error) {
-            console.error(error);
+            console.error('Error fetching doctor:', error);
+            res.status(500).json({ error: 'Failed to fetch doctor' });
+        }
+    }
+
+    // Get doctor with appointments (JOIN query)
+    async getWithAppointments(req, res) {
+        try {
+            const { id } = req.params;
+            const doctors = await doctorQueries.getDoctorWithAppointments(id);
+            if (doctors.length === 0) {
+                return res.status(404).json({ error: 'Doctor not found' });
+            }
+            res.json(doctors[0]);
+        } catch (error) {
+            console.error('Error fetching doctor:', error);
             res.status(500).json({ error: 'Failed to fetch doctor' });
         }
     }
@@ -33,14 +57,13 @@ class DoctorController {
     async create(req, res) {
         try {
             const { name, specialization } = req.body;
-            const connection = await getConnection();
-            const [result] = await connection.execute(
-                'INSERT INTO doctors (name, specialization) VALUES (?, ?)',
-                [name, specialization]
-            );
-            res.status(201).json({ message: 'Doctor created', id: result.insertId });
+            if (!name || !specialization) {
+                return res.status(400).json({ error: 'Missing required fields: name, specialization' });
+            }
+            const result = await doctorQueries.createDoctor(name, specialization);
+            res.status(201).json({ message: 'Doctor created successfully', doctorId: result.insertId });
         } catch (error) {
-            console.error(error);
+            console.error('Error creating doctor:', error);
             res.status(500).json({ error: 'Failed to create doctor' });
         }
     }
@@ -50,17 +73,16 @@ class DoctorController {
         try {
             const { id } = req.params;
             const { name, specialization } = req.body;
-            const connection = await getConnection();
-            const [result] = await connection.execute(
-                'UPDATE doctors SET name = ?, specialization = ? WHERE doctor_id = ?',
-                [name, specialization, id]
-            );
+            if (!name || !specialization) {
+                return res.status(400).json({ error: 'Missing required fields: name, specialization' });
+            }
+            const result = await doctorQueries.updateDoctor(id, name, specialization);
             if (result.affectedRows === 0) {
                 return res.status(404).json({ error: 'Doctor not found' });
             }
-            res.json({ message: 'Doctor updated' });
+            res.json({ message: 'Doctor updated successfully' });
         } catch (error) {
-            console.error(error);
+            console.error('Error updating doctor:', error);
             res.status(500).json({ error: 'Failed to update doctor' });
         }
     }
@@ -69,14 +91,13 @@ class DoctorController {
     async delete(req, res) {
         try {
             const { id } = req.params;
-            const connection = await getConnection();
-            const [result] = await connection.execute('DELETE FROM doctors WHERE doctor_id = ?', [id]);
+            const result = await doctorQueries.deleteDoctor(id);
             if (result.affectedRows === 0) {
                 return res.status(404).json({ error: 'Doctor not found' });
             }
-            res.json({ message: 'Doctor deleted' });
+            res.json({ message: 'Doctor deleted successfully' });
         } catch (error) {
-            console.error(error);
+            console.error('Error deleting doctor:', error);
             res.status(500).json({ error: 'Failed to delete doctor' });
         }
     }
