@@ -11,10 +11,15 @@ let connection;
 
 async function connectDB() {
     try {
+        console.log('Attempting to connect to MySQL with config:', { host: dbConfig.host, user: dbConfig.user, database: dbConfig.database });
         connection = await mysql.createConnection(dbConfig);
-        console.log('Connected to MySQL database');
+        console.log('✓ Successfully connected to MySQL database');
+
+        // Test connection with SELECT 1
+        const [rows] = await connection.execute('SELECT 1');
+        console.log('✓ Database connection test passed');
     } catch (error) {
-        console.error('Database connection failed:', error);
+        console.error('✗ Database connection failed:', error.message);
         throw error;
     }
 }

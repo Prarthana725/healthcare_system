@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { getConnection } = require('./db/connection');
 
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -25,6 +26,18 @@ app.use('/api/bills', billRoutes);
 // Test route
 app.get('/', (req, res) => {
     res.send('Healthcare & Inventory Management System Backend');
+});
+
+// Database test endpoint
+app.get('/api/test-db', async (req, res) => {
+    try {
+        const connection = await getConnection();
+        const [rows] = await connection.execute('SELECT 1 AS test');
+        res.json({ status: 'success', message: 'Database connection working', data: rows });
+    } catch (error) {
+        console.error('Database test failed:', error.message);
+        res.status(500).json({ status: 'error', message: 'Database connection failed', error: error.message });
+    }
 });
 
 const PORT = process.env.PORT || 5000;

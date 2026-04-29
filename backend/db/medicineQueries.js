@@ -3,9 +3,15 @@ const { getConnection } = require('./connection');
 class MedicineQueries {
     // Get all medicines
     async getAllMedicines() {
-        const connection = await getConnection();
-        const [rows] = await connection.execute('SELECT * FROM medicines');
-        return rows;
+        try {
+            const connection = await getConnection();
+            const [rows] = await connection.execute('SELECT * FROM medicines');
+            console.log('getAllMedicines - Fetched rows:', rows.length);
+            return rows;
+        } catch (error) {
+            console.error('getAllMedicines - SQL Error:', error.message);
+            throw error;
+        }
     }
 
     // Get medicine by ID
@@ -43,12 +49,18 @@ class MedicineQueries {
 
     // Create medicine
     async createMedicine(name, quantity) {
-        const connection = await getConnection();
-        const [result] = await connection.execute(
-            'INSERT INTO medicines (name, quantity) VALUES (?, ?)',
-            [name, quantity]
-        );
-        return result;
+        try {
+            const connection = await getConnection();
+            const [result] = await connection.execute(
+                'INSERT INTO medicines (name, quantity) VALUES (?, ?)',
+                [name, quantity]
+            );
+            console.log('createMedicine - New medicine ID:', result.insertId);
+            return result;
+        } catch (error) {
+            console.error('createMedicine - SQL Error:', error.message);
+            throw error;
+        }
     }
 
     // Update medicine

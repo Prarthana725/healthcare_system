@@ -3,29 +3,47 @@ const { getConnection } = require('./connection');
 class PatientQueries {
     // Get all patients
     async getAllPatients() {
-        const connection = await getConnection();
-        const [rows] = await connection.execute('SELECT * FROM patients');
-        return rows;
+        try {
+            const connection = await getConnection();
+            const [rows] = await connection.execute('SELECT * FROM patients');
+            console.log('getAllPatients - Fetched rows:', rows.length);
+            return rows;
+        } catch (error) {
+            console.error('getAllPatients - SQL Error:', error.message);
+            throw error;
+        }
     }
 
     // Get patient by ID
     async getPatientById(patientId) {
-        const connection = await getConnection();
-        const [rows] = await connection.execute(
-            'SELECT * FROM patients WHERE patient_id = ?',
-            [patientId]
-        );
-        return rows;
+        try {
+            const connection = await getConnection();
+            const [rows] = await connection.execute(
+                'SELECT * FROM patients WHERE patient_id = ?',
+                [patientId]
+            );
+            console.log('getPatientById - Fetched rows for ID', patientId, ':', rows.length);
+            return rows;
+        } catch (error) {
+            console.error('getPatientById - SQL Error:', error.message);
+            throw error;
+        }
     }
 
     // Create patient
     async createPatient(name, age, phone) {
-        const connection = await getConnection();
-        const [result] = await connection.execute(
-            'INSERT INTO patients (name, age, phone) VALUES (?, ?, ?)',
-            [name, age, phone]
-        );
-        return result;
+        try {
+            const connection = await getConnection();
+            const [result] = await connection.execute(
+                'INSERT INTO patients (name, age, phone) VALUES (?, ?, ?)',
+                [name, age, phone]
+            );
+            console.log('createPatient - New patient ID:', result.insertId);
+            return result;
+        } catch (error) {
+            console.error('createPatient - SQL Error:', error.message);
+            throw error;
+        }
     }
 
     // Update patient

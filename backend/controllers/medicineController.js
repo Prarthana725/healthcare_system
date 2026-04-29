@@ -6,10 +6,11 @@ class MedicineController {
     async getAll(req, res) {
         try {
             const medicines = await medicineQueries.getAllMedicines();
-            res.json(medicines);
+            console.log('MedicineController.getAll - Returning medicines:', medicines.length);
+            res.json(medicines || []);
         } catch (error) {
-            console.error('Error fetching medicines:', error);
-            res.status(500).json({ error: 'Failed to fetch medicines' });
+            console.error('MedicineController.getAll - SQL Error:', error.message);
+            res.status(500).json({ error: 'Failed to fetch medicines', details: error.message });
         }
     }
 
@@ -54,14 +55,16 @@ class MedicineController {
     async create(req, res) {
         try {
             const { name, quantity } = req.body;
+            console.log('MedicineController.create - Request body:', { name, quantity });
+
             if (!name || quantity === undefined) {
                 return res.status(400).json({ error: 'Missing required fields: name, quantity' });
             }
             const result = await medicineQueries.createMedicine(name, quantity);
             res.status(201).json({ message: 'Medicine created successfully', medicineId: result.insertId });
         } catch (error) {
-            console.error('Error creating medicine:', error);
-            res.status(500).json({ error: 'Failed to create medicine' });
+            console.error('MedicineController.create - Error:', error.message);
+            res.status(500).json({ error: 'Failed to create medicine', details: error.message });
         }
     }
 

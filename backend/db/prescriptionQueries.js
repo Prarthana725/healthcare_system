@@ -3,21 +3,27 @@ const { getConnection } = require('./connection');
 class PrescriptionQueries {
     // Get all prescriptions with details and medicine names (JOIN)
     async getAllPrescriptions() {
-        const connection = await getConnection();
-        const [rows] = await connection.execute(`
-            SELECT pr.prescription_id, pr.date,
-                   p.patient_id, p.name AS patient_name,
-                   d.doctor_id, d.name AS doctor_name,
-                   pd.id AS detail_id, pd.medicine_id, pd.quantity,
-                   m.name AS medicine_name
-            FROM prescriptions pr
-            JOIN patients p ON pr.patient_id = p.patient_id
-            JOIN doctors d ON pr.doctor_id = d.doctor_id
-            LEFT JOIN prescription_details pd ON pr.prescription_id = pd.prescription_id
-            LEFT JOIN medicines m ON pd.medicine_id = m.medicine_id
-            ORDER BY pr.prescription_id DESC, pd.id
-        `);
-        return rows;
+        try {
+            const connection = await getConnection();
+            const [rows] = await connection.execute(`
+                SELECT pr.prescription_id, pr.date,
+                       p.patient_id, p.name AS patient_name,
+                       d.doctor_id, d.name AS doctor_name,
+                       pd.id AS detail_id, pd.medicine_id, pd.quantity,
+                       m.name AS medicine_name
+                FROM prescriptions pr
+                JOIN patients p ON pr.patient_id = p.patient_id
+                JOIN doctors d ON pr.doctor_id = d.doctor_id
+                LEFT JOIN prescription_details pd ON pr.prescription_id = pd.prescription_id
+                LEFT JOIN medicines m ON pd.medicine_id = m.medicine_id
+                ORDER BY pr.prescription_id DESC, pd.id
+            `);
+            console.log('getAllPrescriptions - Fetched rows:', rows.length);
+            return rows;
+        } catch (error) {
+            console.error('getAllPrescriptions - SQL Error:', error.message);
+            throw error;
+        }
     }
 
     // Get prescription by ID with all details (JOIN)
@@ -66,6 +72,8 @@ class PrescriptionQueries {
         await connection.beginTransaction();
 
         try {
+            console.log('createPrescriptionWithDetails - Starting for patient:', patientId);
+
             // Step 1: Check stock availability for all medicines
             for (const detail of details) {
                 const [stockCheck] = await connection.execute(
@@ -88,6 +96,7 @@ class PrescriptionQueries {
                 [patientId, doctorId, date]
             );
             const prescriptionId = prescriptionResult.insertId;
+            console.log('createPrescriptionWithDetails - New prescription ID:', prescriptionId);
 
             // Step 3: Insert prescription details and reduce stock
             for (const detail of details) {
@@ -111,6 +120,7 @@ class PrescriptionQueries {
             );
 
             await connection.commit();
+            console.log('createPrescriptionWithDetails - Transaction committed, total amount:', billResult[0].total_amount);
 
             return {
                 prescriptionId,
@@ -119,6 +129,7 @@ class PrescriptionQueries {
 
         } catch (error) {
             await connection.rollback();
+            console.error('createPrescriptionWithDetails - SQL Error:', error.message);
             throw error;
         }
     }

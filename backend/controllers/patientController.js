@@ -5,10 +5,12 @@ class PatientController {
     async getAll(req, res) {
         try {
             const patients = await patientQueries.getAllPatients();
-            res.json(patients);
+            console.log('PatientController.getAll - Returning patients:', patients);
+            // Return empty array if no data
+            res.json(patients || []);
         } catch (error) {
-            console.error('Error fetching patients:', error);
-            res.status(500).json({ error: 'Failed to fetch patients' });
+            console.error('PatientController.getAll - SQL Error:', error.message);
+            res.status(500).json({ error: 'Failed to fetch patients', details: error.message });
         }
     }
 

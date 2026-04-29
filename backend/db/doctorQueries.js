@@ -3,9 +3,15 @@ const { getConnection } = require('./connection');
 class DoctorQueries {
     // Get all doctors
     async getAllDoctors() {
-        const connection = await getConnection();
-        const [rows] = await connection.execute('SELECT * FROM doctors');
-        return rows;
+        try {
+            const connection = await getConnection();
+            const [rows] = await connection.execute('SELECT * FROM doctors');
+            console.log('getAllDoctors - Fetched rows:', rows.length);
+            return rows;
+        } catch (error) {
+            console.error('getAllDoctors - SQL Error:', error.message);
+            throw error;
+        }
     }
 
     // Get doctor by ID
@@ -47,12 +53,18 @@ class DoctorQueries {
 
     // Create doctor
     async createDoctor(name, specialization) {
-        const connection = await getConnection();
-        const [result] = await connection.execute(
-            'INSERT INTO doctors (name, specialization) VALUES (?, ?)',
-            [name, specialization]
-        );
-        return result;
+        try {
+            const connection = await getConnection();
+            const [result] = await connection.execute(
+                'INSERT INTO doctors (name, specialization) VALUES (?, ?)',
+                [name, specialization]
+            );
+            console.log('createDoctor - New doctor ID:', result.insertId);
+            return result;
+        } catch (error) {
+            console.error('createDoctor - SQL Error:', error.message);
+            throw error;
+        }
     }
 
     // Update doctor

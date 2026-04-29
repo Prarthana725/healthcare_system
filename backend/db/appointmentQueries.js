@@ -3,17 +3,23 @@ const { getConnection } = require('./connection');
 class AppointmentQueries {
     // Get all appointments with patient and doctor names (JOIN)
     async getAllAppointments() {
-        const connection = await getConnection();
-        const [rows] = await connection.execute(`
-            SELECT a.appointment_id, a.date,
-                   p.patient_id, p.name AS patient_name,
-                   d.doctor_id, d.name AS doctor_name, d.specialization
-            FROM appointments a
-            JOIN patients p ON a.patient_id = p.patient_id
-            JOIN doctors d ON a.doctor_id = d.doctor_id
-            ORDER BY a.date DESC
-        `);
-        return rows;
+        try {
+            const connection = await getConnection();
+            const [rows] = await connection.execute(`
+                SELECT a.appointment_id, a.date,
+                       p.patient_id, p.name AS patient_name,
+                       d.doctor_id, d.name AS doctor_name, d.specialization
+                FROM appointments a
+                JOIN patients p ON a.patient_id = p.patient_id
+                JOIN doctors d ON a.doctor_id = d.doctor_id
+                ORDER BY a.date DESC
+            `);
+            console.log('getAllAppointments - Fetched rows:', rows.length);
+            return rows;
+        } catch (error) {
+            console.error('getAllAppointments - SQL Error:', error.message);
+            throw error;
+        }
     }
 
     // Get appointment by ID with details (JOIN)
@@ -65,12 +71,18 @@ class AppointmentQueries {
 
     // Create appointment
     async createAppointment(patientId, doctorId, date) {
-        const connection = await getConnection();
-        const [result] = await connection.execute(
-            'INSERT INTO appointments (patient_id, doctor_id, date) VALUES (?, ?, ?)',
-            [patientId, doctorId, date]
-        );
-        return result;
+        try {
+            const connection = await getConnection();
+            const [result] = await connection.execute(
+                'INSERT INTO appointments (patient_id, doctor_id, date) VALUES (?, ?, ?)',
+                [patientId, doctorId, date]
+            );
+            console.log('createAppointment - New appointment ID:', result.insertId);
+            return result;
+        } catch (error) {
+            console.error('createAppointment - SQL Error:', error.message);
+            throw error;
+        }
     }
 
     // Update appointment

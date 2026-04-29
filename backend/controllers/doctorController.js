@@ -5,10 +5,11 @@ class DoctorController {
     async getAll(req, res) {
         try {
             const doctors = await doctorQueries.getAllDoctors();
-            res.json(doctors);
+            console.log('DoctorController.getAll - Returning doctors:', doctors.length);
+            res.json(doctors || []);
         } catch (error) {
-            console.error('Error fetching doctors:', error);
-            res.status(500).json({ error: 'Failed to fetch doctors' });
+            console.error('DoctorController.getAll - SQL Error:', error.message);
+            res.status(500).json({ error: 'Failed to fetch doctors', details: error.message });
         }
     }
 
@@ -57,14 +58,16 @@ class DoctorController {
     async create(req, res) {
         try {
             const { name, specialization } = req.body;
+            console.log('DoctorController.create - Request body:', { name, specialization });
+
             if (!name || !specialization) {
                 return res.status(400).json({ error: 'Missing required fields: name, specialization' });
             }
             const result = await doctorQueries.createDoctor(name, specialization);
             res.status(201).json({ message: 'Doctor created successfully', doctorId: result.insertId });
         } catch (error) {
-            console.error('Error creating doctor:', error);
-            res.status(500).json({ error: 'Failed to create doctor' });
+            console.error('DoctorController.create - Error:', error.message);
+            res.status(500).json({ error: 'Failed to create doctor', details: error.message });
         }
     }
 

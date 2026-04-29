@@ -5,10 +5,11 @@ class AppointmentController {
     async getAll(req, res) {
         try {
             const appointments = await appointmentQueries.getAllAppointments();
-            res.json(appointments);
+            console.log('AppointmentController.getAll - Returning appointments:', appointments.length);
+            res.json(appointments || []);
         } catch (error) {
-            console.error('Error fetching appointments:', error);
-            res.status(500).json({ error: 'Failed to fetch appointments' });
+            console.error('AppointmentController.getAll - SQL Error:', error.message);
+            res.status(500).json({ error: 'Failed to fetch appointments', details: error.message });
         }
     }
 
@@ -55,14 +56,16 @@ class AppointmentController {
     async create(req, res) {
         try {
             const { patient_id, doctor_id, date } = req.body;
+            console.log('AppointmentController.create - Request body:', { patient_id, doctor_id, date });
+
             if (!patient_id || !doctor_id || !date) {
                 return res.status(400).json({ error: 'Missing required fields: patient_id, doctor_id, date' });
             }
             const result = await appointmentQueries.createAppointment(patient_id, doctor_id, date);
             res.status(201).json({ message: 'Appointment created successfully', appointmentId: result.insertId });
         } catch (error) {
-            console.error('Error creating appointment:', error);
-            res.status(500).json({ error: 'Failed to create appointment' });
+            console.error('AppointmentController.create - Error:', error.message);
+            res.status(500).json({ error: 'Failed to create appointment', details: error.message });
         }
     }
 

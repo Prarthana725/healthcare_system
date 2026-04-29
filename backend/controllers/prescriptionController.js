@@ -34,10 +34,11 @@ class PrescriptionController {
         try {
             const rows = await prescriptionQueries.getAllPrescriptions();
             const prescriptions = groupPrescriptions(rows);
-            res.json(prescriptions);
+            console.log('PrescriptionController.getAll - Returning prescriptions:', prescriptions.length);
+            res.json(prescriptions || []);
         } catch (error) {
-            console.error('Error fetching prescriptions:', error);
-            res.status(500).json({ error: 'Failed to fetch prescriptions' });
+            console.error('PrescriptionController.getAll - SQL Error:', error.message);
+            res.status(500).json({ error: 'Failed to fetch prescriptions', details: error.message });
         }
     }
 
@@ -87,6 +88,7 @@ class PrescriptionController {
     async create(req, res) {
         try {
             const { patient_id, doctor_id, date, details } = req.body;
+            console.log('PrescriptionController.create - Request body:', { patient_id, doctor_id, date, details });
 
             if (!patient_id || !doctor_id || !date) {
                 return res.status(400).json({ error: 'Missing required fields: patient_id, doctor_id, date' });
@@ -120,14 +122,14 @@ class PrescriptionController {
             });
 
         } catch (error) {
-            console.error('Error creating prescription:', error);
+            console.error('PrescriptionController.create - Error:', error.message);
 
             // Handle specific stock errors
             if (error.message.includes('Insufficient stock') || error.message.includes('not found')) {
                 return res.status(400).json({ error: error.message });
             }
 
-            res.status(500).json({ error: 'Failed to create prescription' });
+            res.status(500).json({ error: 'Failed to create prescription', details: error.message });
         }
     }
 

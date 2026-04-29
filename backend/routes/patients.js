@@ -2,11 +2,14 @@ const express = require('express');
 const router = express.Router();
 const patientController = require('../controllers/patientController');
 
+// General routes (must come first)
+router.get('/', patientController.getAll);
 router.post('/', patientController.create);
+
+// Specific routes (must come after general routes)
 router.get('/with-data/:id', patientController.getWithAllData);
 router.get('/:id', patientController.getById);
 router.put('/:id', patientController.update);
 router.delete('/:id', patientController.delete);
-router.get('/', patientController.getAll);
 
 module.exports = router;
