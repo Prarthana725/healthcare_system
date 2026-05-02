@@ -32,3 +32,22 @@ DELIMITER $$ CREATE PROCEDURE AddPatient(
 INSERT INTO patients(name, age, phone)
 VALUES (p_name, p_age, p_phone);
 END $$ DELIMITER;
+-- (D) Prevent issuing medicine if stock not enough
+DELIMITER $$ CREATE TRIGGER prevent_issue_without_stock BEFORE
+INSERT ON prescription_details FOR EACH ROW BEGIN
+DECLARE available INT;
+SELECT quantity INTO available
+FROM medicines
+WHERE medicine_id = NEW.medicine_id;
+IF available < NEW.quantity THEN SIGNAL SQLSTATE '45000'
+SET MESSAGE_TEXT = 'Not enough stock!';
+END IF;
+END $$ DELIMITER;
+-- (E) Auto calculate bill after prescription
+DELIMITER $$ CREATE TRIGGER auto_update_bill
+AFTER
+INSERT ON prescription_details FOR EACH ROW BEGIN
+UPDATE bills
+SET total_amount = CalculateBillTotal(NEW.prescription_id)
+WHERE prescription_id = NEW.prescription_id;
+END $$ DELIMITER;
