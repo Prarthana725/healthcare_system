@@ -16,3 +16,19 @@ SELECT name,
     quantity
 FROM medicines
 WHERE quantity < 10;
+
+-- View 3: Patient Summary
+CREATE OR REPLACE VIEW patient_summary AS
+SELECT p.name AS patient_name,
+       COUNT(a.appointment_id) AS total_appointments
+FROM patients p
+LEFT JOIN appointments a ON p.patient_id = a.patient_id
+GROUP BY p.patient_id, p.name;
+
+-- View 4: Medicine Usage
+CREATE OR REPLACE VIEW medicine_usage AS
+SELECT m.name AS medicine_name,
+       COALESCE(SUM(pd.quantity), 0) AS total_quantity_used
+FROM medicines m
+LEFT JOIN prescription_details pd ON m.medicine_id = pd.medicine_id
+GROUP BY m.medicine_id, m.name;

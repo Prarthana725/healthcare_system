@@ -14,6 +14,7 @@ const medicineRoutes = require('./routes/medicines');
 const appointmentRoutes = require('./routes/appointments');
 const prescriptionRoutes = require('./routes/prescriptions');
 const billRoutes = require('./routes/bills');
+const viewRoutes = require('./routes/views');
 
 // Use routes
 app.use('/api/patients', patientRoutes);
@@ -22,6 +23,7 @@ app.use('/api/medicines', medicineRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/prescriptions', prescriptionRoutes);
 app.use('/api/bills', billRoutes);
+app.use('/api/views', viewRoutes);
 
 // Test route
 app.get('/', (req, res) => {
