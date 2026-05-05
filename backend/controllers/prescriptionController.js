@@ -142,7 +142,7 @@ class PrescriptionController {
                 return res.status(400).json({ error: 'Missing required fields: patient_id, doctor_id, date' });
             }
             const result = await prescriptionQueries.updatePrescription(id, patient_id, doctor_id, date);
-            if (result.affectedRows === 0) {
+            if (result[0] === 0) {
                 return res.status(404).json({ error: 'Prescription not found' });
             }
             res.json({ message: 'Prescription updated successfully' });
@@ -157,7 +157,7 @@ class PrescriptionController {
         try {
             const { id } = req.params;
             const result = await prescriptionQueries.deletePrescription(id);
-            if (result.affectedRows === 0) {
+            if (result[0] === 0) {
                 return res.status(404).json({ error: 'Prescription not found' });
             }
             res.json({ message: 'Prescription deleted successfully' });
