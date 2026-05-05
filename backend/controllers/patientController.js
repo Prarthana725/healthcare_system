@@ -37,7 +37,10 @@ class PatientController {
                 return res.status(400).json({ error: 'Missing required fields: name, age, phone' });
             }
             const result = await patientQueries.createPatient(name, age, phone);
-            res.status(201).json({ message: 'Patient created successfully', patientId: result.insertId });
+            res.status(201).json({
+                message: "Patient created successfully",
+                patientId: result.id   // FIXED
+            });
         } catch (error) {
             console.error('Error creating patient:', error);
             res.status(500).json({ error: 'Failed to create patient' });
