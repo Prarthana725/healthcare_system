@@ -61,7 +61,7 @@ class MedicineController {
                 return res.status(400).json({ error: 'Missing required fields: name, quantity' });
             }
             const result = await medicineQueries.createMedicine(name, quantity);
-            res.status(201).json({ message: 'Medicine created successfully', medicineId: result.insertId });
+            res.status(201).json({ message: 'Medicine created successfully', medicineId: result.id });
         } catch (error) {
             console.error('MedicineController.create - Error:', error.message);
             res.status(500).json({ error: 'Failed to create medicine', details: error.message });
@@ -77,7 +77,7 @@ class MedicineController {
                 return res.status(400).json({ error: 'Missing required fields: name, quantity' });
             }
             const result = await medicineQueries.updateMedicine(id, name, quantity);
-            if (result.affectedRows === 0) {
+            if (result[0] === 0) {
                 return res.status(404).json({ error: 'Medicine not found' });
             }
             res.json({ message: 'Medicine updated successfully' });
@@ -92,7 +92,7 @@ class MedicineController {
         try {
             const { id } = req.params;
             const result = await medicineQueries.deleteMedicine(id);
-            if (result.affectedRows === 0) {
+            if (result[0] === 0) {
                 return res.status(404).json({ error: 'Medicine not found' });
             }
             res.json({ message: 'Medicine deleted successfully' });
