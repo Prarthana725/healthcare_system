@@ -1,108 +1,130 @@
-const { getConnection } = require('./connection');
+const { getConnection, sql } = require("./sqlConnection");
 
 class AppointmentQueries {
-    // Get all appointments with patient and doctor names (JOIN)
+
+    // GET ALL
     async getAllAppointments() {
-        try {
-            const connection = await getConnection();
-            const [rows] = await connection.execute(`
+        const pool = await getConnection();
+
+        const result = await pool.request().query(`
+            SELECT a.appointment_id, a.date,
+                   p.patient_id, p.name AS patient_name,
+                   d.doctor_id, d.name AS doctor_name, d.specialization
+            FROM appointments a
+            JOIN patients p ON a.patient_id = p.patient_id
+            JOIN doctors d ON a.doctor_id = d.doctor_id
+            ORDER BY a.date DESC
+        `);
+
+        return result.recordset;
+    }
+
+    // GET BY ID
+    async getAppointmentById(id) {
+        const pool = await getConnection();
+
+        const result = await pool.request()
+            .input("id", sql.Int, id)
+            .query(`
                 SELECT a.appointment_id, a.date,
-                       p.patient_id, p.name AS patient_name,
+                       p.patient_id, p.name AS patient_name, p.age, p.phone,
                        d.doctor_id, d.name AS doctor_name, d.specialization
                 FROM appointments a
                 JOIN patients p ON a.patient_id = p.patient_id
                 JOIN doctors d ON a.doctor_id = d.doctor_id
+                WHERE a.appointment_id = @id
+            `);
+
+        return result.recordset;
+    }
+
+    // GET BY PATIENT
+    async getAppointmentsByPatient(patientId) {
+        const pool = await getConnection();
+
+        const result = await pool.request()
+            .input("pid", sql.Int, patientId)
+            .query(`
+                SELECT a.appointment_id, a.date,
+                       p.name AS patient_name,
+                       d.doctor_id, d.name AS doctor_name, d.specialization
+                FROM appointments a
+                JOIN patients p ON a.patient_id = p.patient_id
+                JOIN doctors d ON a.doctor_id = d.doctor_id
+                WHERE a.patient_id = @pid
                 ORDER BY a.date DESC
             `);
-            console.log('getAllAppointments - Fetched rows:', rows.length);
-            return rows;
-        } catch (error) {
-            console.error('getAllAppointments - SQL Error:', error.message);
-            throw error;
-        }
+
+        return result.recordset;
     }
 
-    // Get appointment by ID with details (JOIN)
-    async getAppointmentById(appointmentId) {
-        const connection = await getConnection();
-        const [rows] = await connection.execute(`
-            SELECT a.appointment_id, a.date,
-                   p.patient_id, p.name AS patient_name, p.age, p.phone,
-                   d.doctor_id, d.name AS doctor_name, d.specialization
-            FROM appointments a
-            JOIN patients p ON a.patient_id = p.patient_id
-            JOIN doctors d ON a.doctor_id = d.doctor_id
-            WHERE a.appointment_id = ?
-        `, [appointmentId]);
-        return rows;
-    }
-
-    // Get appointments by patient (JOIN)
-    async getAppointmentsByPatient(patientId) {
-        const connection = await getConnection();
-        const [rows] = await connection.execute(`
-            SELECT a.appointment_id, a.date,
-                   p.name AS patient_name,
-                   d.doctor_id, d.name AS doctor_name, d.specialization
-            FROM appointments a
-            JOIN patients p ON a.patient_id = p.patient_id
-            JOIN doctors d ON a.doctor_id = d.doctor_id
-            WHERE a.patient_id = ?
-            ORDER BY a.date DESC
-        `, [patientId]);
-        return rows;
-    }
-
-    // Get appointments by doctor (JOIN)
+    // GET BY DOCTOR
     async getAppointmentsByDoctor(doctorId) {
-        const connection = await getConnection();
-        const [rows] = await connection.execute(`
-            SELECT a.appointment_id, a.date,
-                   p.patient_id, p.name AS patient_name, p.age,
-                   d.name AS doctor_name
-            FROM appointments a
-            JOIN patients p ON a.patient_id = p.patient_id
-            JOIN doctors d ON a.doctor_id = d.doctor_id
-            WHERE a.doctor_id = ?
-            ORDER BY a.date DESC
-        `, [doctorId]);
-        return rows;
+        const pool = await getConnection();
+
+        const result = await pool.request()
+            .input("did", sql.Int, doctorId)
+            .query(`
+                SELECT a.appointment_id, a.date,
+                       p.patient_id, p.name AS patient_name, p.age,
+                       d.name AS doctor_name
+                FROM appointments a
+                JOIN patients p ON a.patient_id = p.patient_id
+                JOIN doctors d ON a.doctor_id = d.doctor_id
+                WHERE a.doctor_id = @did
+                ORDER BY a.date DESC
+            `);
+
+        return result.recordset;
     }
 
-    // Create appointment
+    // CREATE
     async createAppointment(patientId, doctorId, date) {
-        try {
-            const connection = await getConnection();
-            const [result] = await connection.execute(
-                'INSERT INTO appointments (patient_id, doctor_id, date) VALUES (?, ?, ?)',
-                [patientId, doctorId, date]
-            );
-            console.log('createAppointment - New appointment ID:', result.insertId);
-            return result;
-        } catch (error) {
-            console.error('createAppointment - SQL Error:', error.message);
-            throw error;
-        }
+        const pool = await getConnection();
+
+        const result = await pool.request()
+            .input("pid", sql.Int, patientId)
+            .input("did", sql.Int, doctorId)
+            .input("date", sql.Date, date)
+            .query(`
+                INSERT INTO appointments (patient_id, doctor_id, date)
+                OUTPUT INSERTED.appointment_id
+                VALUES (@pid, @did, @date)
+            `);
+
+        return result.recordset[0];
     }
 
-    // Update appointment
-    async updateAppointment(appointmentId, patientId, doctorId, date) {
-        const connection = await getConnection();
-        const [result] = await connection.execute(
-            'UPDATE appointments SET patient_id = ?, doctor_id = ?, date = ? WHERE appointment_id = ?',
-            [patientId, doctorId, date, appointmentId]
-        );
-        return result;
+    // UPDATE
+    async updateAppointment(id, patientId, doctorId, date) {
+        const pool = await getConnection();
+
+        const result = await pool.request()
+            .input("id", sql.Int, id)
+            .input("pid", sql.Int, patientId)
+            .input("did", sql.Int, doctorId)
+            .input("date", sql.Date, date)
+            .query(`
+                UPDATE appointments
+                SET patient_id=@pid, doctor_id=@did, date=@date
+                WHERE appointment_id=@id
+            `);
+
+        return result.rowsAffected;
     }
 
-    // Delete appointment
-    async deleteAppointment(appointmentId) {
-        const connection = await getConnection();
-        const [result] = await connection.execute(
-            'DELETE FROM appointments WHERE appointment_id = ?',
-            [appointmentId]
-        );
-        return result;
+    // DELETE
+    async deleteAppointment(id) {
+        const pool = await getConnection();
+
+        const result = await pool.request()
+            .input("id", sql.Int, id)
+            .query(`
+                DELETE FROM appointments
+                WHERE appointment_id=@id
+            `);
+
+        return result.rowsAffected;
     }
 }
 

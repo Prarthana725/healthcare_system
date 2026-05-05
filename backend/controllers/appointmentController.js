@@ -62,7 +62,7 @@ class AppointmentController {
                 return res.status(400).json({ error: 'Missing required fields: patient_id, doctor_id, date' });
             }
             const result = await appointmentQueries.createAppointment(patient_id, doctor_id, date);
-            res.status(201).json({ message: 'Appointment created successfully', appointmentId: result.insertId });
+            res.status(201).json({ message: 'Appointment created successfully', appointmentId: result.appointment_id });
         } catch (error) {
             console.error('AppointmentController.create - Error:', error.message);
             res.status(500).json({ error: 'Failed to create appointment', details: error.message });
@@ -78,7 +78,7 @@ class AppointmentController {
                 return res.status(400).json({ error: 'Missing required fields: patient_id, doctor_id, date' });
             }
             const result = await appointmentQueries.updateAppointment(id, patient_id, doctor_id, date);
-            if (result.affectedRows === 0) {
+            if (result[0] === 0) {
                 return res.status(404).json({ error: 'Appointment not found' });
             }
             res.json({ message: 'Appointment updated successfully' });
@@ -93,7 +93,7 @@ class AppointmentController {
         try {
             const { id } = req.params;
             const result = await appointmentQueries.deleteAppointment(id);
-            if (result.affectedRows === 0) {
+            if (result[0] === 0) {
                 return res.status(404).json({ error: 'Appointment not found' });
             }
             res.json({ message: 'Appointment deleted successfully' });
