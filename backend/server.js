@@ -6,6 +6,7 @@ const { getConnection } = require('./db/sqlConnection');
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Import routes
 const patientRoutes = require('./routes/patients');

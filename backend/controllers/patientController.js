@@ -56,7 +56,7 @@ class PatientController {
                 return res.status(400).json({ error: 'Missing required fields: name, age, phone' });
             }
             const result = await patientQueries.updatePatient(id, name, age, phone);
-            if (result.affectedRows === 0) {
+            if (result === 0) {
                 return res.status(404).json({ error: 'Patient not found' });
             }
             res.json({ message: 'Patient updated successfully' });
@@ -86,7 +86,7 @@ class PatientController {
         try {
             const { id } = req.params;
             const result = await patientQueries.deletePatient(id);
-            if (result.affectedRows === 0) {
+            if (result === 0) {
                 return res.status(404).json({ error: 'Patient not found' });
             }
             res.json({ message: 'Patient deleted successfully' });

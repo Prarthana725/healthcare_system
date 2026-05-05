@@ -1,31 +1,25 @@
-const sql = require("mssql");
-require("dotenv").config();
+const sql = require('mssql');
 
 const config = {
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    server: "localhost",
-    database: process.env.DB_DATABASE,
+    user: 'sa',              // or your SQL user
+    password: '12345',  // your password
+    server: 'localhost',     // IMPORTANT (NOT localhost\SQLEXPRESS)
+    database: 'HealthcareDB',
+    port: 1433,              // IMPORTANT
     options: {
         encrypt: false,
-        trustServerCertificate: true,
-        instanceName: "SQLEXPRESS"
+        trustServerCertificate: true
     }
 };
 
 let pool;
 
 async function getConnection() {
-    try {
-        if (!pool) {
-            pool = await sql.connect(config);
-            console.log("✅ SQL Server Connected");
-        }
-        return pool;
-    } catch (err) {
-        console.log("❌ DB Connection Error:", err.message);
-        throw err;
+    if (!pool) {
+        pool = await sql.connect(config);
+        console.log("✅ Connected to SQL Server");
     }
+    return pool;
 }
 
-module.exports = { sql, getConnection };
+module.exports = { getConnection, sql };

@@ -1,4 +1,4 @@
-const { getConnection, sql } = require("./connection");
+const { getConnection, sql } = require("./sqlConnection");
 
 class PatientQueries {
 
@@ -48,7 +48,7 @@ class PatientQueries {
                 WHERE patient_id=@id
             `);
 
-        return result.rowsAffected;
+        return result.rowsAffected[0];
     }
 
     async deletePatient(patientId) {
@@ -58,7 +58,7 @@ class PatientQueries {
             .input("id", sql.Int, patientId)
             .query("DELETE FROM patients WHERE patient_id=@id");
 
-        return result.rowsAffected;
+        return result.rowsAffected[0];
     }
 
     async getPatientWithAllData(patientId) {
