@@ -154,7 +154,7 @@ class BillController {
             }
 
             const result = await billQueries.updateBillStatus(id, status);
-            if (result.affectedRows === 0) {
+            if (result[0] === 0) {
                 return res.status(404).json({ error: 'Bill not found' });
             }
 
