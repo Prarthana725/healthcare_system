@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import Sidebar from './Sidebar';
@@ -8,8 +9,15 @@ import Medicines from './Medicines';
 import Appointments from './Appointments';
 import Prescriptions from './Prescriptions';
 import Reports from './Reports';
+import Login from './Login';
 
 function App() {
+  const [loggedIn, setLoggedIn] = useState(!!localStorage.getItem('user'));
+
+  if (!loggedIn) {
+    return <Login onLogin={() => setLoggedIn(true)} />;
+  }
+
   return (
     <Router>
       <div className="app-wrapper">
