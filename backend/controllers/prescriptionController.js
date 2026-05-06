@@ -88,48 +88,49 @@ class PrescriptionController {
     async create(req, res) {
         try {
             const { patient_id, doctor_id, date, details } = req.body;
-            console.log('PrescriptionController.create - Request body:', { patient_id, doctor_id, date, details });
 
             if (!patient_id || !doctor_id || !date) {
-                return res.status(400).json({ error: 'Missing required fields: patient_id, doctor_id, date' });
+                return res.status(400).json({ error: 'Missing required fields' });
             }
 
             if (!details || !Array.isArray(details) || details.length === 0) {
-                return res.status(400).json({ error: 'At least one medicine detail is required' });
+                return res.status(400).json({ error: 'Details required' });
             }
 
-            // Validate details format
-            for (const detail of details) {
-                if (!detail.medicine_id || !detail.quantity || detail.quantity <= 0) {
-                    return res.status(400).json({ error: 'Each medicine detail must have medicine_id and positive quantity' });
+            const result = await prescriptionQueries.createPrescriptionWithDetails(
+                patient_id,
+                doctor_id,
+                date,
+                details
+            );
+
+            // Try to get bill (if exists)
+            let bill = null;
+
+            try {
+                const billDetails = await billQueries.getBillByPrescription(result.prescriptionId);
+
+                if (billDetails) {
+                    bill = {
+                        bill_id: billDetails.bill_id,
+                        total_amount: billDetails.total_amount,
+                        status: billDetails.status,
+                        bill_date: billDetails.bill_date
+                    };
                 }
+            } catch (e) {
+                console.log("No bill yet (this is OK)");
             }
-
-            const result = await prescriptionQueries.createPrescriptionWithDetails(patient_id, doctor_id, date, details);
-
-            // Get the generated bill details
-            const billDetails = await billQueries.getBillByPrescription(result.prescriptionId);
 
             res.status(201).json({
-                message: 'Prescription created successfully with automatic stock reduction and bill generation',
+                message: 'Prescription created successfully',
                 prescriptionId: result.prescriptionId,
-                bill: {
-                    bill_id: billDetails.bill_id,
-                    total_amount: billDetails.total_amount,
-                    status: billDetails.status,
-                    bill_date: billDetails.bill_date
-                }
+                bill
             });
 
         } catch (error) {
-            console.error('PrescriptionController.create - Error:', error.message);
-
-            // Handle specific stock errors
-            if (error.message.includes('Insufficient stock') || error.message.includes('not found')) {
-                return res.status(400).json({ error: error.message });
-            }
-
-            res.status(500).json({ error: 'Failed to create prescription', details: error.message });
+            console.error('Create Error:', error.message);
+            res.status(500).json({ error: error.message });
         }
     }
 

@@ -79,41 +79,57 @@ class PrescriptionQueries {
 
             const request = new sql.Request(transaction);
 
-            // Insert prescription
+            // 1. Insert prescription
             const insertPrescription = await request
                 .input("patient_id", sql.Int, patientId)
                 .input("doctor_id", sql.Int, doctorId)
                 .input("date", sql.Date, date)
                 .query(`
-                    INSERT INTO prescriptions (patient_id, doctor_id, date)
-                    OUTPUT INSERTED.prescription_id
-                    VALUES (@patient_id, @doctor_id, @date)
-                `);
+                INSERT INTO prescriptions (patient_id, doctor_id, date)
+                OUTPUT INSERTED.prescription_id
+                VALUES (@patient_id, @doctor_id, @date)
+            `);
 
             const prescriptionId = insertPrescription.recordset[0].prescription_id;
 
-            // Insert details
+            // 2. Insert details + reduce stock
             for (const d of details) {
                 await new sql.Request(transaction)
                     .input("pid", sql.Int, prescriptionId)
                     .input("mid", sql.Int, d.medicine_id)
                     .input("qty", sql.Int, d.quantity)
                     .query(`
-                        INSERT INTO prescription_details (prescription_id, medicine_id, quantity)
-                        VALUES (@pid, @mid, @qty)
-                    `);
+                    INSERT INTO prescription_details (prescription_id, medicine_id, quantity)
+                    VALUES (@pid, @mid, @qty)
+                `);
 
-                // Reduce stock
                 await new sql.Request(transaction)
                     .input("mid", sql.Int, d.medicine_id)
                     .input("qty", sql.Int, d.quantity)
                     .query(`
-                        UPDATE medicines
-                        SET quantity = quantity - @qty
-                        WHERE medicine_id = @mid
-                    `);
+                    UPDATE medicines
+                    SET quantity = quantity - @qty
+                    WHERE medicine_id = @mid
+                `);
             }
 
+            // 🔥 3. CREATE BILL HERE (INSIDE TRANSACTION)
+            await new sql.Request(transaction)
+                .input("pid", sql.Int, prescriptionId)
+                .query(`
+                INSERT INTO bills (prescription_id, patient_id, doctor_id, bill_date, total_amount, status)
+                SELECT 
+                    p.prescription_id,
+                    p.patient_id,
+                    p.doctor_id,
+                    GETDATE(),
+                    dbo.CalculateBillTotal(p.prescription_id),
+                    'pending'
+                FROM prescriptions p
+                WHERE p.prescription_id = @pid
+            `);
+
+            // 4. COMMIT EVERYTHING
             await transaction.commit();
 
             return { prescriptionId };
@@ -123,7 +139,6 @@ class PrescriptionQueries {
             throw err;
         }
     }
-
     // UPDATE
     async updatePrescription(id, patientId, doctorId, date) {
         const pool = await getConnection();
