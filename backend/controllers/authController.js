@@ -5,15 +5,17 @@ class AuthController {
         try {
             const { username, password } = req.body;
 
-            if (!username || !password) {
-                return res.status(400).json({ error: 'Username and password required' });
-            }
-
             const connection = await getConnection();
 
             const result = await connection.request()
                 .input('username', username)
-                .query('SELECT * FROM users WHERE username = @username');
+                .query(`
+                    SELECT u.user_id, u.username, u.password, r.role_name
+                    FROM users u
+                    JOIN user_roles ur ON u.user_id = ur.user_id
+                    JOIN roles r ON ur.role_id = r.role_id
+                    WHERE u.username = @username
+                `);
 
             const user = result.recordset[0];
 
@@ -25,12 +27,13 @@ class AuthController {
                 message: 'Login successful',
                 user: {
                     id: user.user_id,
-                    username: user.username
+                    username: user.username,
+                    role: user.role_name
                 }
             });
 
         } catch (error) {
-            console.error('Login error:', error);
+            console.error(error);
             res.status(500).json({ error: 'Login failed' });
         }
     }
