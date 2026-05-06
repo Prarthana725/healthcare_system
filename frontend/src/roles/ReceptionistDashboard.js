@@ -5,11 +5,20 @@ const API_URL = 'http://localhost:5000/api';
 export default function ReceptionistDashboard() {
     const [patients, setPatients] = useState([]);
     const [appointments, setAppointments] = useState([]);
+    const [doctors, setDoctors] = useState([]);
+
     const [form, setForm] = useState({
         name: '',
         age: '',
         phone: ''
     });
+
+    const [appointmentForm, setAppointmentForm] = useState({
+        patient_id: '',
+        doctor_id: '',
+        date: ''
+    });
+
     const [message, setMessage] = useState('');
 
     // Load data
@@ -19,23 +28,26 @@ export default function ReceptionistDashboard() {
 
     async function loadData() {
         try {
-            const [pRes, aRes] = await Promise.all([
+            const [pRes, aRes, dRes] = await Promise.all([
                 fetch(`${API_URL}/patients`),
-                fetch(`${API_URL}/appointments`)
+                fetch(`${API_URL}/appointments`),
+                fetch(`${API_URL}/doctors`)
             ]);
 
             const pData = await pRes.json();
             const aData = await aRes.json();
+            const dData = await dRes.json();
 
             setPatients(Array.isArray(pData) ? pData : []);
             setAppointments(Array.isArray(aData) ? aData : []);
+            setDoctors(Array.isArray(dData) ? dData : []);
         } catch (err) {
-            console.error(err);
+            console.error('Load error:', err);
         }
     }
 
     // Register patient
-    async function handleSubmit(e) {
+    async function handlePatientSubmit(e) {
         e.preventDefault();
 
         try {
@@ -57,17 +69,43 @@ export default function ReceptionistDashboard() {
         }
     }
 
+    // Book appointment
+    async function handleAppointmentSubmit(e) {
+        e.preventDefault();
+
+        try {
+            const res = await fetch(`${API_URL}/appointments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(appointmentForm)
+            });
+
+            if (res.ok) {
+                setMessage('Appointment booked successfully ✅');
+                setAppointmentForm({ patient_id: '', doctor_id: '', date: '' });
+                loadData();
+            } else {
+                setMessage('Failed to book appointment ❌');
+            }
+        } catch (err) {
+            setMessage('Server error ❌');
+        }
+    }
+
     return (
         <div className="page-content">
 
-            <h1>🕒 Receptionist Dashboard</h1>
-            <p>Patient registration & appointment scheduling system</p>
+            <h1>🧑‍💼 Receptionist Dashboard</h1>
+            <p>Patient registration + Appointment scheduling module</p>
 
-            {/* REGISTER PATIENT */}
+            {/* MESSAGE */}
+            {message && <p className="small-note">{message}</p>}
+
+            {/* ================= PATIENT REGISTRATION ================= */}
             <div className="form-panel">
-                <h3>Register New Patient</h3>
+                <h3>➕ Register New Patient</h3>
 
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handlePatientSubmit}>
                     <input
                         placeholder="Patient Name"
                         value={form.name}
@@ -90,15 +128,62 @@ export default function ReceptionistDashboard() {
                         required
                     />
 
-                    <button type="submit">Register</button>
+                    <button type="submit">Register Patient</button>
                 </form>
-
-                {message && <p className="small-note">{message}</p>}
             </div>
 
-            {/* PATIENT LIST */}
+            {/* ================= APPOINTMENT BOOKING ================= */}
+            <div className="form-panel">
+                <h3>📅 Book Appointment</h3>
+
+                <form onSubmit={handleAppointmentSubmit}>
+                    <select
+                        value={appointmentForm.patient_id}
+                        onChange={(e) =>
+                            setAppointmentForm({ ...appointmentForm, patient_id: e.target.value })
+                        }
+                        required
+                    >
+                        <option value="">Select Patient</option>
+                        {patients.map((p) => (
+                            <option key={p.patient_id} value={p.patient_id}>
+                                {p.name}
+                            </option>
+                        ))}
+                    </select>
+
+                    <select
+                        value={appointmentForm.doctor_id}
+                        onChange={(e) =>
+                            setAppointmentForm({ ...appointmentForm, doctor_id: e.target.value })
+                        }
+                        required
+                    >
+                        <option value="">Select Doctor</option>
+                        {doctors.map((d) => (
+                            <option key={d.doctor_id} value={d.doctor_id}>
+                                {d.name}
+                            </option>
+                        ))}
+                    </select>
+
+                    <input
+                        type="date"
+                        value={appointmentForm.date}
+                        onChange={(e) =>
+                            setAppointmentForm({ ...appointmentForm, date: e.target.value })
+                        }
+                        required
+                    />
+
+                    <button type="submit">Book Appointment</button>
+                </form>
+            </div>
+
+            {/* ================= PATIENT TABLE ================= */}
             <div className="table-panel">
-                <h3>Recent Patients</h3>
+                <h3>👥 Recent Patients</h3>
+
                 <table>
                     <thead>
                         <tr>
@@ -108,8 +193,8 @@ export default function ReceptionistDashboard() {
                         </tr>
                     </thead>
                     <tbody>
-                        {patients.map((p, i) => (
-                            <tr key={i}>
+                        {patients.map((p) => (
+                            <tr key={p.patient_id}>
                                 <td>{p.name}</td>
                                 <td>{p.age}</td>
                                 <td>{p.phone}</td>
@@ -119,9 +204,9 @@ export default function ReceptionistDashboard() {
                 </table>
             </div>
 
-            {/* APPOINTMENTS */}
+            {/* ================= APPOINTMENTS TABLE ================= */}
             <div className="table-panel">
-                <h3>Today's Appointments</h3>
+                <h3>📋 All Appointments</h3>
 
                 <table>
                     <thead>
@@ -132,8 +217,8 @@ export default function ReceptionistDashboard() {
                         </tr>
                     </thead>
                     <tbody>
-                        {appointments.map((a, i) => (
-                            <tr key={i}>
+                        {appointments.map((a) => (
+                            <tr key={a.appointment_id}>
                                 <td>{a.patient_name}</td>
                                 <td>{a.doctor_name}</td>
                                 <td>{a.date}</td>
