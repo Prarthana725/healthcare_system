@@ -50,6 +50,32 @@ class AppointmentController {
             console.error('Error fetching doctor appointments:', error);
             res.status(500).json({ error: 'Failed to fetch appointments' });
         }
+    } async updateStatus(req, res) {
+
+        try {
+
+            const { id } = req.params;
+            const { status } = req.body;
+
+            await appointmentQueries.updateAppointmentStatus(
+                id,
+                status
+            );
+
+            res.json({
+                success: true,
+                message: 'Appointment updated'
+            });
+
+        } catch (err) {
+
+            console.error(err);
+
+            res.status(500).json({
+                error: 'Failed to update appointment'
+            });
+
+        }
     }
 
     // Create new appointment

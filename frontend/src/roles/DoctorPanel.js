@@ -4,16 +4,30 @@ const API_URL = 'http://localhost:5000/api';
 
 export default function DoctorPanel() {
 
-    const [appointments, setAppointments] =
-        useState([]);
+    const user = JSON.parse(localStorage.getItem('user'));
 
-    const user = JSON.parse(
-        localStorage.getItem('user')
-    );
+    const [appointments, setAppointments] = useState([]);
+    const [patients, setPatients] = useState([]);
+    const [medicines, setMedicines] = useState([]);
+
+    const [message, setMessage] = useState('');
+
+    const [prescriptionForm, setPrescriptionForm] = useState({
+        patient_id: '',
+        date: '',
+        details: [
+            {
+                medicine_id: '',
+                quantity: ''
+            }
+        ]
+    });
 
     useEffect(() => {
 
         loadAppointments();
+        loadPatients();
+        loadMedicines();
 
     }, []);
 
@@ -22,20 +36,166 @@ export default function DoctorPanel() {
         try {
 
             const res = await fetch(
-
                 `${API_URL}/appointments/doctor/${user.doctor_id}`
-
             );
 
             const data = await res.json();
 
-            console.log(data);
-
-            setAppointments(data);
+            setAppointments(Array.isArray(data) ? data : []);
 
         } catch (err) {
 
             console.error(err);
+
+        }
+    }
+
+    async function loadPatients() {
+
+        try {
+
+            const res = await fetch(`${API_URL}/patients`);
+
+            const data = await res.json();
+
+            setPatients(data);
+
+        } catch (err) {
+
+            console.error(err);
+
+        }
+    }
+
+    async function loadMedicines() {
+
+        try {
+
+            const res = await fetch(`${API_URL}/medicines`);
+
+            const data = await res.json();
+
+            setMedicines(data);
+
+        } catch (err) {
+
+            console.error(err);
+
+        }
+    }
+
+    async function updateAppointmentStatus(id, status) {
+
+        try {
+
+            const res = await fetch(
+                `${API_URL}/appointments/${id}/status`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status })
+                }
+            );
+
+            if (res.ok) {
+
+                loadAppointments();
+
+            }
+
+        } catch (err) {
+
+            console.error(err);
+
+        }
+    }
+
+    function handleMedicineChange(index, field, value) {
+
+        const updated = [...prescriptionForm.details];
+
+        updated[index][field] = value;
+
+        setPrescriptionForm({
+            ...prescriptionForm,
+            details: updated
+        });
+    }
+
+    function addMedicineRow() {
+
+        setPrescriptionForm({
+            ...prescriptionForm,
+            details: [
+                ...prescriptionForm.details,
+                {
+                    medicine_id: '',
+                    quantity: ''
+                }
+            ]
+        });
+    }
+
+    async function handlePrescriptionSubmit(e) {
+
+        e.preventDefault();
+
+        try {
+
+            const formattedDetails =
+                prescriptionForm.details.map((d) => ({
+                    medicine_id: Number(d.medicine_id),
+                    quantity: Number(d.quantity)
+                }));
+
+            const res = await fetch(
+                `${API_URL}/prescriptions`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        patient_id: Number(
+                            prescriptionForm.patient_id
+                        ),
+                        doctor_id: user.doctor_id,
+                        date: prescriptionForm.date,
+                        details: formattedDetails
+                    })
+                }
+            );
+
+            if (res.ok) {
+
+                setMessage(
+                    'Prescription created successfully ✅'
+                );
+
+                setPrescriptionForm({
+                    patient_id: '',
+                    date: '',
+                    details: [
+                        {
+                            medicine_id: '',
+                            quantity: ''
+                        }
+                    ]
+                });
+
+            } else {
+
+                setMessage(
+                    'Failed to create prescription ❌'
+                );
+
+            }
+
+        } catch (err) {
+
+            setMessage('Server error ❌');
 
         }
     }
@@ -60,39 +220,25 @@ export default function DoctorPanel() {
                     borderRadius: '24px',
                     padding: '35px',
                     color: 'white',
-                    marginBottom: '30px',
-                    boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
+                    marginBottom: '30px'
                 }}
             >
 
-                <h1
-                    style={{
-                        margin: 0,
-                        fontSize: '34px'
-                    }}
-                >
-                    👩‍⚕️ Doctor Panel
-                </h1>
+                <h1>👩‍⚕️ Doctor Panel</h1>
 
-                <p
-                    style={{
-                        marginTop: '10px',
-                        opacity: 0.9,
-                        fontSize: '16px'
-                    }}
-                >
-                    Manage patients and appointments
+                <p>
+                    Manage appointments and create prescriptions
                 </p>
 
             </div>
 
-            {/* STATS CARD */}
+            {/* STATS */}
 
             <div
                 style={{
                     display: 'grid',
                     gridTemplateColumns:
-                        'repeat(auto-fit, minmax(250px, 1fr))',
+                        'repeat(auto-fit, minmax(220px, 1fr))',
                     gap: '20px',
                     marginBottom: '30px'
                 }}
@@ -112,7 +258,7 @@ export default function DoctorPanel() {
 
             </div>
 
-            {/* APPOINTMENTS TABLE */}
+            {/* APPOINTMENTS */}
 
             <div style={panelStyle}>
 
@@ -120,80 +266,244 @@ export default function DoctorPanel() {
                     📋 My Appointments
                 </h2>
 
-                <div style={{ overflowX: 'auto' }}>
+                <table style={tableStyle}>
 
-                    <table style={tableStyle}>
+                    <thead>
 
-                        <thead>
+                        <tr style={tableHeaderRow}>
 
-                            <tr style={tableHeaderRow}>
+                            <th style={tableHead}>Patient</th>
+                            <th style={tableHead}>Age</th>
+                            <th style={tableHead}>Date</th>
+                            <th style={tableHead}>Status</th>
+                            <th style={tableHead}>Action</th>
 
-                                <th style={tableHead}>
-                                    Patient
-                                </th>
+                        </tr>
 
-                                <th style={tableHead}>
-                                    Age
-                                </th>
+                    </thead>
 
-                                <th style={tableHead}>
-                                    Appointment Date
-                                </th>
+                    <tbody>
+
+                        {appointments.map((a) => (
+
+                            <tr key={a.appointment_id}>
+
+                                <td style={tableData}>
+                                    {a.patient_name}
+                                </td>
+
+                                <td style={tableData}>
+                                    {a.age}
+                                </td>
+
+                                <td style={tableData}>
+                                    {a.date}
+                                </td>
+
+                                <td style={tableData}>
+                                    {a.status || 'pending'}
+                                </td>
+
+                                <td style={tableData}>
+
+                                    <button
+                                        onClick={() =>
+                                            updateAppointmentStatus(
+                                                a.appointment_id,
+                                                'completed'
+                                            )
+                                        }
+                                        style={btnStyle}
+                                    >
+                                        Complete
+                                    </button>
+
+                                </td>
 
                             </tr>
 
-                        </thead>
+                        ))}
 
-                        <tbody>
+                    </tbody>
 
-                            {appointments.length > 0 ? (
+                </table>
 
-                                appointments.map((a) => (
+            </div>
 
-                                    <tr
-                                        key={a.appointment_id}
-                                    >
+            {/* PRESCRIPTION */}
 
-                                        <td style={tableData}>
-                                            {a.patient_name}
-                                        </td>
+            <div
+                style={{
+                    ...panelStyle,
+                    marginTop: '30px'
+                }}
+            >
 
-                                        <td style={tableData}>
-                                            {a.age}
-                                        </td>
+                <h2 style={sectionTitle}>
+                    💊 Create Prescription
+                </h2>
 
-                                        <td style={tableData}>
-                                            {a.date}
-                                        </td>
+                <form
+                    onSubmit={handlePrescriptionSubmit}
+                >
 
-                                    </tr>
+                    <div
+                        style={{
+                            display: 'grid',
+                            gridTemplateColumns:
+                                '1fr 1fr',
+                            gap: '15px',
+                            marginBottom: '20px'
+                        }}
+                    >
 
-                                ))
+                        <select
+                            value={
+                                prescriptionForm.patient_id
+                            }
+                            onChange={(e) =>
+                                setPrescriptionForm({
+                                    ...prescriptionForm,
+                                    patient_id:
+                                        e.target.value
+                                })
+                            }
+                            required
+                            style={inputStyle}
+                        >
 
-                            ) : (
+                            <option value="">
+                                Select Patient
+                            </option>
 
-                                <tr>
+                            {patients.map((p) => (
 
-                                    <td
-                                        colSpan="3"
-                                        style={emptyStyle}
-                                    >
-                                        No appointments found
-                                    </td>
+                                <option
+                                    key={p.patient_id}
+                                    value={p.patient_id}
+                                >
+                                    {p.name}
+                                </option>
 
-                                </tr>
+                            ))}
 
-                            )}
+                        </select>
 
-                        </tbody>
+                        <input
+                            type="date"
+                            value={prescriptionForm.date}
+                            onChange={(e) =>
+                                setPrescriptionForm({
+                                    ...prescriptionForm,
+                                    date: e.target.value
+                                })
+                            }
+                            required
+                            style={inputStyle}
+                        />
 
-                    </table>
+                    </div>
 
-                </div>
+                    {prescriptionForm.details.map(
+                        (d, index) => (
+
+                            <div
+                                key={index}
+                                style={{
+                                    display: 'grid',
+                                    gridTemplateColumns:
+                                        '2fr 1fr',
+                                    gap: '15px',
+                                    marginBottom: '15px'
+                                }}
+                            >
+
+                                <select
+                                    value={d.medicine_id}
+                                    onChange={(e) =>
+                                        handleMedicineChange(
+                                            index,
+                                            'medicine_id',
+                                            e.target.value
+                                        )
+                                    }
+                                    required
+                                    style={inputStyle}
+                                >
+
+                                    <option value="">
+                                        Select Medicine
+                                    </option>
+
+                                    {medicines.map((m) => (
+
+                                        <option
+                                            key={
+                                                m.medicine_id
+                                            }
+                                            value={
+                                                m.medicine_id
+                                            }
+                                        >
+                                            {m.name}
+                                        </option>
+
+                                    ))}
+
+                                </select>
+
+                                <input
+                                    type="number"
+                                    placeholder="Quantity"
+                                    value={d.quantity}
+                                    onChange={(e) =>
+                                        handleMedicineChange(
+                                            index,
+                                            'quantity',
+                                            e.target.value
+                                        )
+                                    }
+                                    required
+                                    style={inputStyle}
+                                />
+
+                            </div>
+
+                        )
+                    )}
+
+                    <button
+                        type="button"
+                        onClick={addMedicineRow}
+                        style={secondaryBtn}
+                    >
+                        + Add Medicine
+                    </button>
+
+                    <br />
+                    <br />
+
+                    <button
+                        type="submit"
+                        style={submitBtn}
+                    >
+                        Create Prescription
+                    </button>
+
+                </form>
+
+                {message && (
+
+                    <div style={messageStyle}>
+                        {message}
+                    </div>
+
+                )}
 
             </div>
 
         </div>
+
     );
 }
 
@@ -202,32 +512,27 @@ export default function DoctorPanel() {
 const cardStyle = {
     background: 'white',
     borderRadius: '20px',
-    padding: '25px',
-    boxShadow: '0 5px 20px rgba(0,0,0,0.06)'
+    padding: '25px'
 };
 
 const cardTitle = {
     color: '#64748b',
-    fontSize: '16px',
-    marginBottom: '15px'
+    marginBottom: '10px'
 };
 
 const cardValue = {
     fontSize: '42px',
-    fontWeight: '700',
-    color: '#0f172a'
+    fontWeight: '700'
 };
 
 const panelStyle = {
     background: 'white',
     borderRadius: '20px',
-    padding: '30px',
-    boxShadow: '0 5px 20px rgba(0,0,0,0.06)'
+    padding: '30px'
 };
 
 const sectionTitle = {
-    marginBottom: '25px',
-    color: '#0f172a'
+    marginBottom: '25px'
 };
 
 const tableStyle = {
@@ -240,20 +545,55 @@ const tableHeaderRow = {
 };
 
 const tableHead = {
-    padding: '16px',
-    textAlign: 'left',
-    color: '#334155',
-    fontSize: '15px'
+    padding: '14px',
+    textAlign: 'left'
 };
 
 const tableData = {
-    padding: '16px',
-    borderBottom: '1px solid #e2e8f0',
-    color: '#0f172a'
+    padding: '14px',
+    borderBottom: '1px solid #e2e8f0'
 };
 
-const emptyStyle = {
-    padding: '20px',
-    textAlign: 'center',
-    color: '#64748b'
+const inputStyle = {
+    padding: '14px',
+    borderRadius: '12px',
+    border: '1px solid #cbd5e1',
+    width: '100%'
+};
+
+const btnStyle = {
+    padding: '10px 15px',
+    background: '#0f766e',
+    color: 'white',
+    border: 'none',
+    borderRadius: '10px',
+    cursor: 'pointer'
+};
+
+const secondaryBtn = {
+    padding: '12px 18px',
+    border: 'none',
+    borderRadius: '10px',
+    background: '#0284c7',
+    color: 'white',
+    cursor: 'pointer'
+};
+
+const submitBtn = {
+    padding: '14px 20px',
+    border: 'none',
+    borderRadius: '12px',
+    background: 'linear-gradient(to right, #0f766e, #0284c7)',
+    color: 'white',
+    fontWeight: '700',
+    cursor: 'pointer'
+};
+
+const messageStyle = {
+    marginTop: '20px',
+    padding: '14px',
+    borderRadius: '10px',
+    background: '#ecfeff',
+    color: '#0f766e',
+    fontWeight: '600'
 };

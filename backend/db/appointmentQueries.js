@@ -37,7 +37,21 @@ class AppointmentQueries {
 
         return result.recordset;
     }
+    async updateAppointmentStatus(id, status) {
 
+        const pool = await getConnection();
+
+        const result = await pool.request()
+            .input('id', id)
+            .input('status', status)
+            .query(`
+            UPDATE appointments
+            SET status = @status
+            WHERE appointment_id = @id
+        `);
+
+        return result;
+    }
     // GET BY PATIENT
     async getAppointmentsByPatient(patientId) {
         const pool = await getConnection();
