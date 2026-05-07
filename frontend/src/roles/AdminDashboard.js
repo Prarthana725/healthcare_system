@@ -8,8 +8,7 @@ export default function AdminDashboard() {
         patients: 0,
         doctors: 0,
         medicines: 0,
-        appointments: 0,
-        prescriptions: 0
+        appointments: 0
     });
 
     const [users, setUsers] = useState([]);
@@ -31,61 +30,53 @@ export default function AdminDashboard() {
     const [message, setMessage] = useState('');
 
     useEffect(() => {
-        loadDashboard();
+        loadStats();
         loadUsers();
     }, []);
 
-    // ================= LOAD SYSTEM STATS =================
-    async function loadDashboard() {
+    async function loadStats() {
         try {
-            const [p, d, m, a, pr] = await Promise.all([
+            const [p, d, m, a] = await Promise.all([
                 fetch(`${API_URL}/patients`),
                 fetch(`${API_URL}/doctors`),
                 fetch(`${API_URL}/medicines`),
-                fetch(`${API_URL}/appointments`),
-                fetch(`${API_URL}/prescriptions`)
+                fetch(`${API_URL}/appointments`)
             ]);
 
             const patients = await p.json();
             const doctors = await d.json();
             const medicines = await m.json();
             const appointments = await a.json();
-            const prescriptions = await pr.json();
 
             setStats({
-                patients: patients.length || 0,
-                doctors: doctors.length || 0,
-                medicines: medicines.length || 0,
-                appointments: appointments.length || 0,
-                prescriptions: prescriptions.length || 0
+                patients: patients.length,
+                doctors: doctors.length,
+                medicines: medicines.length,
+                appointments: appointments.length
             });
 
         } catch (err) {
-            console.error(err);
+            console.log(err);
         }
     }
 
-    // ================= LOAD USERS =================
     async function loadUsers() {
         try {
             const res = await fetch(`${API_URL}/users`);
             const data = await res.json();
             setUsers(Array.isArray(data) ? data : []);
         } catch (err) {
-            console.error(err);
+            console.log(err);
         }
     }
 
-    // ================= CREATE USER =================
     async function handleSubmit(e) {
         e.preventDefault();
 
         try {
             const res = await fetch(`${API_URL}/users`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(form)
             });
 
@@ -103,13 +94,12 @@ export default function AdminDashboard() {
     }
 
     return (
-
         <div className="page-content">
 
-            <h1>🧑‍💼 Admin Dashboard</h1>
-            <p>Full system control & analytics</p>
+            <h1>🛡 Admin Dashboard</h1>
+            <p>System control, analytics & user management</p>
 
-            {/* ================= STATS CARDS ================= */}
+            {/* STATS CARDS */}
             <div className="card-grid">
 
                 <div className="card">
@@ -132,14 +122,9 @@ export default function AdminDashboard() {
                     <h2>{stats.appointments}</h2>
                 </div>
 
-                <div className="card">
-                    <h3>Prescriptions</h3>
-                    <h2>{stats.prescriptions}</h2>
-                </div>
-
             </div>
 
-            {/* ================= USER CREATION ================= */}
+            {/* USER CREATION */}
             <div className="form-panel">
 
                 <h3>➕ Create System User</h3>
@@ -172,19 +157,12 @@ export default function AdminDashboard() {
                         }
                         required
                     >
-                        <option value="">
-                            Select Role
-                        </option>
-
+                        <option value="">Select Role</option>
                         {roles.map((r) => (
-                            <option
-                                key={r.role_id}
-                                value={r.role_id}
-                            >
+                            <option key={r.role_id} value={r.role_id}>
                                 {r.role_name}
                             </option>
                         ))}
-
                     </select>
 
                     <button type="submit">
@@ -193,18 +171,14 @@ export default function AdminDashboard() {
 
                 </form>
 
-                {message && (
-                    <p className="small-note">
-                        {message}
-                    </p>
-                )}
+                {message && <p className="small-note">{message}</p>}
 
             </div>
 
-            {/* ================= USER LIST ================= */}
+            {/* USERS TABLE */}
             <div className="table-panel">
 
-                <h3>👥 System Users</h3>
+                <h3>👤 System Users</h3>
 
                 <table>
 
@@ -218,12 +192,10 @@ export default function AdminDashboard() {
                     <tbody>
 
                         {users.map((u, i) => (
-
                             <tr key={i}>
                                 <td>{u.username}</td>
                                 <td>{u.role_name}</td>
                             </tr>
-
                         ))}
 
                     </tbody>
