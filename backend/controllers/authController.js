@@ -1,4 +1,5 @@
-const { getConnection } = require('../db/sqlConnection');
+const { getConnection } =
+    require('../db/sqlConnection');
 
 class AuthController {
 
@@ -6,45 +7,61 @@ class AuthController {
 
         try {
 
-            const { username, password } = req.body;
+            const {
+                username,
+                password
+            } = req.body;
 
-            const connection = await getConnection();
+            const connection =
+                await getConnection();
 
-            const result = await connection.request()
+            const result =
+                await connection.request()
 
-                .input('username', username)
+                    .input(
+                        'username',
+                        username
+                    )
 
-                .query(`
+                    .query(`
 
-                    SELECT
-                        u.user_id,
-                        u.username,
-                        u.password,
-                        u.doctor_id,
-                        r.role_name
+                        SELECT
+                            u.user_id,
+                            u.username,
+                            u.password,
+                            u.doctor_id,
+                            u.patient_id,
+                            r.role_name
 
-                    FROM users u
+                        FROM users u
 
-                    JOIN user_roles ur
-                        ON u.user_id = ur.user_id
+                        JOIN user_roles ur
+                            ON u.user_id = ur.user_id
 
-                    JOIN roles r
-                        ON ur.role_id = r.role_id
+                        JOIN roles r
+                            ON ur.role_id = r.role_id
 
-                    WHERE u.username = @username
+                        WHERE u.username = @username
 
-                `);
+                    `);
 
-            const user = result.recordset[0];
+            const user =
+                result.recordset[0];
 
             //--------------------------------------------------
             // INVALID LOGIN
             //--------------------------------------------------
 
-            if (!user || user.password !== password) {
+            if (
+                !user ||
+                user.password !== password
+            ) {
 
                 return res.status(401).json({
-                    error: 'Invalid credentials'
+
+                    error:
+                        'Invalid credentials'
+
                 });
 
             }
@@ -55,17 +72,25 @@ class AuthController {
 
             res.json({
 
-                message: 'Login successful',
+                message:
+                    'Login successful',
 
                 user: {
 
-                    id: user.user_id,
+                    id:
+                        user.user_id,
 
-                    username: user.username,
+                    username:
+                        user.username,
 
-                    role: user.role_name,
+                    role:
+                        user.role_name,
 
-                    doctor_id: user.doctor_id
+                    doctor_id:
+                        user.doctor_id,
+
+                    patient_id:
+                        user.patient_id
 
                 }
 
@@ -76,11 +101,15 @@ class AuthController {
             console.error(error);
 
             res.status(500).json({
-                error: 'Login failed'
+
+                error:
+                    'Login failed'
+
             });
 
         }
     }
 }
 
-module.exports = new AuthController();
+module.exports =
+    new AuthController();
