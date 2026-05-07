@@ -10,9 +10,17 @@ export default function PatientDashboard() {
 
     const [error, setError] = useState('');
 
+    //--------------------------------------------------
+    // GET LOGGED USER
+    //--------------------------------------------------
+
     const user = JSON.parse(
         localStorage.getItem('user')
     );
+
+    //--------------------------------------------------
+    // LOAD DASHBOARD
+    //--------------------------------------------------
 
     useEffect(() => {
 
@@ -30,31 +38,89 @@ export default function PatientDashboard() {
 
     }, []);
 
+    //--------------------------------------------------
+    // FETCH PATIENT DATA
+    //--------------------------------------------------
+
     async function loadDashboard() {
 
         try {
 
             //--------------------------------------------------
-            // TEMP FIX
+            // GET LOGGED PATIENT ID
             //--------------------------------------------------
 
-            const patientId = 1;
+            const patientId =
+                user.patient_id;
+
+            //--------------------------------------------------
+            // CHECK PATIENT ID
+            //--------------------------------------------------
+
+            if (!patientId) {
+
+                setError(
+                    'Patient ID not found'
+                );
+
+                return;
+            }
+
+            //--------------------------------------------------
+            // FETCH DATA
+            //--------------------------------------------------
 
             const res = await fetch(
-                `${API_URL}/patients/dashboard/${patientId}`
+
+                `${API_URL}/patients/with-data/${patientId}`
+
             );
 
-            const result = await res.json();
+            const result =
+                await res.json();
 
             console.log(result);
 
-            setData(result);
+            //--------------------------------------------------
+            // SET DASHBOARD DATA
+            //--------------------------------------------------
+
+            setData({
+
+                patient: {
+
+                    patient_id:
+                        result.patient_id,
+
+                    name:
+                        result.name,
+
+                    age:
+                        result.age,
+
+                    phone:
+                        result.phone
+
+                },
+
+                appointments:
+                    result.appointments || [],
+
+                prescriptions:
+                    result.prescriptions || [],
+
+                bills:
+                    result.bills || []
+
+            });
 
         } catch (err) {
 
             console.error(err);
 
-            setError('Failed to load dashboard');
+            setError(
+                'Failed to load dashboard'
+            );
 
         } finally {
 
@@ -64,12 +130,13 @@ export default function PatientDashboard() {
     }
 
     //--------------------------------------------------
-    // LOADING
+    // LOADING SCREEN
     //--------------------------------------------------
 
     if (loading) {
 
         return (
+
             <div
                 style={{
                     minHeight: '100vh',
@@ -80,21 +147,25 @@ export default function PatientDashboard() {
                     background: '#f1f5f9'
                 }}
             >
+
                 <h2 style={{ color: '#0f766e' }}>
                     Loading Dashboard...
                 </h2>
+
             </div>
+
         );
 
     }
 
     //--------------------------------------------------
-    // ERROR
+    // ERROR SCREEN
     //--------------------------------------------------
 
     if (error) {
 
         return (
+
             <div
                 style={{
                     minHeight: '100vh',
@@ -105,10 +176,13 @@ export default function PatientDashboard() {
                     background: '#f1f5f9'
                 }}
             >
+
                 <h2 style={{ color: '#dc2626' }}>
                     {error}
                 </h2>
+
             </div>
+
         );
 
     }
@@ -120,6 +194,7 @@ export default function PatientDashboard() {
     if (!data || !data.patient) {
 
         return (
+
             <div
                 style={{
                     minHeight: '100vh',
@@ -130,11 +205,20 @@ export default function PatientDashboard() {
                     background: '#f1f5f9'
                 }}
             >
-                <h2>No patient data found</h2>
+
+                <h2>
+                    No patient data found
+                </h2>
+
             </div>
+
         );
 
     }
+
+    //--------------------------------------------------
+    // MAIN UI
+    //--------------------------------------------------
 
     return (
 
@@ -157,7 +241,8 @@ export default function PatientDashboard() {
                     padding: '35px',
                     color: 'white',
                     marginBottom: '30px',
-                    boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
+                    boxShadow:
+                        '0 10px 30px rgba(0,0,0,0.1)'
                 }}
             >
 
@@ -201,18 +286,39 @@ export default function PatientDashboard() {
                 >
 
                     <div style={infoBox}>
-                        <p style={infoLabel}>Name</p>
-                        <h3>{data.patient.name}</h3>
+
+                        <p style={infoLabel}>
+                            Name
+                        </p>
+
+                        <h3>
+                            {data.patient.name}
+                        </h3>
+
                     </div>
 
                     <div style={infoBox}>
-                        <p style={infoLabel}>Age</p>
-                        <h3>{data.patient.age}</h3>
+
+                        <p style={infoLabel}>
+                            Age
+                        </p>
+
+                        <h3>
+                            {data.patient.age}
+                        </h3>
+
                     </div>
 
                     <div style={infoBox}>
-                        <p style={infoLabel}>Phone</p>
-                        <h3>{data.patient.phone}</h3>
+
+                        <p style={infoLabel}>
+                            Phone
+                        </p>
+
+                        <h3>
+                            {data.patient.phone}
+                        </h3>
+
                     </div>
 
                 </div>
@@ -235,11 +341,17 @@ export default function PatientDashboard() {
 
                             <tr style={tableHeaderRow}>
 
-                                <th style={tableHead}>Date</th>
+                                <th style={tableHead}>
+                                    Date
+                                </th>
 
-                                <th style={tableHead}>Doctor</th>
+                                <th style={tableHead}>
+                                    Doctor
+                                </th>
 
-                                <th style={tableHead}>Specialization</th>
+                                <th style={tableHead}>
+                                    Specialization
+                                </th>
 
                             </tr>
 
@@ -248,13 +360,17 @@ export default function PatientDashboard() {
                         <tbody>
 
                             {data.appointments &&
-                                data.appointments.length > 0 ? (
+                            data.appointments.length > 0 ? (
 
                                 data.appointments.map((a) => (
 
-                                    <tr key={a.appointment_id}>
+                                    <tr
+                                        key={a.appointment_id}
+                                    >
 
-                                        <td style={tableData}>{a.date}</td>
+                                        <td style={tableData}>
+                                            {a.date}
+                                        </td>
 
                                         <td style={tableData}>
                                             {a.doctor_name}
@@ -291,7 +407,7 @@ export default function PatientDashboard() {
 
             </div>
 
-            {/* MEDICAL HISTORY */}
+            {/* PRESCRIPTIONS */}
 
             <div style={cardStyle}>
 
@@ -307,13 +423,21 @@ export default function PatientDashboard() {
 
                             <tr style={tableHeaderRow}>
 
-                                <th style={tableHead}>Date</th>
+                                <th style={tableHead}>
+                                    Date
+                                </th>
 
-                                <th style={tableHead}>Doctor</th>
+                                <th style={tableHead}>
+                                    Doctor
+                                </th>
 
-                                <th style={tableHead}>Medicine</th>
+                                <th style={tableHead}>
+                                    Medicine
+                                </th>
 
-                                <th style={tableHead}>Quantity</th>
+                                <th style={tableHead}>
+                                    Quantity
+                                </th>
 
                             </tr>
 
@@ -322,13 +446,17 @@ export default function PatientDashboard() {
                         <tbody>
 
                             {data.prescriptions &&
-                                data.prescriptions.length > 0 ? (
+                            data.prescriptions.length > 0 ? (
 
                                 data.prescriptions.map((p) => (
 
-                                    <tr key={p.prescription_id}>
+                                    <tr
+                                        key={p.prescription_id}
+                                    >
 
-                                        <td style={tableData}>{p.date}</td>
+                                        <td style={tableData}>
+                                            {p.date}
+                                        </td>
 
                                         <td style={tableData}>
                                             {p.doctor_name}
@@ -385,11 +513,17 @@ export default function PatientDashboard() {
 
                             <tr style={tableHeaderRow}>
 
-                                <th style={tableHead}>Bill Date</th>
+                                <th style={tableHead}>
+                                    Bill Date
+                                </th>
 
-                                <th style={tableHead}>Total Amount</th>
+                                <th style={tableHead}>
+                                    Total Amount
+                                </th>
 
-                                <th style={tableHead}>Status</th>
+                                <th style={tableHead}>
+                                    Status
+                                </th>
 
                             </tr>
 
@@ -398,7 +532,7 @@ export default function PatientDashboard() {
                         <tbody>
 
                             {data.bills &&
-                                data.bills.length > 0 ? (
+                            data.bills.length > 0 ? (
 
                                 data.bills.map((b) => (
 
@@ -454,7 +588,8 @@ const cardStyle = {
     borderRadius: '20px',
     padding: '30px',
     marginBottom: '30px',
-    boxShadow: '0 5px 20px rgba(0,0,0,0.06)'
+    boxShadow:
+        '0 5px 20px rgba(0,0,0,0.06)'
 };
 
 const sectionTitle = {
@@ -493,7 +628,8 @@ const tableHead = {
 
 const tableData = {
     padding: '16px',
-    borderBottom: '1px solid #e2e8f0',
+    borderBottom:
+        '1px solid #e2e8f0',
     color: '#0f172a'
 };
 
