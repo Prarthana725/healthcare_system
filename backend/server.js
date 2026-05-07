@@ -2,12 +2,13 @@ const express = require('express');
 const cors = require('cors');
 const { getConnection } = require('./db/sqlConnection');
 const authRoutes = require('./routes/auth');
-
+const userRoutes = require('./routes/users');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 app.use(express.urlencoded({ extended: true }));
 
 // Import routes
