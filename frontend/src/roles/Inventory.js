@@ -104,205 +104,430 @@ export default function PharmacistDashboard() {
     );
 
     return (
-        <div className="page-content">
+        <div
+            style={{
+                minHeight: '100vh',
+                background: '#f1f5f9',
+                padding: '30px',
+                fontFamily: "'Segoe UI', sans-serif"
+            }}
+        >
 
-            <h1>💊 Pharmacist Dashboard</h1>
-            <p>Medicine inventory & stock management system</p>
+            {/* HEADER */}
+            <div
+                style={{
+                    background:
+                        'linear-gradient(to right, #0f766e, #0284c7)',
+                    borderRadius: '24px',
+                    padding: '35px',
+                    color: 'white',
+                    marginBottom: '30px',
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
+                }}
+            >
+                <h1
+                    style={{
+                        margin: 0,
+                        fontSize: '34px'
+                    }}
+                >
+                    💊 Pharmacist Dashboard
+                </h1>
+
+                <p
+                    style={{
+                        marginTop: '10px',
+                        opacity: 0.9,
+                        fontSize: '16px'
+                    }}
+                >
+                    Medicine inventory & stock management system
+                </p>
+            </div>
 
             {/* MESSAGE */}
             {message && (
-                <p className="small-note">{message}</p>
+                <div
+                    style={{
+                        background: '#ecfeff',
+                        color: '#0f766e',
+                        padding: '14px',
+                        borderRadius: '12px',
+                        marginBottom: '25px',
+                        fontWeight: '600',
+                        textAlign: 'center'
+                    }}
+                >
+                    {message}
+                </div>
             )}
 
             {/* DASHBOARD CARDS */}
-            <div className="card-grid">
+            <div
+                style={{
+                    display: 'grid',
+                    gridTemplateColumns:
+                        'repeat(auto-fit, minmax(240px, 1fr))',
+                    gap: '20px',
+                    marginBottom: '30px'
+                }}
+            >
 
-                <div className="card">
-                    <div className="card-title">
-                        Total Medicines
+                <div style={cardStyle}>
+                    <div style={cardTitle}>
+                        📦 Total Medicines
                     </div>
 
-                    <div className="card-value">
+                    <div style={cardValue}>
                         {medicines.length}
                     </div>
                 </div>
 
-                <div className="card">
-                    <div className="card-title">
-                        Low Stock Alerts
+                <div style={cardStyle}>
+                    <div style={cardTitle}>
+                        ⚠️ Low Stock Alerts
                     </div>
 
-                    <div className="card-value">
+                    <div
+                        style={{
+                            ...cardValue,
+                            color:
+                                lowStockMedicines.length > 0
+                                    ? '#dc2626'
+                                    : '#16a34a'
+                        }}
+                    >
                         {lowStockMedicines.length}
                     </div>
                 </div>
 
             </div>
 
-            {/* ADD MEDICINE */}
-            <div className="form-panel">
+            {/* MAIN GRID */}
+            <div
+                style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1.6fr',
+                    gap: '25px',
+                    marginBottom: '30px'
+                }}
+            >
 
-                <h3>➕ Add New Medicine</h3>
+                {/* ADD MEDICINE */}
+                <div style={panelStyle}>
 
-                <form onSubmit={handleSubmit}>
+                    <h2 style={sectionTitle}>
+                        ➕ Add New Medicine
+                    </h2>
 
-                    <input
-                        type="text"
-                        placeholder="Medicine Name"
-                        value={form.name}
-                        onChange={(e) =>
-                            setForm({
-                                ...form,
-                                name: e.target.value
-                            })
-                        }
-                        required
-                    />
+                    <form
+                        onSubmit={handleSubmit}
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '18px'
+                        }}
+                    >
 
-                    <input
-                        type="number"
-                        placeholder="Quantity"
-                        value={form.quantity}
-                        onChange={(e) =>
-                            setForm({
-                                ...form,
-                                quantity: e.target.value
-                            })
-                        }
-                        required
-                    />
+                        <input
+                            type="text"
+                            placeholder="Medicine Name"
+                            value={form.name}
+                            onChange={(e) =>
+                                setForm({
+                                    ...form,
+                                    name: e.target.value
+                                })
+                            }
+                            required
+                            style={inputStyle}
+                        />
 
-                    <button type="submit">
-                        Add Medicine
-                    </button>
+                        <input
+                            type="number"
+                            placeholder="Quantity"
+                            value={form.quantity}
+                            onChange={(e) =>
+                                setForm({
+                                    ...form,
+                                    quantity: e.target.value
+                                })
+                            }
+                            required
+                            style={inputStyle}
+                        />
 
-                </form>
+                        <button
+                            type="submit"
+                            style={buttonStyle}
+                        >
+                            Add Medicine
+                        </button>
 
-            </div>
+                    </form>
 
-            {/* LOW STOCK ALERT */}
-            <div className="table-panel">
+                </div>
 
-                <h3>⚠️ Low Stock Alerts</h3>
+                {/* LOW STOCK ALERT */}
+                <div style={panelStyle}>
 
-                <table>
+                    <h2 style={sectionTitle}>
+                        ⚠️ Low Stock Alerts
+                    </h2>
 
-                    <thead>
-                        <tr>
-                            <th>Medicine</th>
-                            <th>Quantity</th>
-                        </tr>
-                    </thead>
+                    <div style={{ overflowX: 'auto' }}>
 
-                    <tbody>
+                        <table style={tableStyle}>
 
-                        {lowStockMedicines.length > 0 ? (
+                            <thead>
 
-                            lowStockMedicines.map((med) => (
+                                <tr style={tableHeaderRow}>
+                                    <th style={tableHead}>
+                                        Medicine
+                                    </th>
 
-                                <tr key={med.medicine_id}>
-
-                                    <td>{med.name}</td>
-
-                                    <td className="low-stock">
-                                        {med.quantity}
-                                    </td>
-
+                                    <th style={tableHead}>
+                                        Quantity
+                                    </th>
                                 </tr>
 
-                            ))
+                            </thead>
 
-                        ) : (
+                            <tbody>
 
-                            <tr>
-                                <td colSpan="2">
-                                    No low stock medicines ✅
-                                </td>
-                            </tr>
+                                {lowStockMedicines.length > 0 ? (
 
-                        )}
+                                    lowStockMedicines.map((med) => (
 
-                    </tbody>
+                                        <tr key={med.medicine_id}>
 
-                </table>
+                                            <td style={tableData}>
+                                                {med.name}
+                                            </td>
+
+                                            <td
+                                                style={{
+                                                    ...tableData,
+                                                    color: '#dc2626',
+                                                    fontWeight: '700'
+                                                }}
+                                            >
+                                                {med.quantity}
+                                            </td>
+
+                                        </tr>
+
+                                    ))
+
+                                ) : (
+
+                                    <tr>
+                                        <td
+                                            colSpan="2"
+                                            style={emptyStyle}
+                                        >
+                                            No low stock medicines ✅
+                                        </td>
+                                    </tr>
+
+                                )}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
 
             </div>
 
             {/* INVENTORY TABLE */}
-            <div className="table-panel">
+            <div style={panelStyle}>
 
-                <h3>📦 Medicine Inventory</h3>
+                <h2 style={sectionTitle}>
+                    📦 Medicine Inventory
+                </h2>
 
-                <table>
+                <div style={{ overflowX: 'auto' }}>
 
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Medicine</th>
-                            <th>Quantity</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
+                    <table style={tableStyle}>
 
-                    <tbody>
+                        <thead>
 
-                        {medicines.map((med) => {
+                            <tr style={tableHeaderRow}>
+                                <th style={tableHead}>ID</th>
+                                <th style={tableHead}>Medicine</th>
+                                <th style={tableHead}>Quantity</th>
+                                <th style={tableHead}>Status</th>
+                                <th style={tableHead}>Action</th>
+                            </tr>
 
-                            const lowStock =
-                                Number(med.quantity) < 10;
+                        </thead>
 
-                            return (
+                        <tbody>
 
-                                <tr key={med.medicine_id}>
+                            {medicines.map((med) => {
 
-                                    <td>{med.medicine_id}</td>
+                                const lowStock =
+                                    Number(med.quantity) < 10;
 
-                                    <td>{med.name}</td>
+                                return (
 
-                                    <td
-                                        className={
-                                            lowStock
-                                                ? 'low-stock'
-                                                : ''
-                                        }
-                                    >
-                                        {med.quantity}
-                                    </td>
+                                    <tr key={med.medicine_id}>
 
-                                    <td>
-                                        {lowStock
-                                            ? '⚠️ Low Stock'
-                                            : '✅ Available'}
-                                    </td>
+                                        <td style={tableData}>
+                                            {med.medicine_id}
+                                        </td>
 
-                                    <td>
+                                        <td style={tableData}>
+                                            {med.name}
+                                        </td>
 
-                                        <button
-                                            onClick={() =>
-                                                updateStock(
-                                                    med.medicine_id,
-                                                    med.quantity
-                                                )
-                                            }
+                                        <td
+                                            style={{
+                                                ...tableData,
+                                                color: lowStock
+                                                    ? '#dc2626'
+                                                    : '#16a34a',
+                                                fontWeight: '700'
+                                            }}
                                         >
-                                            Update Stock
-                                        </button>
+                                            {med.quantity}
+                                        </td>
 
-                                    </td>
+                                        <td style={tableData}>
+                                            {lowStock
+                                                ? '⚠️ Low Stock'
+                                                : '✅ Available'}
+                                        </td>
 
-                                </tr>
+                                        <td style={tableData}>
 
-                            );
+                                            <button
+                                                onClick={() =>
+                                                    updateStock(
+                                                        med.medicine_id,
+                                                        med.quantity
+                                                    )
+                                                }
+                                                style={{
+                                                    padding:
+                                                        '10px 16px',
+                                                    border: 'none',
+                                                    borderRadius:
+                                                        '10px',
+                                                    background:
+                                                        '#0284c7',
+                                                    color: 'white',
+                                                    fontWeight:
+                                                        '600',
+                                                    cursor: 'pointer'
+                                                }}
+                                            >
+                                                Update Stock
+                                            </button>
 
-                        })}
+                                        </td>
 
-                    </tbody>
+                                    </tr>
 
-                </table>
+                                );
+
+                            })}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
 
             </div>
 
         </div>
     );
 }
+
+/* STYLES */
+
+const cardStyle = {
+    background: 'white',
+    borderRadius: '20px',
+    padding: '25px',
+    boxShadow: '0 5px 20px rgba(0,0,0,0.06)'
+};
+
+const cardTitle = {
+    color: '#64748b',
+    fontSize: '16px',
+    marginBottom: '15px'
+};
+
+const cardValue = {
+    fontSize: '42px',
+    fontWeight: '700',
+    color: '#0f172a'
+};
+
+const panelStyle = {
+    background: 'white',
+    borderRadius: '20px',
+    padding: '30px',
+    boxShadow: '0 5px 20px rgba(0,0,0,0.06)'
+};
+
+const sectionTitle = {
+    marginBottom: '25px',
+    color: '#0f172a'
+};
+
+const inputStyle = {
+    width: '100%',
+    padding: '14px',
+    borderRadius: '12px',
+    border: '1px solid #cbd5e1',
+    background: '#f8fafc',
+    fontSize: '15px',
+    outline: 'none',
+    boxSizing: 'border-box'
+};
+
+const buttonStyle = {
+    padding: '15px',
+    border: 'none',
+    borderRadius: '12px',
+    background:
+        'linear-gradient(to right, #0f766e, #0284c7)',
+    color: 'white',
+    fontSize: '15px',
+    fontWeight: '700',
+    cursor: 'pointer'
+};
+
+const tableStyle = {
+    width: '100%',
+    borderCollapse: 'collapse'
+};
+
+const tableHeaderRow = {
+    background: '#f1f5f9'
+};
+
+const tableHead = {
+    padding: '16px',
+    textAlign: 'left',
+    color: '#334155',
+    fontSize: '15px'
+};
+
+const tableData = {
+    padding: '16px',
+    borderBottom: '1px solid #e2e8f0',
+    color: '#0f172a'
+};
+
+const emptyStyle = {
+    padding: '20px',
+    textAlign: 'center',
+    color: '#64748b'
+};

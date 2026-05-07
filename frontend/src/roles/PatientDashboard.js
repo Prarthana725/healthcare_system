@@ -69,7 +69,22 @@ export default function PatientDashboard() {
 
     if (loading) {
 
-        return <h2>Loading Dashboard...</h2>;
+        return (
+            <div
+                style={{
+                    minHeight: '100vh',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    fontFamily: "'Segoe UI', sans-serif",
+                    background: '#f1f5f9'
+                }}
+            >
+                <h2 style={{ color: '#0f766e' }}>
+                    Loading Dashboard...
+                </h2>
+            </div>
+        );
 
     }
 
@@ -79,7 +94,22 @@ export default function PatientDashboard() {
 
     if (error) {
 
-        return <h2>{error}</h2>;
+        return (
+            <div
+                style={{
+                    minHeight: '100vh',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    fontFamily: "'Segoe UI', sans-serif",
+                    background: '#f1f5f9'
+                }}
+            >
+                <h2 style={{ color: '#dc2626' }}>
+                    {error}
+                </h2>
+            </div>
+        );
 
     }
 
@@ -89,231 +119,386 @@ export default function PatientDashboard() {
 
     if (!data || !data.patient) {
 
-        return <h2>No patient data found</h2>;
+        return (
+            <div
+                style={{
+                    minHeight: '100vh',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    fontFamily: "'Segoe UI', sans-serif",
+                    background: '#f1f5f9'
+                }}
+            >
+                <h2>No patient data found</h2>
+            </div>
+        );
 
     }
 
     return (
 
-        <div>
+        <div
+            style={{
+                minHeight: '100vh',
+                background: '#f1f5f9',
+                padding: '30px',
+                fontFamily: "'Segoe UI', sans-serif"
+            }}
+        >
 
-            <h1>
-                Patient Dashboard 🧑‍⚕️
-            </h1>
+            {/* HEADER */}
 
-            <p>
-                View medical history and pending appointments
-            </p>
+            <div
+                style={{
+                    background:
+                        'linear-gradient(to right, #0f766e, #0284c7)',
+                    borderRadius: '24px',
+                    padding: '35px',
+                    color: 'white',
+                    marginBottom: '30px',
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
+                }}
+            >
 
-            <hr />
+                <h1
+                    style={{
+                        margin: 0,
+                        fontSize: '34px'
+                    }}
+                >
+                    🧑‍⚕️ Patient Dashboard
+                </h1>
+
+                <p
+                    style={{
+                        marginTop: '10px',
+                        opacity: 0.9,
+                        fontSize: '16px'
+                    }}
+                >
+                    View medical history, appointments and billing information
+                </p>
+
+            </div>
 
             {/* PATIENT INFO */}
 
-            <h2>
-                Patient Information
-            </h2>
+            <div style={cardStyle}>
 
-            <p>
-                <strong>Name:</strong>
-                {' '}
-                {data.patient.name}
-            </p>
+                <h2 style={sectionTitle}>
+                    👤 Patient Information
+                </h2>
 
-            <p>
-                <strong>Age:</strong>
-                {' '}
-                {data.patient.age}
-            </p>
+                <div
+                    style={{
+                        display: 'grid',
+                        gridTemplateColumns:
+                            'repeat(auto-fit, minmax(220px, 1fr))',
+                        gap: '20px',
+                        marginTop: '20px'
+                    }}
+                >
 
-            <p>
-                <strong>Phone:</strong>
-                {' '}
-                {data.patient.phone}
-            </p>
+                    <div style={infoBox}>
+                        <p style={infoLabel}>Name</p>
+                        <h3>{data.patient.name}</h3>
+                    </div>
 
-            <hr />
+                    <div style={infoBox}>
+                        <p style={infoLabel}>Age</p>
+                        <h3>{data.patient.age}</h3>
+                    </div>
+
+                    <div style={infoBox}>
+                        <p style={infoLabel}>Phone</p>
+                        <h3>{data.patient.phone}</h3>
+                    </div>
+
+                </div>
+
+            </div>
 
             {/* APPOINTMENTS */}
 
-            <h2>
-                Pending Appointments
-            </h2>
+            <div style={cardStyle}>
 
-            <table border="1" cellPadding="10">
+                <h2 style={sectionTitle}>
+                    📅 Pending Appointments
+                </h2>
 
-                <thead>
+                <div style={{ overflowX: 'auto' }}>
 
-                    <tr>
+                    <table style={tableStyle}>
 
-                        <th>Date</th>
+                        <thead>
 
-                        <th>Doctor</th>
+                            <tr style={tableHeaderRow}>
 
-                        <th>Specialization</th>
+                                <th style={tableHead}>Date</th>
 
-                    </tr>
+                                <th style={tableHead}>Doctor</th>
 
-                </thead>
-
-                <tbody>
-
-                    {data.appointments &&
-                    data.appointments.length > 0 ? (
-
-                        data.appointments.map((a) => (
-
-                            <tr key={a.appointment_id}>
-
-                                <td>{a.date}</td>
-
-                                <td>{a.doctor_name}</td>
-
-                                <td>{a.specialization}</td>
+                                <th style={tableHead}>Specialization</th>
 
                             </tr>
 
-                        ))
+                        </thead>
 
-                    ) : (
+                        <tbody>
 
-                        <tr>
+                            {data.appointments &&
+                                data.appointments.length > 0 ? (
 
-                            <td colSpan="3">
-                                No appointments found
-                            </td>
+                                data.appointments.map((a) => (
 
-                        </tr>
+                                    <tr key={a.appointment_id}>
 
-                    )}
+                                        <td style={tableData}>{a.date}</td>
 
-                </tbody>
+                                        <td style={tableData}>
+                                            {a.doctor_name}
+                                        </td>
 
-            </table>
+                                        <td style={tableData}>
+                                            {a.specialization}
+                                        </td>
 
-            <hr />
+                                    </tr>
+
+                                ))
+
+                            ) : (
+
+                                <tr>
+
+                                    <td
+                                        colSpan="3"
+                                        style={emptyStyle}
+                                    >
+                                        No appointments found
+                                    </td>
+
+                                </tr>
+
+                            )}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
 
             {/* MEDICAL HISTORY */}
 
-            <h2>
-                Medical History
-            </h2>
+            <div style={cardStyle}>
 
-            <table border="1" cellPadding="10">
+                <h2 style={sectionTitle}>
+                    💊 Medical History
+                </h2>
 
-                <thead>
+                <div style={{ overflowX: 'auto' }}>
 
-                    <tr>
+                    <table style={tableStyle}>
 
-                        <th>Date</th>
+                        <thead>
 
-                        <th>Doctor</th>
+                            <tr style={tableHeaderRow}>
 
-                        <th>Medicine</th>
+                                <th style={tableHead}>Date</th>
 
-                        <th>Quantity</th>
+                                <th style={tableHead}>Doctor</th>
 
-                    </tr>
+                                <th style={tableHead}>Medicine</th>
 
-                </thead>
-
-                <tbody>
-
-                    {data.prescriptions &&
-                    data.prescriptions.length > 0 ? (
-
-                        data.prescriptions.map((p) => (
-
-                            <tr key={p.prescription_id}>
-
-                                <td>{p.date}</td>
-
-                                <td>{p.doctor_name}</td>
-
-                                <td>{p.medicine_name}</td>
-
-                                <td>{p.quantity}</td>
+                                <th style={tableHead}>Quantity</th>
 
                             </tr>
 
-                        ))
+                        </thead>
 
-                    ) : (
+                        <tbody>
 
-                        <tr>
+                            {data.prescriptions &&
+                                data.prescriptions.length > 0 ? (
 
-                            <td colSpan="4">
-                                No medical history found
-                            </td>
+                                data.prescriptions.map((p) => (
 
-                        </tr>
+                                    <tr key={p.prescription_id}>
 
-                    )}
+                                        <td style={tableData}>{p.date}</td>
 
-                </tbody>
+                                        <td style={tableData}>
+                                            {p.doctor_name}
+                                        </td>
 
-            </table>
+                                        <td style={tableData}>
+                                            {p.medicine_name}
+                                        </td>
 
-            <hr />
+                                        <td style={tableData}>
+                                            {p.quantity}
+                                        </td>
+
+                                    </tr>
+
+                                ))
+
+                            ) : (
+
+                                <tr>
+
+                                    <td
+                                        colSpan="4"
+                                        style={emptyStyle}
+                                    >
+                                        No medical history found
+                                    </td>
+
+                                </tr>
+
+                            )}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
 
             {/* BILLS */}
 
-            <h2>
-                Bills
-            </h2>
+            <div style={cardStyle}>
 
-            <table border="1" cellPadding="10">
+                <h2 style={sectionTitle}>
+                    💳 Bills
+                </h2>
 
-                <thead>
+                <div style={{ overflowX: 'auto' }}>
 
-                    <tr>
+                    <table style={tableStyle}>
 
-                        <th>Bill Date</th>
+                        <thead>
 
-                        <th>Total Amount</th>
+                            <tr style={tableHeaderRow}>
 
-                        <th>Status</th>
+                                <th style={tableHead}>Bill Date</th>
 
-                    </tr>
+                                <th style={tableHead}>Total Amount</th>
 
-                </thead>
-
-                <tbody>
-
-                    {data.bills &&
-                    data.bills.length > 0 ? (
-
-                        data.bills.map((b) => (
-
-                            <tr key={b.bill_id}>
-
-                                <td>{b.bill_date}</td>
-
-                                <td>
-                                    Rs. {b.total_amount}
-                                </td>
-
-                                <td>{b.status}</td>
+                                <th style={tableHead}>Status</th>
 
                             </tr>
 
-                        ))
+                        </thead>
 
-                    ) : (
+                        <tbody>
 
-                        <tr>
+                            {data.bills &&
+                                data.bills.length > 0 ? (
 
-                            <td colSpan="3">
-                                No bills available
-                            </td>
+                                data.bills.map((b) => (
 
-                        </tr>
+                                    <tr key={b.bill_id}>
 
-                    )}
+                                        <td style={tableData}>
+                                            {b.bill_date}
+                                        </td>
 
-                </tbody>
+                                        <td style={tableData}>
+                                            Rs. {b.total_amount}
+                                        </td>
 
-            </table>
+                                        <td style={tableData}>
+                                            {b.status}
+                                        </td>
+
+                                    </tr>
+
+                                ))
+
+                            ) : (
+
+                                <tr>
+
+                                    <td
+                                        colSpan="3"
+                                        style={emptyStyle}
+                                    >
+                                        No bills available
+                                    </td>
+
+                                </tr>
+
+                            )}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
 
         </div>
     );
 }
+
+/* STYLES */
+
+const cardStyle = {
+    background: 'white',
+    borderRadius: '20px',
+    padding: '30px',
+    marginBottom: '30px',
+    boxShadow: '0 5px 20px rgba(0,0,0,0.06)'
+};
+
+const sectionTitle = {
+    marginBottom: '20px',
+    color: '#0f172a'
+};
+
+const infoBox = {
+    background: '#f8fafc',
+    padding: '20px',
+    borderRadius: '16px',
+    border: '1px solid #e2e8f0'
+};
+
+const infoLabel = {
+    color: '#64748b',
+    marginBottom: '8px',
+    fontSize: '14px'
+};
+
+const tableStyle = {
+    width: '100%',
+    borderCollapse: 'collapse'
+};
+
+const tableHeaderRow = {
+    background: '#f1f5f9'
+};
+
+const tableHead = {
+    padding: '16px',
+    textAlign: 'left',
+    color: '#334155',
+    fontSize: '15px'
+};
+
+const tableData = {
+    padding: '16px',
+    borderBottom: '1px solid #e2e8f0',
+    color: '#0f172a'
+};
+
+const emptyStyle = {
+    padding: '20px',
+    textAlign: 'center',
+    color: '#64748b'
+};

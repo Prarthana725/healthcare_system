@@ -42,78 +42,218 @@ export default function DoctorPanel() {
 
     return (
 
-        <div>
+        <div
+            style={{
+                minHeight: '100vh',
+                background: '#f1f5f9',
+                padding: '30px',
+                fontFamily: "'Segoe UI', sans-serif"
+            }}
+        >
 
-            <h1>
-                Doctor Panel 👩‍⚕️
-            </h1>
+            {/* HEADER */}
 
-            <p>
-                Manage patients and prescriptions
-            </p>
+            <div
+                style={{
+                    background:
+                        'linear-gradient(to right, #0f766e, #0284c7)',
+                    borderRadius: '24px',
+                    padding: '35px',
+                    color: 'white',
+                    marginBottom: '30px',
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
+                }}
+            >
 
-            <hr />
+                <h1
+                    style={{
+                        margin: 0,
+                        fontSize: '34px'
+                    }}
+                >
+                    👩‍⚕️ Doctor Panel
+                </h1>
 
-            <h2>
-                My Appointments
-            </h2>
+                <p
+                    style={{
+                        marginTop: '10px',
+                        opacity: 0.9,
+                        fontSize: '16px'
+                    }}
+                >
+                    Manage patients and appointments
+                </p>
 
-            <table border="1" cellPadding="10">
+            </div>
 
-                <thead>
+            {/* STATS CARD */}
 
-                    <tr>
+            <div
+                style={{
+                    display: 'grid',
+                    gridTemplateColumns:
+                        'repeat(auto-fit, minmax(250px, 1fr))',
+                    gap: '20px',
+                    marginBottom: '30px'
+                }}
+            >
 
-                        <th>Patient</th>
+                <div style={cardStyle}>
 
-                        <th>Age</th>
+                    <div style={cardTitle}>
+                        📅 Total Appointments
+                    </div>
 
-                        <th>Date</th>
+                    <div style={cardValue}>
+                        {appointments.length}
+                    </div>
 
-                    </tr>
+                </div>
 
-                </thead>
+            </div>
 
-                <tbody>
+            {/* APPOINTMENTS TABLE */}
 
-                    {appointments.length > 0 ? (
+            <div style={panelStyle}>
 
-                        appointments.map((a) => (
+                <h2 style={sectionTitle}>
+                    📋 My Appointments
+                </h2>
 
-                            <tr key={a.appointment_id}>
+                <div style={{ overflowX: 'auto' }}>
 
-                                <td>
-                                    {a.patient_name}
-                                </td>
+                    <table style={tableStyle}>
 
-                                <td>
-                                    {a.age}
-                                </td>
+                        <thead>
 
-                                <td>
-                                    {a.date}
-                                </td>
+                            <tr style={tableHeaderRow}>
+
+                                <th style={tableHead}>
+                                    Patient
+                                </th>
+
+                                <th style={tableHead}>
+                                    Age
+                                </th>
+
+                                <th style={tableHead}>
+                                    Appointment Date
+                                </th>
 
                             </tr>
 
-                        ))
+                        </thead>
 
-                    ) : (
+                        <tbody>
 
-                        <tr>
+                            {appointments.length > 0 ? (
 
-                            <td colSpan="3">
-                                No appointments found
-                            </td>
+                                appointments.map((a) => (
 
-                        </tr>
+                                    <tr
+                                        key={a.appointment_id}
+                                    >
 
-                    )}
+                                        <td style={tableData}>
+                                            {a.patient_name}
+                                        </td>
 
-                </tbody>
+                                        <td style={tableData}>
+                                            {a.age}
+                                        </td>
 
-            </table>
+                                        <td style={tableData}>
+                                            {a.date}
+                                        </td>
+
+                                    </tr>
+
+                                ))
+
+                            ) : (
+
+                                <tr>
+
+                                    <td
+                                        colSpan="3"
+                                        style={emptyStyle}
+                                    >
+                                        No appointments found
+                                    </td>
+
+                                </tr>
+
+                            )}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
 
         </div>
     );
 }
+
+/* STYLES */
+
+const cardStyle = {
+    background: 'white',
+    borderRadius: '20px',
+    padding: '25px',
+    boxShadow: '0 5px 20px rgba(0,0,0,0.06)'
+};
+
+const cardTitle = {
+    color: '#64748b',
+    fontSize: '16px',
+    marginBottom: '15px'
+};
+
+const cardValue = {
+    fontSize: '42px',
+    fontWeight: '700',
+    color: '#0f172a'
+};
+
+const panelStyle = {
+    background: 'white',
+    borderRadius: '20px',
+    padding: '30px',
+    boxShadow: '0 5px 20px rgba(0,0,0,0.06)'
+};
+
+const sectionTitle = {
+    marginBottom: '25px',
+    color: '#0f172a'
+};
+
+const tableStyle = {
+    width: '100%',
+    borderCollapse: 'collapse'
+};
+
+const tableHeaderRow = {
+    background: '#f1f5f9'
+};
+
+const tableHead = {
+    padding: '16px',
+    textAlign: 'left',
+    color: '#334155',
+    fontSize: '15px'
+};
+
+const tableData = {
+    padding: '16px',
+    borderBottom: '1px solid #e2e8f0',
+    color: '#0f172a'
+};
+
+const emptyStyle = {
+    padding: '20px',
+    textAlign: 'center',
+    color: '#64748b'
+};
