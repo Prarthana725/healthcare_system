@@ -1,32 +1,52 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+
+import {
+    FaUserDoctor,
+    FaUserShield,
+    FaHospitalUser,
+    FaPills,
+    FaCalendarCheck
+} from 'react-icons/fa6';
+
+import AOS from 'aos';
+
+import 'aos/dist/aos.css';
 
 export default function LandingPage() {
+
+    useEffect(() => {
+
+        AOS.init({
+            duration: 1000
+        });
+
+    }, []);
 
     const services = [
 
         {
-            icon: '🛡️',
+            icon: <FaUserShield />,
             title: 'Admin Management',
             desc:
                 'Complete user control, analytics and healthcare reporting system.'
         },
 
         {
-            icon: '👩‍⚕️',
+            icon: <FaUserDoctor />,
             title: 'Doctor Workspace',
             desc:
                 'Manage appointments, prescriptions and patient workflows.'
         },
 
         {
-            icon: '💊',
+            icon: <FaPills />,
             title: 'Pharmacy Inventory',
             desc:
                 'Track medicine stock and prescription usage dynamically.'
         },
 
         {
-            icon: '📅',
+            icon: <FaCalendarCheck />,
             title: 'Appointment System',
             desc:
                 'Real-time patient appointment and reception management.'
@@ -94,7 +114,7 @@ export default function LandingPage() {
                                 justifyContent:
                                     'center',
                                 color: 'white',
-                                fontSize: '26px'
+                                fontSize: '24px'
                             }}
                         >
                             🏥
@@ -137,6 +157,13 @@ export default function LandingPage() {
                             style={navLink}
                         >
                             Services
+                        </a>
+
+                        <a
+                            href="#dashboards"
+                            style={navLink}
+                        >
+                            Dashboards
                         </a>
 
                         <a
@@ -184,32 +211,6 @@ export default function LandingPage() {
 
                 <div
                     style={{
-                        position: 'absolute',
-                        width: '450px',
-                        height: '450px',
-                        borderRadius: '999px',
-                        background:
-                            'rgba(255,255,255,0.08)',
-                        top: '-120px',
-                        right: '-100px'
-                    }}
-                />
-
-                <div
-                    style={{
-                        position: 'absolute',
-                        width: '300px',
-                        height: '300px',
-                        borderRadius: '999px',
-                        background:
-                            'rgba(255,255,255,0.06)',
-                        bottom: '-80px',
-                        left: '-60px'
-                    }}
-                />
-
-                <div
-                    style={{
                         maxWidth: '1300px',
                         margin: '0 auto',
                         width: '100%',
@@ -217,15 +218,13 @@ export default function LandingPage() {
                         gridTemplateColumns:
                             'repeat(auto-fit, minmax(320px, 1fr))',
                         gap: '70px',
-                        alignItems: 'center',
-                        position: 'relative',
-                        zIndex: 2
+                        alignItems: 'center'
                     }}
                 >
 
                     {/* LEFT */}
 
-                    <div>
+                    <div data-aos="fade-right">
 
                         <div
                             style={{
@@ -249,7 +248,7 @@ export default function LandingPage() {
 
                         <h1
                             style={{
-                                fontSize: '76px',
+                                fontSize: '72px',
                                 lineHeight: '1.05',
                                 color: 'white',
                                 margin: 0,
@@ -305,52 +304,12 @@ export default function LandingPage() {
 
                         </div>
 
-                        <div
-                            style={{
-                                display: 'flex',
-                                gap: '35px',
-                                marginTop: '55px',
-                                flexWrap: 'wrap'
-                            }}
-                        >
-
-                            <div>
-                                <div style={heroStatNumber}>
-                                    10K+
-                                </div>
-
-                                <div style={heroStatLabel}>
-                                    Appointments
-                                </div>
-                            </div>
-
-                            <div>
-                                <div style={heroStatNumber}>
-                                    1500+
-                                </div>
-
-                                <div style={heroStatLabel}>
-                                    Patients
-                                </div>
-                            </div>
-
-                            <div>
-                                <div style={heroStatNumber}>
-                                    99%
-                                </div>
-
-                                <div style={heroStatLabel}>
-                                    System Uptime
-                                </div>
-                            </div>
-
-                        </div>
-
                     </div>
 
                     {/* RIGHT */}
 
                     <div
+                        data-aos="fade-left"
                         style={{
                             display: 'flex',
                             justifyContent:
@@ -376,55 +335,13 @@ export default function LandingPage() {
                             }}
                         >
 
-                            <div
+                            <h2
                                 style={{
-                                    display: 'flex',
-                                    justifyContent:
-                                        'space-between',
-                                    alignItems:
-                                        'center',
-                                    marginBottom:
-                                        '30px'
+                                    color: 'white'
                                 }}
                             >
-
-                                <div>
-
-                                    <div
-                                        style={{
-                                            color: 'white',
-                                            fontWeight:
-                                                '700',
-                                            fontSize:
-                                                '24px'
-                                        }}
-                                    >
-                                        Live Dashboard
-                                    </div>
-
-                                    <div
-                                        style={{
-                                            color:
-                                                'rgba(255,255,255,0.7)'
-                                        }}
-                                    >
-                                        Real-time hospital activity
-                                    </div>
-
-                                </div>
-
-                                <div
-                                    style={{
-                                        width: '16px',
-                                        height: '16px',
-                                        borderRadius:
-                                            '999px',
-                                        background:
-                                            '#22c55e'
-                                    }}
-                                />
-
-                            </div>
+                                📊 Live Dashboard
+                            </h2>
 
                             <div style={dashboardGlassCard}>
                                 <span>
@@ -452,20 +369,6 @@ export default function LandingPage() {
                                     📅 Appointments
                                 </span>
                                 <strong>126</strong>
-                            </div>
-
-                            <div
-                                style={{
-                                    marginTop: '28px',
-                                    background:
-                                        'rgba(255,255,255,0.12)',
-                                    borderRadius:
-                                        '18px',
-                                    padding: '18px',
-                                    color: 'white'
-                                }}
-                            >
-                                ✔ System performance stable • SQL Server Connected
                             </div>
 
                         </div>
@@ -496,21 +399,11 @@ export default function LandingPage() {
 
                     <h2
                         style={{
-                            fontSize: '48px',
-                            marginBottom: '15px'
+                            fontSize: '48px'
                         }}
                     >
                         Powerful Healthcare Features
                     </h2>
-
-                    <p
-                        style={{
-                            color: '#64748b',
-                            fontSize: '18px'
-                        }}
-                    >
-                        Everything needed for a complete digital healthcare ecosystem.
-                    </p>
 
                 </div>
 
@@ -527,12 +420,14 @@ export default function LandingPage() {
 
                         <div
                             key={index}
+                            data-aos="fade-up"
                             style={serviceCard}
                         >
 
                             <div
                                 style={{
-                                    fontSize: '52px',
+                                    fontSize: '50px',
+                                    color: '#0f766e',
                                     marginBottom: '20px'
                                 }}
                             >
@@ -541,8 +436,7 @@ export default function LandingPage() {
 
                             <h3
                                 style={{
-                                    fontSize: '25px',
-                                    marginBottom: '14px'
+                                    fontSize: '24px'
                                 }}
                             >
                                 {service.title}
@@ -565,6 +459,122 @@ export default function LandingPage() {
 
             </section>
 
+            {/* DASHBOARD PREVIEW */}
+
+            <section
+                id="dashboards"
+                style={{
+                    background: '#0f172a',
+                    padding: '100px 25px',
+                    color: 'white'
+                }}
+            >
+
+                <div
+                    style={{
+                        maxWidth: '1250px',
+                        margin: '0 auto'
+                    }}
+                >
+
+                    <div
+                        style={{
+                            textAlign: 'center',
+                            marginBottom: '60px'
+                        }}
+                    >
+
+                        <h2
+                            style={{
+                                fontSize: '48px'
+                            }}
+                        >
+                            Dashboard Preview
+                        </h2>
+
+                        <p
+                            style={{
+                                opacity: 0.8,
+                                marginTop: '15px'
+                            }}
+                        >
+                            Role based healthcare workflow system
+                        </p>
+
+                    </div>
+
+                    <div
+                        style={{
+                            display: 'grid',
+                            gridTemplateColumns:
+                                'repeat(auto-fit, minmax(280px, 1fr))',
+                            gap: '30px'
+                        }}
+                    >
+
+                        <div
+                            data-aos="zoom-in"
+                            style={previewCard}
+                        >
+
+                            <FaUserShield
+                                size={45}
+                            />
+
+                            <h3>
+                                Admin Dashboard
+                            </h3>
+
+                            <p>
+                                Analytics, users and reports
+                            </p>
+
+                        </div>
+
+                        <div
+                            data-aos="zoom-in"
+                            style={previewCard}
+                        >
+
+                            <FaUserDoctor
+                                size={45}
+                            />
+
+                            <h3>
+                                Doctor Panel
+                            </h3>
+
+                            <p>
+                                Appointments and prescriptions
+                            </p>
+
+                        </div>
+
+                        <div
+                            data-aos="zoom-in"
+                            style={previewCard}
+                        >
+
+                            <FaHospitalUser
+                                size={45}
+                            />
+
+                            <h3>
+                                Patient Portal
+                            </h3>
+
+                            <p>
+                                Medical history and appointments
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
             {/* ABOUT */}
 
             <section
@@ -577,50 +587,35 @@ export default function LandingPage() {
 
                 <div
                     style={{
-                        maxWidth: '1250px',
+                        maxWidth: '1200px',
                         margin: '0 auto',
-                        display: 'grid',
-                        gridTemplateColumns:
-                            'repeat(auto-fit, minmax(320px, 1fr))',
-                        gap: '60px',
-                        alignItems: 'center'
+                        textAlign: 'center'
                     }}
                 >
 
-                    <div
+                    <h2
                         style={{
-                            fontSize: '150px',
-                            textAlign: 'center'
+                            fontSize: '48px'
                         }}
                     >
-                        🏥
-                    </div>
+                        Built for Modern Healthcare
+                    </h2>
 
-                    <div>
-
-                        <h2
-                            style={{
-                                fontSize: '46px',
-                                marginBottom: '25px'
-                            }}
-                        >
-                            Built for Modern Healthcare
-                        </h2>
-
-                        <p
-                            style={{
-                                color: '#64748b',
-                                lineHeight: '2',
-                                fontSize: '18px'
-                            }}
-                        >
-                            This Healthcare Management
-                            System is designed to simplify
-                            hospital operations using modern
-                            web technologies.
-                        </p>
-
-                    </div>
+                    <p
+                        style={{
+                            color: '#64748b',
+                            lineHeight: '2',
+                            fontSize: '18px',
+                            marginTop: '25px'
+                        }}
+                    >
+                        This Healthcare Management
+                        System simplifies hospital
+                        operations using React,
+                        Node.js and SQL Server with
+                        role-based dashboards and
+                        appointment workflows.
+                    </p>
 
                 </div>
 
@@ -648,7 +643,7 @@ export default function LandingPage() {
                         opacity: 0.75
                     }}
                 >
-                    Developed by Sankalpa • React • Node.js • SQL Server
+                    Developed by ABCD • React • Node.js • SQL Server
                 </p>
 
             </footer>
@@ -729,25 +724,6 @@ const serviceCard = {
         '0 10px 30px rgba(0,0,0,0.06)'
 };
 
-const heroStatNumber = {
-
-    color: 'white',
-
-    fontSize: '42px',
-
-    fontWeight: '800'
-};
-
-const heroStatLabel = {
-
-    color:
-        'rgba(255,255,255,0.75)',
-
-    marginTop: '6px',
-
-    fontSize: '15px'
-};
-
 const dashboardGlassCard = {
 
     display: 'flex',
@@ -769,4 +745,22 @@ const dashboardGlassCard = {
 
     border:
         '1px solid rgba(255,255,255,0.08)'
+};
+
+const previewCard = {
+
+    background:
+        'rgba(255,255,255,0.06)',
+
+    padding: '35px',
+
+    borderRadius: '24px',
+
+    textAlign: 'center',
+
+    border:
+        '1px solid rgba(255,255,255,0.08)',
+
+    backdropFilter:
+        'blur(10px)'
 };
