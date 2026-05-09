@@ -4,44 +4,71 @@ const API_URL = 'http://localhost:5000/api';
 
 export default function DoctorPanel() {
 
-    const user = JSON.parse(localStorage.getItem('user'));
+    const user = JSON.parse(
+        localStorage.getItem('user')
+    );
 
-    const [appointments, setAppointments] = useState([]);
-    const [patients, setPatients] = useState([]);
-    const [medicines, setMedicines] = useState([]);
+    const [appointments, setAppointments] =
+        useState([]);
 
-    const [message, setMessage] = useState('');
+    const [patients, setPatients] =
+        useState([]);
 
-    const [prescriptionForm, setPrescriptionForm] = useState({
-        patient_id: '',
-        date: '',
-        details: [
-            {
-                medicine_id: '',
-                quantity: ''
-            }
-        ]
-    });
+    const [medicines, setMedicines] =
+        useState([]);
+
+    const [message, setMessage] =
+        useState('');
+
+    const [prescriptionForm,
+        setPrescriptionForm] =
+        useState({
+
+            patient_id: '',
+
+            date: '',
+
+            details: [
+                {
+                    medicine_id: '',
+                    quantity: ''
+                }
+            ]
+        });
+
+  
 
     useEffect(() => {
 
         loadAppointments();
+
         loadPatients();
+
         loadMedicines();
 
     }, []);
+
+
 
     async function loadAppointments() {
 
         try {
 
             const res = await fetch(
+
                 `${API_URL}/appointments/doctor/${user.doctor_id}`
+
             );
 
-            const data = await res.json();
+            const data =
+                await res.json();
 
-            setAppointments(Array.isArray(data) ? data : []);
+            setAppointments(
+
+                Array.isArray(data)
+                    ? data
+                    : []
+            );
 
         } catch (err) {
 
@@ -50,13 +77,21 @@ export default function DoctorPanel() {
         }
     }
 
+
+
     async function loadPatients() {
 
         try {
 
-            const res = await fetch(`${API_URL}/patients`);
+            const res =
+                await fetch(
 
-            const data = await res.json();
+                    `${API_URL}/patients`
+
+                );
+
+            const data =
+                await res.json();
 
             setPatients(data);
 
@@ -67,13 +102,21 @@ export default function DoctorPanel() {
         }
     }
 
+
+
     async function loadMedicines() {
 
         try {
 
-            const res = await fetch(`${API_URL}/medicines`);
+            const res =
+                await fetch(
 
-            const data = await res.json();
+                    `${API_URL}/medicines`
+
+                );
+
+            const data =
+                await res.json();
 
             setMedicines(data);
 
@@ -84,20 +127,33 @@ export default function DoctorPanel() {
         }
     }
 
-    async function updateAppointmentStatus(id, status) {
+
+
+    async function updateAppointmentStatus(
+        id,
+        status
+    ) {
 
         try {
 
-            const res = await fetch(
-                `${API_URL}/appointments/${id}/status`,
-                {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ status })
-                }
-            );
+            const res =
+                await fetch(
+
+                    `${API_URL}/appointments/${id}/status`,
+
+                    {
+                        method: 'PUT',
+
+                        headers: {
+                            'Content-Type':
+                                'application/json'
+                        },
+
+                        body: JSON.stringify({
+                            status
+                        })
+                    }
+                );
 
             if (res.ok) {
 
@@ -112,24 +168,39 @@ export default function DoctorPanel() {
         }
     }
 
-    function handleMedicineChange(index, field, value) {
 
-        const updated = [...prescriptionForm.details];
+    function handleMedicineChange(
+        index,
+        field,
+        value
+    ) {
 
-        updated[index][field] = value;
+        const updated =
+            [...prescriptionForm.details];
+
+        updated[index][field] =
+            value;
 
         setPrescriptionForm({
+
             ...prescriptionForm,
+
             details: updated
         });
     }
 
+   
+
     function addMedicineRow() {
 
         setPrescriptionForm({
+
             ...prescriptionForm,
+
             details: [
+
                 ...prescriptionForm.details,
+
                 {
                     medicine_id: '',
                     quantity: ''
@@ -138,45 +209,81 @@ export default function DoctorPanel() {
         });
     }
 
-    async function handlePrescriptionSubmit(e) {
+  
+
+    async function handlePrescriptionSubmit(
+        e
+    ) {
 
         e.preventDefault();
 
         try {
 
             const formattedDetails =
-                prescriptionForm.details.map((d) => ({
-                    medicine_id: Number(d.medicine_id),
-                    quantity: Number(d.quantity)
-                }));
 
-            const res = await fetch(
-                `${API_URL}/prescriptions`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        patient_id: Number(
-                            prescriptionForm.patient_id
-                        ),
-                        doctor_id: user.doctor_id,
-                        date: prescriptionForm.date,
-                        details: formattedDetails
+                prescriptionForm.details.map(
+                    (d) => ({
+
+                        medicine_id:
+                            Number(
+                                d.medicine_id
+                            ),
+
+                        quantity:
+                            Number(
+                                d.quantity
+                            )
                     })
-                }
-            );
+                );
+
+            const res =
+                await fetch(
+
+                    `${API_URL}/prescriptions`,
+
+                    {
+                        method: 'POST',
+
+                        headers: {
+                            'Content-Type':
+                                'application/json'
+                        },
+
+                        body: JSON.stringify({
+
+                            patient_id:
+                                Number(
+                                    prescriptionForm.patient_id
+                                ),
+
+                            doctor_id:
+                                user.doctor_id,
+
+                            date:
+                                prescriptionForm.date,
+
+                            details:
+                                formattedDetails
+                        })
+                    }
+                );
+
+            const result =
+                await res.json();
 
             if (res.ok) {
 
                 setMessage(
+
                     'Prescription created successfully ✅'
                 );
 
                 setPrescriptionForm({
+
                     patient_id: '',
+
                     date: '',
+
                     details: [
                         {
                             medicine_id: '',
@@ -185,9 +292,14 @@ export default function DoctorPanel() {
                     ]
                 });
 
+                loadMedicines();
+
             } else {
 
                 setMessage(
+
+                    result.error ||
+
                     'Failed to create prescription ❌'
                 );
 
@@ -195,10 +307,38 @@ export default function DoctorPanel() {
 
         } catch (err) {
 
-            setMessage('Server error ❌');
+            console.error(err);
+
+            setMessage(
+                'Server error ❌'
+            );
 
         }
     }
+
+
+
+    function logout() {
+
+        localStorage.clear();
+
+        window.location.href =
+            '/login';
+    }
+
+    
+   
+
+    const completedAppointments =
+
+        appointments.filter(
+
+            a =>
+                a.status ===
+                'completed'
+
+        ).length;
+
 
     return (
 
@@ -207,7 +347,8 @@ export default function DoctorPanel() {
                 minHeight: '100vh',
                 background: '#f1f5f9',
                 padding: '30px',
-                fontFamily: "'Segoe UI', sans-serif"
+                fontFamily:
+                    "'Segoe UI', sans-serif"
             }}
         >
 
@@ -217,41 +358,80 @@ export default function DoctorPanel() {
                 style={{
                     background:
                         'linear-gradient(to right, #0f766e, #0284c7)',
+
                     borderRadius: '24px',
+
                     padding: '35px',
+
                     color: 'white',
-                    marginBottom: '30px'
+
+                    marginBottom: '30px',
+
+                    display: 'flex',
+
+                    justifyContent: 'space-between',
+
+                    alignItems: 'center'
                 }}
             >
 
-                <h1>👩‍⚕️ Doctor Panel</h1>
+                <div>
 
-                <p>
-                    Manage appointments and create prescriptions
-                </p>
+                    <h1>
+                        👩‍⚕️ Doctor Panel
+                    </h1>
+
+                    <p>
+                        Manage appointments and create prescriptions
+                    </p>
+
+                </div>
+
+                <button
+                    onClick={logout}
+                    style={logoutBtn}
+                >
+                    Logout
+                </button>
 
             </div>
 
             {/* STATS */}
 
-            <div
-                style={{
-                    display: 'grid',
-                    gridTemplateColumns:
-                        'repeat(auto-fit, minmax(220px, 1fr))',
-                    gap: '20px',
-                    marginBottom: '30px'
-                }}
-            >
+            <div style={statsGrid}>
 
                 <div style={cardStyle}>
 
                     <div style={cardTitle}>
-                        📅 Total Appointments
+                        📅 Appointments
                     </div>
 
                     <div style={cardValue}>
                         {appointments.length}
+                    </div>
+
+                </div>
+
+                <div style={cardStyle}>
+
+                    <div style={cardTitle}>
+                        ✅ Completed
+                    </div>
+
+                    <div style={cardValue}>
+                        {completedAppointments}
+                    </div>
+
+                </div>
+
+                <div style={cardStyle}>
+
+                    <div style={cardTitle}>
+                        💊 Medicines
+                    </div>
+
+                    <div style={cardValue}>
+                        {medicines.length}
                     </div>
 
                 </div>
@@ -272,11 +452,25 @@ export default function DoctorPanel() {
 
                         <tr style={tableHeaderRow}>
 
-                            <th style={tableHead}>Patient</th>
-                            <th style={tableHead}>Age</th>
-                            <th style={tableHead}>Date</th>
-                            <th style={tableHead}>Status</th>
-                            <th style={tableHead}>Action</th>
+                            <th style={tableHead}>
+                                Patient
+                            </th>
+
+                            <th style={tableHead}>
+                                Age
+                            </th>
+
+                            <th style={tableHead}>
+                                Date
+                            </th>
+
+                            <th style={tableHead}>
+                                Status
+                            </th>
+
+                            <th style={tableHead}>
+                                Action
+                            </th>
 
                         </tr>
 
@@ -286,7 +480,9 @@ export default function DoctorPanel() {
 
                         {appointments.map((a) => (
 
-                            <tr key={a.appointment_id}>
+                            <tr
+                                key={a.appointment_id}
+                            >
 
                                 <td style={tableData}>
                                     {a.patient_name}
@@ -297,25 +493,56 @@ export default function DoctorPanel() {
                                 </td>
 
                                 <td style={tableData}>
-                                    {a.date}
+
+                                    {
+                                        new Date(a.date)
+                                            .toLocaleDateString()
+                                    }
+
                                 </td>
 
-                                <td style={tableData}>
-                                    {a.status || 'pending'}
+                                <td
+                                    style={{
+                                        ...tableData,
+
+                                        color:
+
+                                            a.status === 'completed'
+                                                ? 'green'
+                                                : 'orange',
+
+                                        fontWeight:
+                                            'bold'
+                                    }}
+                                >
+
+                                    {
+                                        a.status ||
+                                        'pending'
+                                    }
+
                                 </td>
 
                                 <td style={tableData}>
 
                                     <button
+
                                         onClick={() =>
+
                                             updateAppointmentStatus(
+
                                                 a.appointment_id,
+
                                                 'completed'
                                             )
+
                                         }
+
                                         style={btnStyle}
                                     >
+
                                         Complete
+
                                     </button>
 
                                 </td>
@@ -344,31 +571,44 @@ export default function DoctorPanel() {
                 </h2>
 
                 <form
-                    onSubmit={handlePrescriptionSubmit}
+                    onSubmit={
+                        handlePrescriptionSubmit
+                    }
                 >
 
                     <div
                         style={{
                             display: 'grid',
+
                             gridTemplateColumns:
                                 '1fr 1fr',
+
                             gap: '15px',
+
                             marginBottom: '20px'
                         }}
                     >
 
                         <select
+
                             value={
                                 prescriptionForm.patient_id
                             }
+
                             onChange={(e) =>
+
                                 setPrescriptionForm({
+
                                     ...prescriptionForm,
+
                                     patient_id:
                                         e.target.value
                                 })
+
                             }
+
                             required
+
                             style={inputStyle}
                         >
 
@@ -379,10 +619,14 @@ export default function DoctorPanel() {
                             {patients.map((p) => (
 
                                 <option
+
                                     key={p.patient_id}
+
                                     value={p.patient_id}
                                 >
+
                                     {p.name}
+
                                 </option>
 
                             ))}
@@ -390,44 +634,71 @@ export default function DoctorPanel() {
                         </select>
 
                         <input
+
                             type="date"
-                            value={prescriptionForm.date}
-                            onChange={(e) =>
-                                setPrescriptionForm({
-                                    ...prescriptionForm,
-                                    date: e.target.value
-                                })
+
+                            value={
+                                prescriptionForm.date
                             }
+
+                            onChange={(e) =>
+
+                                setPrescriptionForm({
+
+                                    ...prescriptionForm,
+
+                                    date:
+                                        e.target.value
+                                })
+
+                            }
+
                             required
+
                             style={inputStyle}
                         />
 
                     </div>
 
                     {prescriptionForm.details.map(
+
                         (d, index) => (
 
                             <div
+
                                 key={index}
+
                                 style={{
                                     display: 'grid',
+
                                     gridTemplateColumns:
                                         '2fr 1fr',
+
                                     gap: '15px',
+
                                     marginBottom: '15px'
                                 }}
                             >
 
                                 <select
+
                                     value={d.medicine_id}
+
                                     onChange={(e) =>
+
                                         handleMedicineChange(
+
                                             index,
+
                                             'medicine_id',
+
                                             e.target.value
                                         )
+
                                     }
+
                                     required
+
                                     style={inputStyle}
                                 >
 
@@ -438,14 +709,26 @@ export default function DoctorPanel() {
                                     {medicines.map((m) => (
 
                                         <option
+
                                             key={
                                                 m.medicine_id
                                             }
+
                                             value={
                                                 m.medicine_id
                                             }
                                         >
+
                                             {m.name}
+
+                                            {' | Rs. '}
+
+                                            {m.price}
+
+                                            {' | Stock: '}
+
+                                            {m.quantity}
+
                                         </option>
 
                                     ))}
@@ -453,17 +736,28 @@ export default function DoctorPanel() {
                                 </select>
 
                                 <input
+
                                     type="number"
+
                                     placeholder="Quantity"
+
                                     value={d.quantity}
+
                                     onChange={(e) =>
+
                                         handleMedicineChange(
+
                                             index,
+
                                             'quantity',
+
                                             e.target.value
                                         )
+
                                     }
+
                                     required
+
                                     style={inputStyle}
                                 />
 
@@ -473,11 +767,16 @@ export default function DoctorPanel() {
                     )}
 
                     <button
+
                         type="button"
+
                         onClick={addMedicineRow}
+
                         style={secondaryBtn}
                     >
+
                         + Add Medicine
+
                     </button>
 
                     <br />
@@ -509,91 +808,170 @@ export default function DoctorPanel() {
 
 /* STYLES */
 
-const cardStyle = {
+const statsGrid = {
+
+    display: 'grid',
+
+    gridTemplateColumns:
+        'repeat(auto-fit, minmax(220px, 1fr))',
+
+    gap: '20px',
+
+    marginBottom: '30px'
+};
+
+const logoutBtn = {
+
+    padding:
+        '12px 22px',
+
+    border: 'none',
+
+    borderRadius: '12px',
+
     background: 'white',
+
+    color: '#0f766e',
+
+    fontWeight: '700',
+
+    cursor: 'pointer'
+};
+
+const cardStyle = {
+
+    background: 'white',
+
     borderRadius: '20px',
+
     padding: '25px'
 };
 
 const cardTitle = {
+
     color: '#64748b',
+
     marginBottom: '10px'
 };
 
 const cardValue = {
+
     fontSize: '42px',
+
     fontWeight: '700'
 };
 
 const panelStyle = {
+
     background: 'white',
+
     borderRadius: '20px',
+
     padding: '30px'
 };
 
 const sectionTitle = {
+
     marginBottom: '25px'
 };
 
 const tableStyle = {
+
     width: '100%',
+
     borderCollapse: 'collapse'
 };
 
 const tableHeaderRow = {
+
     background: '#f1f5f9'
 };
 
 const tableHead = {
+
     padding: '14px',
+
     textAlign: 'left'
 };
 
 const tableData = {
+
     padding: '14px',
-    borderBottom: '1px solid #e2e8f0'
+
+    borderBottom:
+        '1px solid #e2e8f0'
 };
 
 const inputStyle = {
+
     padding: '14px',
+
     borderRadius: '12px',
+
     border: '1px solid #cbd5e1',
+
     width: '100%'
 };
 
 const btnStyle = {
+
     padding: '10px 15px',
+
     background: '#0f766e',
+
     color: 'white',
+
     border: 'none',
+
     borderRadius: '10px',
+
     cursor: 'pointer'
 };
 
 const secondaryBtn = {
+
     padding: '12px 18px',
+
     border: 'none',
+
     borderRadius: '10px',
+
     background: '#0284c7',
+
     color: 'white',
+
     cursor: 'pointer'
 };
 
 const submitBtn = {
+
     padding: '14px 20px',
+
     border: 'none',
+
     borderRadius: '12px',
-    background: 'linear-gradient(to right, #0f766e, #0284c7)',
+
+    background:
+        'linear-gradient(to right, #0f766e, #0284c7)',
+
     color: 'white',
+
     fontWeight: '700',
+
     cursor: 'pointer'
 };
 
 const messageStyle = {
+
     marginTop: '20px',
+
     padding: '14px',
+
     borderRadius: '10px',
+
     background: '#ecfeff',
+
     color: '#0f766e',
+
     fontWeight: '600'
 };

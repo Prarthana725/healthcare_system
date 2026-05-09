@@ -1,184 +1,584 @@
-const prescriptionQueries = require('../db/prescriptionQueries');
-const billQueries = require('../db/billQueries');
+const prescriptionQueries =
+    require('../db/prescriptionQueries');
+
+const billQueries =
+    require('../db/billQueries');
+
+const medicineQueries =
+    require('../db/medicineQueries');
 
 // Helper function to group prescriptions
 function groupPrescriptions(rows) {
+
     const prescriptions = {};
+
     rows.forEach(row => {
-        if (!prescriptions[row.prescription_id]) {
-            prescriptions[row.prescription_id] = {
-                prescription_id: row.prescription_id,
-                patient_id: row.patient_id,
-                patient_name: row.patient_name,
-                doctor_id: row.doctor_id,
-                doctor_name: row.doctor_name,
-                date: row.date,
+
+        if (
+            !prescriptions[
+                row.prescription_id
+            ]
+        ) {
+
+            prescriptions[
+                row.prescription_id
+            ] = {
+
+                prescription_id:
+                    row.prescription_id,
+
+                patient_id:
+                    row.patient_id,
+
+                patient_name:
+                    row.patient_name,
+
+                doctor_id:
+                    row.doctor_id,
+
+                doctor_name:
+                    row.doctor_name,
+
+                date:
+                    row.date,
+
                 details: []
             };
         }
+
         if (row.detail_id) {
-            prescriptions[row.prescription_id].details.push({
-                id: row.detail_id,
-                medicine_id: row.medicine_id,
-                medicine_name: row.medicine_name,
-                quantity: row.quantity
+
+            prescriptions[
+                row.prescription_id
+            ].details.push({
+
+                id:
+                    row.detail_id,
+
+                medicine_id:
+                    row.medicine_id,
+
+                medicine_name:
+                    row.medicine_name,
+
+                quantity:
+                    row.quantity
             });
         }
     });
-    return Object.values(prescriptions);
+
+    return Object.values(
+        prescriptions
+    );
 }
 
 class PrescriptionController {
-    // Get all prescriptions with details (JOIN query)
+
+    // Get all prescriptions
     async getAll(req, res) {
+
         try {
-            const rows = await prescriptionQueries.getAllPrescriptions();
-            const prescriptions = groupPrescriptions(rows);
-            console.log('PrescriptionController.getAll - Returning prescriptions:', prescriptions.length);
-            res.json(prescriptions || []);
-        } catch (error) {
-            console.error('PrescriptionController.getAll - SQL Error:', error.message);
-            res.status(500).json({ error: 'Failed to fetch prescriptions', details: error.message });
-        }
-    }
 
-    // Get prescription by ID with details (JOIN query)
-    async getById(req, res) {
-        try {
-            const { id } = req.params;
-            const rows = await prescriptionQueries.getPrescriptionById(id);
-            if (rows.length === 0) {
-                return res.status(404).json({ error: 'Prescription not found' });
-            }
-            const prescription = {
-                prescription_id: rows[0].prescription_id,
-                patient_id: rows[0].patient_id,
-                patient_name: rows[0].patient_name,
-                doctor_id: rows[0].doctor_id,
-                doctor_name: rows[0].doctor_name,
-                date: rows[0].date,
-                details: rows.filter(row => row.detail_id).map(row => ({
-                    id: row.detail_id,
-                    medicine_id: row.medicine_id,
-                    medicine_name: row.medicine_name,
-                    quantity: row.quantity
-                }))
-            };
-            res.json(prescription);
-        } catch (error) {
-            console.error('Error fetching prescription:', error);
-            res.status(500).json({ error: 'Failed to fetch prescription' });
-        }
-    }
+            const rows =
+                await prescriptionQueries
+                    .getAllPrescriptions();
 
-    // Get prescriptions by patient (JOIN query)
-    async getByPatient(req, res) {
-        try {
-            const { patientId } = req.params;
-            const rows = await prescriptionQueries.getPrescriptionsByPatient(patientId);
-            const prescriptions = groupPrescriptions(rows);
-            res.json(prescriptions);
-        } catch (error) {
-            console.error('Error fetching patient prescriptions:', error);
-            res.status(500).json({ error: 'Failed to fetch prescriptions' });
-        }
-    }
+            const prescriptions =
+                groupPrescriptions(rows);
 
-    // Create new prescription with details (with stock checking and reduction)
-    async create(req, res) {
-        try {
-            const { patient_id, doctor_id, date, details } = req.body;
-
-            if (!patient_id || !doctor_id || !date) {
-                return res.status(400).json({ error: 'Missing required fields' });
-            }
-
-            if (!details || !Array.isArray(details) || details.length === 0) {
-                return res.status(400).json({ error: 'Details required' });
-            }
-
-            const result = await prescriptionQueries.createPrescriptionWithDetails(
-                patient_id,
-                doctor_id,
-                date,
-                details
+            console.log(
+                'PrescriptionController.getAll - Returning prescriptions:',
+                prescriptions.length
             );
 
-            // Try to get bill (if exists)
-            let bill = null;
+            res.json(
+                prescriptions || []
+            );
 
-            try {
-                const billDetails = await billQueries.getBillByPrescription(result.prescriptionId);
+        } catch (error) {
 
-                if (billDetails) {
-                    bill = {
-                        bill_id: billDetails.bill_id,
-                        total_amount: billDetails.total_amount,
-                        status: billDetails.status,
-                        bill_date: billDetails.bill_date
-                    };
-                }
-            } catch (e) {
-                console.log("No bill yet (this is OK)");
+            console.error(
+                'PrescriptionController.getAll - SQL Error:',
+                error.message
+            );
+
+            res.status(500).json({
+
+                error:
+                    'Failed to fetch prescriptions',
+
+                details:
+                    error.message
+            });
+        }
+    }
+
+    // Get prescription by ID
+    async getById(req, res) {
+
+        try {
+
+            const { id } =
+                req.params;
+
+            const rows =
+                await prescriptionQueries
+                    .getPrescriptionById(id);
+
+            if (
+                rows.length === 0
+            ) {
+
+                return res.status(404)
+                    .json({
+
+                        error:
+                            'Prescription not found'
+                    });
             }
 
+            const prescription = {
+
+                prescription_id:
+                    rows[0].prescription_id,
+
+                patient_id:
+                    rows[0].patient_id,
+
+                patient_name:
+                    rows[0].patient_name,
+
+                doctor_id:
+                    rows[0].doctor_id,
+
+                doctor_name:
+                    rows[0].doctor_name,
+
+                date:
+                    rows[0].date,
+
+                details:
+                    rows
+
+                        .filter(
+                            row =>
+                                row.detail_id
+                        )
+
+                        .map(row => ({
+
+                            id:
+                                row.detail_id,
+
+                            medicine_id:
+                                row.medicine_id,
+
+                            medicine_name:
+                                row.medicine_name,
+
+                            quantity:
+                                row.quantity
+                        }))
+            };
+
+            res.json(
+                prescription
+            );
+
+        } catch (error) {
+
+            console.error(
+                'Error fetching prescription:',
+                error
+            );
+
+            res.status(500).json({
+
+                error:
+                    'Failed to fetch prescription'
+            });
+        }
+    }
+
+    // Get prescriptions by patient
+    async getByPatient(req, res) {
+
+        try {
+
+            const { patientId } =
+                req.params;
+
+            const rows =
+                await prescriptionQueries
+                    .getPrescriptionsByPatient(
+                        patientId
+                    );
+
+            const prescriptions =
+                groupPrescriptions(rows);
+
+            res.json(
+                prescriptions
+            );
+
+        } catch (error) {
+
+            console.error(
+                'Error fetching patient prescriptions:',
+                error
+            );
+
+            res.status(500).json({
+
+                error:
+                    'Failed to fetch prescriptions'
+            });
+        }
+    }
+
+    // Create new prescription
+    async create(req, res) {
+
+        try {
+
+            const {
+
+                patient_id,
+
+                doctor_id,
+
+                date,
+
+                details
+
+            } = req.body;
+
+            //--------------------------------------------------
+            // VALIDATION
+            //--------------------------------------------------
+
+            if (
+                !patient_id ||
+                !doctor_id ||
+                !date
+            ) {
+
+                return res.status(400)
+                    .json({
+
+                        error:
+                            'Missing required fields'
+                    });
+            }
+
+            if (
+                !details ||
+                !Array.isArray(details) ||
+                details.length === 0
+            ) {
+
+                return res.status(400)
+                    .json({
+
+                        error:
+                            'Details required'
+                    });
+            }
+
+            //--------------------------------------------------
+            // STOCK CHECK + BILL TOTAL
+            //--------------------------------------------------
+
+            let totalAmount = 0;
+
+            for (
+                const item of details
+            ) {
+
+                const medicine =
+                    await medicineQueries
+                        .getMedicineById(
+                            item.medicine_id
+                        );
+
+                if (!medicine) {
+
+                    return res.status(404)
+                        .json({
+
+                            error:
+                                `Medicine ID ${item.medicine_id} not found`
+                        });
+                }
+
+                //--------------------------------------------------
+                // STOCK CHECK
+                //--------------------------------------------------
+
+                if (
+                    medicine.quantity <
+                    item.quantity
+                ) {
+
+                    return res.status(400)
+                        .json({
+
+                            error:
+                                `Not enough stock for ${medicine.name}`
+                        });
+                }
+
+                //--------------------------------------------------
+                // CALCULATE TOTAL
+                //--------------------------------------------------
+
+                totalAmount +=
+                    (
+                        medicine.price *
+                        item.quantity
+                    );
+            }
+
+            //--------------------------------------------------
+            // CREATE PRESCRIPTION
+            //--------------------------------------------------
+
+            const result =
+                await prescriptionQueries
+                    .createPrescriptionWithDetails(
+
+                        patient_id,
+
+                        doctor_id,
+
+                        date,
+
+                        details
+                    );
+
+            //--------------------------------------------------
+            // REDUCE STOCK
+            //--------------------------------------------------
+
+            for (
+                const item of details
+            ) {
+
+                await medicineQueries
+                    .reduceStock(
+
+                        item.medicine_id,
+
+                        item.quantity
+                    );
+            }
+
+            //--------------------------------------------------
+            // AUTO CREATE BILL
+            //--------------------------------------------------
+
+            const bill =
+                await billQueries
+                    .createBill(
+
+                        result.prescriptionId,
+
+                        patient_id,
+
+                        doctor_id,
+
+                        totalAmount
+                    );
+
+            //--------------------------------------------------
+            // SUCCESS
+            //--------------------------------------------------
+
             res.status(201).json({
-                message: 'Prescription created successfully',
-                prescriptionId: result.prescriptionId,
+
+                message:
+                    'Prescription created successfully',
+
+                prescriptionId:
+                    result.prescriptionId,
+
                 bill
             });
 
         } catch (error) {
-            console.error('Create Error:', error.message);
-            res.status(500).json({ error: error.message });
+
+            console.error(
+                'Create Error:',
+                error.message
+            );
+
+            res.status(500).json({
+
+                error:
+                    error.message
+            });
         }
     }
 
-    // Update prescription (header only)
+    // Update prescription
     async update(req, res) {
+
         try {
-            const { id } = req.params;
-            const { patient_id, doctor_id, date } = req.body;
-            if (!patient_id || !doctor_id || !date) {
-                return res.status(400).json({ error: 'Missing required fields: patient_id, doctor_id, date' });
+
+            const { id } =
+                req.params;
+
+            const {
+
+                patient_id,
+
+                doctor_id,
+
+                date
+
+            } = req.body;
+
+            if (
+                !patient_id ||
+                !doctor_id ||
+                !date
+            ) {
+
+                return res.status(400)
+                    .json({
+
+                        error:
+                            'Missing required fields: patient_id, doctor_id, date'
+                    });
             }
-            const result = await prescriptionQueries.updatePrescription(id, patient_id, doctor_id, date);
-            if (result[0] === 0) {
-                return res.status(404).json({ error: 'Prescription not found' });
+
+            const result =
+                await prescriptionQueries
+                    .updatePrescription(
+
+                        id,
+
+                        patient_id,
+
+                        doctor_id,
+
+                        date
+                    );
+
+            if (
+                result[0] === 0
+            ) {
+
+                return res.status(404)
+                    .json({
+
+                        error:
+                            'Prescription not found'
+                    });
             }
-            res.json({ message: 'Prescription updated successfully' });
+
+            res.json({
+
+                message:
+                    'Prescription updated successfully'
+            });
+
         } catch (error) {
-            console.error('Error updating prescription:', error);
-            res.status(500).json({ error: 'Failed to update prescription' });
+
+            console.error(
+                'Error updating prescription:',
+                error
+            );
+
+            res.status(500).json({
+
+                error:
+                    'Failed to update prescription'
+            });
         }
     }
 
-    // Delete prescription and details
+    // Delete prescription
     async delete(req, res) {
+
         try {
-            const { id } = req.params;
-            const result = await prescriptionQueries.deletePrescription(id);
-            if (result[0] === 0) {
-                return res.status(404).json({ error: 'Prescription not found' });
+
+            const { id } =
+                req.params;
+
+            const result =
+                await prescriptionQueries
+                    .deletePrescription(id);
+
+            if (
+                result[0] === 0
+            ) {
+
+                return res.status(404)
+                    .json({
+
+                        error:
+                            'Prescription not found'
+                    });
             }
-            res.json({ message: 'Prescription deleted successfully' });
+
+            res.json({
+
+                message:
+                    'Prescription deleted successfully'
+            });
+
         } catch (error) {
-            console.error('Error deleting prescription:', error);
-            res.status(500).json({ error: 'Failed to delete prescription' });
+
+            console.error(
+                'Error deleting prescription:',
+                error
+            );
+
+            res.status(500).json({
+
+                error:
+                    'Failed to delete prescription'
+            });
         }
     }
 
     // Get prescription bill total
     async getBillTotal(req, res) {
+
         try {
-            const { id } = req.params;
-            const result = await prescriptionQueries.getPrescriptionBillTotal(id);
-            res.json({ prescriptionId: id, totalAmount: result.total_amount });
+
+            const { id } =
+                req.params;
+
+            const result =
+                await prescriptionQueries
+                    .getPrescriptionBillTotal(id);
+
+            res.json({
+
+                prescriptionId:
+                    id,
+
+                totalAmount:
+                    result.total_amount
+            });
+
         } catch (error) {
-            console.error('Error getting bill total:', error);
-            res.status(500).json({ error: 'Failed to get bill total' });
+
+            console.error(
+                'Error getting bill total:',
+                error
+            );
+
+            res.status(500).json({
+
+                error:
+                    'Failed to get bill total'
+            });
         }
     }
 }
 
-module.exports = new PrescriptionController();
+module.exports =
+    new PrescriptionController();

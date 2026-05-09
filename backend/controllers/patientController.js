@@ -1,4 +1,8 @@
-const patientQueries = require('../db/patientQueries');
+const patientQueries =
+    require('../db/patientQueries');
+
+const billQueries =
+    require('../db/billQueries');
 
 class PatientController {
 
@@ -8,27 +12,37 @@ class PatientController {
         try {
 
             const patients =
-                await patientQueries.getAllPatients();
+                await patientQueries
+                    .getAllPatients();
 
             console.log(
+
                 'PatientController.getAll - Returning patients:',
+
                 patients
             );
 
-            res.json(patients || []);
+            res.json(
+                patients || []
+            );
 
         } catch (error) {
 
             console.error(
+
                 'PatientController.getAll - SQL Error:',
+
                 error.message
             );
 
             res.status(500).json({
-                error: 'Failed to fetch patients',
-                details: error.message
-            });
 
+                error:
+                    'Failed to fetch patients',
+
+                details:
+                    error.message
+            });
         }
     }
 
@@ -37,32 +51,43 @@ class PatientController {
 
         try {
 
-            const { id } = req.params;
+            const { id } =
+                req.params;
 
             const patients =
-                await patientQueries.getPatientById(id);
+                await patientQueries
+                    .getPatientById(id);
 
-            if (patients.length === 0) {
+            if (
+                patients.length === 0
+            ) {
 
-                return res.status(404).json({
-                    error: 'Patient not found'
-                });
+                return res.status(404)
+                    .json({
 
+                        error:
+                            'Patient not found'
+                    });
             }
 
-            res.json(patients[0]);
+            res.json(
+                patients[0]
+            );
 
         } catch (error) {
 
             console.error(
+
                 'Error fetching patient:',
+
                 error
             );
 
             res.status(500).json({
-                error: 'Failed to fetch patient'
-            });
 
+                error:
+                    'Failed to fetch patient'
+            });
         }
     }
 
@@ -71,44 +96,64 @@ class PatientController {
 
         try {
 
-            const { name, age, phone } = req.body;
+            const {
 
-            if (!name || !age || !phone) {
+                name,
 
-                return res.status(400).json({
-                    error:
-                        'Missing required fields: name, age, phone'
-                });
+                age,
 
+                phone
+
+            } = req.body;
+
+            if (
+                !name ||
+                !age ||
+                !phone
+            ) {
+
+                return res.status(400)
+                    .json({
+
+                        error:
+                            'Missing required fields: name, age, phone'
+                    });
             }
 
             const result =
-                await patientQueries.createPatient(
-                    name,
-                    age,
-                    phone
-                );
+                await patientQueries
+                    .createPatient(
+
+                        name,
+
+                        age,
+
+                        phone
+                    );
 
             res.status(201).json({
 
                 message:
                     'Patient created successfully',
 
-                patientId: result.id
-
+                patientId:
+                    result.id
             });
 
         } catch (error) {
 
             console.error(
+
                 'Error creating patient:',
+
                 error
             );
 
             res.status(500).json({
-                error: 'Failed to create patient'
-            });
 
+                error:
+                    'Failed to create patient'
+            });
         }
     }
 
@@ -117,36 +162,60 @@ class PatientController {
 
         try {
 
-            const { id } = req.params;
+            const { id } =
+                req.params;
 
-            const { name, age, phone } = req.body;
+            const {
 
-            if (!name || !age || !phone) {
+                name,
 
-                return res.status(400).json({
-                    error:
-                        'Missing required fields: name, age, phone'
-                });
+                age,
 
+                phone
+
+            } = req.body;
+
+            if (
+                !name ||
+                !age ||
+                !phone
+            ) {
+
+                return res.status(400)
+                    .json({
+
+                        error:
+                            'Missing required fields: name, age, phone'
+                    });
             }
 
             const result =
-                await patientQueries.updatePatient(
-                    id,
-                    name,
-                    age,
-                    phone
-                );
+                await patientQueries
+                    .updatePatient(
 
-            if (result === 0) {
+                        id,
 
-                return res.status(404).json({
-                    error: 'Patient not found'
-                });
+                        name,
 
+                        age,
+
+                        phone
+                    );
+
+            if (
+                result === 0
+            ) {
+
+                return res.status(404)
+                    .json({
+
+                        error:
+                            'Patient not found'
+                    });
             }
 
             res.json({
+
                 message:
                     'Patient updated successfully'
             });
@@ -154,14 +223,17 @@ class PatientController {
         } catch (error) {
 
             console.error(
+
                 'Error updating patient:',
+
                 error
             );
 
             res.status(500).json({
-                error: 'Failed to update patient'
-            });
 
+                error:
+                    'Failed to update patient'
+            });
         }
     }
 
@@ -170,33 +242,52 @@ class PatientController {
 
         try {
 
-            const { id } = req.params;
+            const { id } =
+                req.params;
 
             const patientData =
-                await patientQueries.getPatientWithAllData(id);
+                await patientQueries
+                    .getPatientWithAllData(id);
 
             if (!patientData) {
 
-                return res.status(404).json({
-                    error: 'Patient not found'
-                });
+                return res.status(404)
+                    .json({
 
+                        error:
+                            'Patient not found'
+                    });
             }
 
-            res.json(patientData);
+            //--------------------------------------------------
+            // LOAD BILLS
+            //--------------------------------------------------
+
+            const bills =
+                await billQueries
+                    .getBillsByPatient(id);
+
+            patientData.bills =
+                bills || [];
+
+            res.json(
+                patientData
+            );
 
         } catch (error) {
 
             console.error(
+
                 'Error fetching patient with all data:',
+
                 error
             );
 
             res.status(500).json({
+
                 error:
                     'Failed to fetch patient data'
             });
-
         }
     }
 
@@ -205,33 +296,52 @@ class PatientController {
 
         try {
 
-            const { id } = req.params;
+            const { id } =
+                req.params;
 
             const data =
-                await patientQueries.getPatientDashboardData(id);
+                await patientQueries
+                    .getPatientDashboardData(id);
 
             if (!data) {
 
-                return res.status(404).json({
-                    error: 'Patient not found'
-                });
+                return res.status(404)
+                    .json({
 
+                        error:
+                            'Patient not found'
+                    });
             }
 
-            res.json(data);
+            //--------------------------------------------------
+            // LOAD BILLS
+            //--------------------------------------------------
+
+            const bills =
+                await billQueries
+                    .getBillsByPatient(id);
+
+            data.bills =
+                bills || [];
+
+            res.json(
+                data
+            );
 
         } catch (error) {
 
             console.error(
+
                 'Error fetching patient dashboard:',
+
                 error
             );
 
             res.status(500).json({
+
                 error:
                     'Failed to fetch patient dashboard'
             });
-
         }
     }
 
@@ -240,20 +350,27 @@ class PatientController {
 
         try {
 
-            const { id } = req.params;
+            const { id } =
+                req.params;
 
             const result =
-                await patientQueries.deletePatient(id);
+                await patientQueries
+                    .deletePatient(id);
 
-            if (result === 0) {
+            if (
+                result === 0
+            ) {
 
-                return res.status(404).json({
-                    error: 'Patient not found'
-                });
+                return res.status(404)
+                    .json({
 
+                        error:
+                            'Patient not found'
+                    });
             }
 
             res.json({
+
                 message:
                     'Patient deleted successfully'
             });
@@ -261,16 +378,20 @@ class PatientController {
         } catch (error) {
 
             console.error(
+
                 'Error deleting patient:',
+
                 error
             );
 
             res.status(500).json({
-                error: 'Failed to delete patient'
-            });
 
+                error:
+                    'Failed to delete patient'
+            });
         }
     }
 }
 
-module.exports = new PatientController();
+module.exports =
+    new PatientController();

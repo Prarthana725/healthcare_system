@@ -242,6 +242,18 @@ export default function PatientDashboard() {
     }
 
     //--------------------------------------------------
+    // LOGOUT
+    //--------------------------------------------------
+
+    function logout() {
+
+        localStorage.clear();
+
+        window.location.href =
+            '/login';
+    }
+
+    //--------------------------------------------------
     // LOADING SCREEN
     //--------------------------------------------------
 
@@ -249,17 +261,7 @@ export default function PatientDashboard() {
 
         return (
 
-            <div
-                style={{
-                    minHeight: '100vh',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    fontFamily:
-                        "'Segoe UI', sans-serif",
-                    background: '#f1f5f9'
-                }}
-            >
+            <div style={centerStyle}>
 
                 <h2
                     style={{
@@ -272,7 +274,6 @@ export default function PatientDashboard() {
             </div>
 
         );
-
     }
 
     //--------------------------------------------------
@@ -283,17 +284,7 @@ export default function PatientDashboard() {
 
         return (
 
-            <div
-                style={{
-                    minHeight: '100vh',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    fontFamily:
-                        "'Segoe UI', sans-serif",
-                    background: '#f1f5f9'
-                }}
-            >
+            <div style={centerStyle}>
 
                 <h2
                     style={{
@@ -306,37 +297,6 @@ export default function PatientDashboard() {
             </div>
 
         );
-
-    }
-
-    //--------------------------------------------------
-    // NO DATA
-    //--------------------------------------------------
-
-    if (!data || !data.patient) {
-
-        return (
-
-            <div
-                style={{
-                    minHeight: '100vh',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    fontFamily:
-                        "'Segoe UI', sans-serif",
-                    background: '#f1f5f9'
-                }}
-            >
-
-                <h2>
-                    No patient data found
-                </h2>
-
-            </div>
-
-        );
-
     }
 
     //--------------------------------------------------
@@ -370,30 +330,79 @@ export default function PatientDashboard() {
 
                     marginBottom: '30px',
 
-                    boxShadow:
-                        '0 10px 30px rgba(0,0,0,0.1)'
+                    display: 'flex',
+
+                    justifyContent: 'space-between',
+
+                    alignItems: 'center'
                 }}
             >
 
-                <h1
-                    style={{
-                        margin: 0,
-                        fontSize: '34px'
-                    }}
-                >
-                    🧑‍⚕️ Patient Dashboard
-                </h1>
+                <div>
 
-                <p
-                    style={{
-                        marginTop: '10px',
-                        opacity: 0.9,
-                        fontSize: '16px'
-                    }}
+                    <h1
+                        style={{
+                            margin: 0,
+                            fontSize: '34px'
+                        }}
+                    >
+                        🧑‍⚕️ Patient Dashboard
+                    </h1>
+
+                    <p
+                        style={{
+                            marginTop: '10px',
+                            opacity: 0.9
+                        }}
+                    >
+                        View medical history,
+                        appointments and billing information
+                    </p>
+
+                </div>
+
+                <button
+                    onClick={logout}
+                    style={logoutButton}
                 >
-                    View medical history,
-                    appointments and billing information
-                </p>
+                    Logout
+                </button>
+
+            </div>
+
+            {/* STATS */}
+
+            <div style={statsGrid}>
+
+                <div style={statsCard}>
+
+                    <h3>Total Appointments</h3>
+
+                    <h1>
+                        {data.appointments.length}
+                    </h1>
+
+                </div>
+
+                <div style={statsCard}>
+
+                    <h3>Prescriptions</h3>
+
+                    <h1>
+                        {data.prescriptions.length}
+                    </h1>
+
+                </div>
+
+                <div style={statsCard}>
+
+                    <h3>Total Bills</h3>
+
+                    <h1>
+                        {data.bills.length}
+                    </h1>
+
+                </div>
 
             </div>
 
@@ -405,21 +414,9 @@ export default function PatientDashboard() {
                     👤 Patient Information
                 </h2>
 
-                <div
-                    style={{
-                        display: 'grid',
-
-                        gridTemplateColumns:
-                            'repeat(auto-fit, minmax(220px, 1fr))',
-
-                        gap: '20px',
-
-                        marginTop: '20px'
-                    }}
-                >
+                <div style={infoGrid}>
 
                     <div style={infoBox}>
-
                         <p style={infoLabel}>
                             Name
                         </p>
@@ -427,11 +424,9 @@ export default function PatientDashboard() {
                         <h3>
                             {data.patient.name}
                         </h3>
-
                     </div>
 
                     <div style={infoBox}>
-
                         <p style={infoLabel}>
                             Age
                         </p>
@@ -439,11 +434,9 @@ export default function PatientDashboard() {
                         <h3>
                             {data.patient.age}
                         </h3>
-
                     </div>
 
                     <div style={infoBox}>
-
                         <p style={infoLabel}>
                             Phone
                         </p>
@@ -451,7 +444,6 @@ export default function PatientDashboard() {
                         <h3>
                             {data.patient.phone}
                         </h3>
-
                     </div>
 
                 </div>
@@ -466,77 +458,60 @@ export default function PatientDashboard() {
                     📅 Pending Appointments
                 </h2>
 
-                <div style={{ overflowX: 'auto' }}>
+                <table style={tableStyle}>
 
-                    <table style={tableStyle}>
+                    <thead>
 
-                        <thead>
+                        <tr style={tableHeaderRow}>
 
-                            <tr style={tableHeaderRow}>
+                            <th style={tableHead}>
+                                Date
+                            </th>
 
-                                <th style={tableHead}>
-                                    Date
-                                </th>
+                            <th style={tableHead}>
+                                Doctor
+                            </th>
 
-                                <th style={tableHead}>
-                                    Doctor
-                                </th>
+                            <th style={tableHead}>
+                                Specialization
+                            </th>
 
-                                <th style={tableHead}>
-                                    Specialization
-                                </th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {data.appointments.map((a) => (
+
+                            <tr
+                                key={a.appointment_id}
+                            >
+
+                                <td style={tableData}>
+
+                                    {
+                                        new Date(a.date)
+                                            .toLocaleDateString()
+                                    }
+
+                                </td>
+
+                                <td style={tableData}>
+                                    {a.doctor_name}
+                                </td>
+
+                                <td style={tableData}>
+                                    {a.specialization}
+                                </td>
 
                             </tr>
 
-                        </thead>
+                        ))}
 
-                        <tbody>
+                    </tbody>
 
-                            {data.appointments &&
-                            data.appointments.length > 0 ? (
-
-                                data.appointments.map((a) => (
-
-                                    <tr
-                                        key={a.appointment_id}
-                                    >
-
-                                        <td style={tableData}>
-                                            {a.date}
-                                        </td>
-
-                                        <td style={tableData}>
-                                            {a.doctor_name}
-                                        </td>
-
-                                        <td style={tableData}>
-                                            {a.specialization}
-                                        </td>
-
-                                    </tr>
-
-                                ))
-
-                            ) : (
-
-                                <tr>
-
-                                    <td
-                                        colSpan="3"
-                                        style={emptyStyle}
-                                    >
-                                        No appointments found
-                                    </td>
-
-                                </tr>
-
-                            )}
-
-                        </tbody>
-
-                    </table>
-
-                </div>
+                </table>
 
             </div>
 
@@ -550,7 +525,6 @@ export default function PatientDashboard() {
 
                 <form
                     onSubmit={bookAppointment}
-
                     style={{
                         display: 'flex',
                         flexDirection: 'column',
@@ -559,7 +533,6 @@ export default function PatientDashboard() {
                 >
 
                     <select
-
                         value={
                             appointmentForm.doctor_id
                         }
@@ -595,6 +568,8 @@ export default function PatientDashboard() {
                             >
 
                                 {doctor.name}
+                                {' - '}
+                                {doctor.specialization}
 
                             </option>
 
@@ -603,9 +578,7 @@ export default function PatientDashboard() {
                     </select>
 
                     <input
-
                         type="date"
-
                         value={
                             appointmentForm.date
                         }
@@ -628,30 +601,17 @@ export default function PatientDashboard() {
                     />
 
                     <button
-
                         type="submit"
-
                         style={buttonStyle}
                     >
-
                         Book Appointment
-
                     </button>
 
                 </form>
 
                 {message && (
 
-                    <div
-                        style={{
-                            marginTop: '18px',
-                            padding: '14px',
-                            borderRadius: '12px',
-                            background: '#ecfeff',
-                            color: '#0f766e',
-                            fontWeight: '600'
-                        }}
-                    >
+                    <div style={messageStyle}>
                         {message}
                     </div>
 
@@ -667,85 +627,92 @@ export default function PatientDashboard() {
                     💊 Medical History
                 </h2>
 
-                <div style={{ overflowX: 'auto' }}>
+                <table style={tableStyle}>
 
-                    <table style={tableStyle}>
+                    <thead>
 
-                        <thead>
+                        <tr style={tableHeaderRow}>
 
-                            <tr style={tableHeaderRow}>
+                            <th style={tableHead}>
+                                Date
+                            </th>
 
-                                <th style={tableHead}>
-                                    Date
-                                </th>
+                            <th style={tableHead}>
+                                Doctor
+                            </th>
 
-                                <th style={tableHead}>
-                                    Doctor
-                                </th>
+                            <th style={tableHead}>
+                                Medicine
+                            </th>
 
-                                <th style={tableHead}>
-                                    Medicine
-                                </th>
+                            <th style={tableHead}>
+                                Quantity
+                            </th>
 
-                                <th style={tableHead}>
-                                    Quantity
-                                </th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {data.prescriptions.map((p) => (
+
+                            <tr
+                                key={p.prescription_id}
+                            >
+
+                                <td style={tableData}>
+
+                                    {
+                                        new Date(p.date)
+                                            .toLocaleDateString()
+                                    }
+
+                                </td>
+
+                                <td style={tableData}>
+                                    {p.doctor_name}
+                                </td>
+
+                                <td style={tableData}>
+
+                                    {
+                                        p.details
+                                            ?.map(
+
+                                                d =>
+
+                                                    d.medicine_name
+                                            )
+
+                                            .join(', ')
+                                    }
+
+                                </td>
+
+                                <td style={tableData}>
+
+                                    {
+                                        p.details
+                                            ?.map(
+
+                                                d =>
+
+                                                    d.quantity
+                                            )
+
+                                            .join(', ')
+                                    }
+
+                                </td>
 
                             </tr>
 
-                        </thead>
+                        ))}
 
-                        <tbody>
+                    </tbody>
 
-                            {data.prescriptions &&
-                            data.prescriptions.length > 0 ? (
-
-                                data.prescriptions.map((p) => (
-
-                                    <tr
-                                        key={p.prescription_id}
-                                    >
-
-                                        <td style={tableData}>
-                                            {p.date}
-                                        </td>
-
-                                        <td style={tableData}>
-                                            {p.doctor_name}
-                                        </td>
-
-                                        <td style={tableData}>
-                                            {p.medicine_name}
-                                        </td>
-
-                                        <td style={tableData}>
-                                            {p.quantity}
-                                        </td>
-
-                                    </tr>
-
-                                ))
-
-                            ) : (
-
-                                <tr>
-
-                                    <td
-                                        colSpan="4"
-                                        style={emptyStyle}
-                                    >
-                                        No medical history found
-                                    </td>
-
-                                </tr>
-
-                            )}
-
-                        </tbody>
-
-                    </table>
-
-                </div>
+                </table>
 
             </div>
 
@@ -757,75 +724,72 @@ export default function PatientDashboard() {
                     💳 Bills
                 </h2>
 
-                <div style={{ overflowX: 'auto' }}>
+                <table style={tableStyle}>
 
-                    <table style={tableStyle}>
+                    <thead>
 
-                        <thead>
+                        <tr style={tableHeaderRow}>
 
-                            <tr style={tableHeaderRow}>
+                            <th style={tableHead}>
+                                Bill Date
+                            </th>
 
-                                <th style={tableHead}>
-                                    Bill Date
-                                </th>
+                            <th style={tableHead}>
+                                Total Amount
+                            </th>
 
-                                <th style={tableHead}>
-                                    Total Amount
-                                </th>
+                            <th style={tableHead}>
+                                Status
+                            </th>
 
-                                <th style={tableHead}>
-                                    Status
-                                </th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {data.bills.map((b) => (
+
+                            <tr key={b.bill_id}>
+
+                                <td style={tableData}>
+
+                                    {
+                                        new Date(
+                                            b.bill_date
+                                        )
+                                        .toLocaleDateString()
+                                    }
+
+                                </td>
+
+                                <td style={tableData}>
+                                    Rs. {b.total_amount}
+                                </td>
+
+                                <td
+                                    style={{
+                                        ...tableData,
+
+                                        color:
+
+                                            b.status === 'paid'
+                                                ? 'green'
+                                                : 'orange',
+
+                                        fontWeight: 'bold'
+                                    }}
+                                >
+                                    {b.status}
+                                </td>
 
                             </tr>
 
-                        </thead>
+                        ))}
 
-                        <tbody>
+                    </tbody>
 
-                            {data.bills &&
-                            data.bills.length > 0 ? (
-
-                                data.bills.map((b) => (
-
-                                    <tr key={b.bill_id}>
-
-                                        <td style={tableData}>
-                                            {b.bill_date}
-                                        </td>
-
-                                        <td style={tableData}>
-                                            Rs. {b.total_amount}
-                                        </td>
-
-                                        <td style={tableData}>
-                                            {b.status}
-                                        </td>
-
-                                    </tr>
-
-                                ))
-
-                            ) : (
-
-                                <tr>
-
-                                    <td
-                                        colSpan="3"
-                                        style={emptyStyle}
-                                    >
-                                        No bills available
-                                    </td>
-
-                                </tr>
-
-                            )}
-
-                        </tbody>
-
-                    </table>
-
-                </div>
+                </table>
 
             </div>
 
@@ -834,6 +798,91 @@ export default function PatientDashboard() {
 }
 
 /* STYLES */
+
+const centerStyle = {
+
+    minHeight: '100vh',
+
+    display: 'flex',
+
+    justifyContent: 'center',
+
+    alignItems: 'center',
+
+    background: '#f1f5f9',
+
+    fontFamily:
+        "'Segoe UI', sans-serif"
+};
+
+const statsGrid = {
+
+    display: 'grid',
+
+    gridTemplateColumns:
+        'repeat(auto-fit, minmax(220px, 1fr))',
+
+    gap: '20px',
+
+    marginBottom: '30px'
+};
+
+const statsCard = {
+
+    background: 'white',
+
+    padding: '25px',
+
+    borderRadius: '20px',
+
+    boxShadow:
+        '0 5px 20px rgba(0,0,0,0.06)'
+};
+
+const logoutButton = {
+
+    padding:
+        '12px 24px',
+
+    border: 'none',
+
+    borderRadius: '12px',
+
+    background: 'white',
+
+    color: '#0f766e',
+
+    fontWeight: 'bold',
+
+    cursor: 'pointer'
+};
+
+const infoGrid = {
+
+    display: 'grid',
+
+    gridTemplateColumns:
+        'repeat(auto-fit, minmax(220px, 1fr))',
+
+    gap: '20px',
+
+    marginTop: '20px'
+};
+
+const messageStyle = {
+
+    marginTop: '18px',
+
+    padding: '14px',
+
+    borderRadius: '12px',
+
+    background: '#ecfeff',
+
+    color: '#0f766e',
+
+    fontWeight: '600'
+};
 
 const cardStyle = {
 
@@ -908,15 +957,6 @@ const tableData = {
         '1px solid #e2e8f0',
 
     color: '#0f172a'
-};
-
-const emptyStyle = {
-
-    padding: '20px',
-
-    textAlign: 'center',
-
-    color: '#64748b'
 };
 
 const inputStyle = {
