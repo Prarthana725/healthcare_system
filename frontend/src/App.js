@@ -14,6 +14,7 @@ import Medicines from './Medicines';
 import Appointments from './Appointments';
 import Prescriptions from './Prescriptions';
 import Reports from './Reports';
+import  Views from './Views';
 
 // ROLE PAGES
 
@@ -26,6 +27,7 @@ import Inventory from './roles/Inventory';
 import PatientDashboard from './roles/PatientDashboard';
 
 import ReceptionistDashboard from './roles/ReceptionistDashboard';
+
 
 function App() {
 
@@ -124,8 +126,9 @@ function App() {
           path="/reports"
           element={<Reports />}
         />
-
-      </Routes>
+<Route path="/views" element={<Views />} />
+      
+   </Routes>
 
     </Router>
 
