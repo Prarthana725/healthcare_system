@@ -4,29 +4,48 @@ const API_URL = 'http://localhost:5000/api';
 
 export default function ReceptionistDashboard() {
 
-    const [patients, setPatients] = useState([]);
+    const [patients, setPatients] =
+        useState([]);
 
-    const [appointments, setAppointments] = useState([]);
+    const [appointments, setAppointments] =
+        useState([]);
 
-    const [doctors, setDoctors] = useState([]);
+    const [doctors, setDoctors] =
+        useState([]);
 
-    const [bills, setBills] = useState([]);
+    const [bills, setBills] =
+        useState([]);
 
     const [paymentMethods,
         setPaymentMethods] =
         useState({});
 
-    const [form, setForm] = useState({
-        name: '',
-        age: '',
-        phone: ''
-    });
+    const [searchPatient,
+        setSearchPatient] =
+        useState('');
+
+    const [searchBill,
+        setSearchBill] =
+        useState('');
+
+    const [form, setForm] =
+        useState({
+
+            name: '',
+
+            age: '',
+
+            phone: ''
+        });
 
     const [appointmentForm,
         setAppointmentForm] =
         useState({
+
             patient_id: '',
+
             doctor_id: '',
+
             date: ''
         });
 
@@ -85,10 +104,7 @@ export default function ReceptionistDashboard() {
 
         } catch (err) {
 
-            console.error(
-                'Load error:',
-                err
-            );
+            console.error(err);
         }
     }
 
@@ -123,26 +139,29 @@ export default function ReceptionistDashboard() {
 
         try {
 
-            const res = await fetch(
+            const res =
+                await fetch(
 
-                `${API_URL}/patients`,
+                    `${API_URL}/patients`,
 
-                {
-                    method: 'POST',
+                    {
 
-                    headers: {
-                        'Content-Type':
-                            'application/json'
-                    },
+                        method: 'POST',
 
-                    body: JSON.stringify(form)
-                }
-            );
+                        headers: {
+
+                            'Content-Type':
+                                'application/json'
+                        },
+
+                        body:
+                            JSON.stringify(form)
+                    }
+                );
 
             if (res.ok) {
 
                 setMessage(
-
                     'Patient registered successfully ✅'
                 );
 
@@ -164,7 +183,7 @@ export default function ReceptionistDashboard() {
                 );
             }
 
-        } catch (err) {
+        } catch {
 
             setMessage(
                 'Server error ❌'
@@ -184,9 +203,11 @@ export default function ReceptionistDashboard() {
                     `${API_URL}/appointments`,
 
                     {
+
                         method: 'POST',
 
                         headers: {
+
                             'Content-Type':
                                 'application/json'
                         },
@@ -200,7 +221,6 @@ export default function ReceptionistDashboard() {
             if (res.ok) {
 
                 setMessage(
-
                     'Appointment booked successfully ✅'
                 );
 
@@ -222,7 +242,7 @@ export default function ReceptionistDashboard() {
                 );
             }
 
-        } catch (err) {
+        } catch {
 
             setMessage(
                 'Server error ❌'
@@ -268,9 +288,7 @@ export default function ReceptionistDashboard() {
 
             loadBills();
 
-        } catch (error) {
-
-            console.error(error);
+        } catch {
 
             setMessage(
                 'Payment failed ❌'
@@ -286,6 +304,40 @@ export default function ReceptionistDashboard() {
             '/login';
     }
 
+    //--------------------------------------------------
+    // FILTERS
+    //--------------------------------------------------
+
+    const filteredPatients =
+
+        patients.filter(p =>
+
+            p.name
+                .toLowerCase()
+                .includes(
+
+                    searchPatient
+                        .toLowerCase()
+                )
+        );
+
+    const filteredBills =
+
+        bills.filter(b =>
+
+            b.patient_name
+                .toLowerCase()
+                .includes(
+
+                    searchBill
+                        .toLowerCase()
+                )
+        );
+
+    //--------------------------------------------------
+    // STATS
+    //--------------------------------------------------
+
     const totalRevenue =
 
         bills.reduce(
@@ -300,6 +352,32 @@ export default function ReceptionistDashboard() {
             0
         );
 
+    const todayAppointments =
+
+        appointments.filter(a =>
+
+            new Date(a.date)
+                .toDateString()
+
+            ===
+
+            new Date()
+                .toDateString()
+
+        ).length;
+
+    const pendingBills =
+
+        bills.filter(
+
+            b => b.status !== 'paid'
+
+        ).length;
+
+    //--------------------------------------------------
+    // UI
+    //--------------------------------------------------
+
     return (
 
         <div
@@ -311,6 +389,8 @@ export default function ReceptionistDashboard() {
                     "'Segoe UI', sans-serif"
             }}
         >
+
+            {/* HEADER */}
 
             <div
                 style={{
@@ -341,9 +421,8 @@ export default function ReceptionistDashboard() {
                     </h1>
 
                     <p>
-                        Patient registration,
-                        appointments and
-                        payment management
+                        Hospital front desk
+                        management system
                     </p>
 
                 </div>
@@ -364,6 +443,8 @@ export default function ReceptionistDashboard() {
                 </div>
 
             )}
+
+            {/* STATS */}
 
             <div style={statsGrid}>
 
@@ -394,11 +475,23 @@ export default function ReceptionistDashboard() {
                 <div style={cardStyle}>
 
                     <div style={cardTitle}>
-                        💳 Bills
+                        📅 Today
                     </div>
 
                     <div style={cardValue}>
-                        {bills.length}
+                        {todayAppointments}
+                    </div>
+
+                </div>
+
+                <div style={cardStyle}>
+
+                    <div style={cardTitle}>
+                        ⏳ Pending Bills
+                    </div>
+
+                    <div style={cardValue}>
+                        {pendingBills}
                     </div>
 
                 </div>
@@ -417,10 +510,344 @@ export default function ReceptionistDashboard() {
 
             </div>
 
-            <div style={panelStyle}>
+            {/* FORMS */}
+
+            <div
+                style={{
+                    display: 'grid',
+                    gridTemplateColumns:
+                        '1fr 1fr',
+
+                    gap: '25px',
+
+                    marginBottom: '30px'
+                }}
+            >
+
+                {/* REGISTER */}
+
+                <div style={panelStyle}>
+
+                    <h2 style={sectionTitle}>
+                        ➕ Register Patient
+                    </h2>
+
+                    <form
+                        onSubmit={
+                            handlePatientSubmit
+                        }
+
+                        style={{
+                            display: 'flex',
+                            flexDirection:
+                                'column',
+
+                            gap: '18px'
+                        }}
+                    >
+
+                        <input
+                            placeholder="Patient Name"
+                            value={form.name}
+                            onChange={(e) =>
+                                setForm({
+
+                                    ...form,
+
+                                    name:
+                                        e.target.value
+                                })
+                            }
+                            required
+                            style={inputStyle}
+                        />
+
+                        <input
+                            type="number"
+                            placeholder="Age"
+                            value={form.age}
+                            onChange={(e) =>
+                                setForm({
+
+                                    ...form,
+
+                                    age:
+                                        e.target.value
+                                })
+                            }
+                            required
+                            style={inputStyle}
+                        />
+
+                        <input
+                            placeholder="Phone"
+                            value={form.phone}
+                            onChange={(e) =>
+                                setForm({
+
+                                    ...form,
+
+                                    phone:
+                                        e.target.value
+                                })
+                            }
+                            required
+                            style={inputStyle}
+                        />
+
+                        <button
+                            type="submit"
+                            style={buttonStyle}
+                        >
+                            Register
+                        </button>
+
+                    </form>
+
+                </div>
+
+                {/* APPOINTMENT */}
+
+                <div style={panelStyle}>
+
+                    <h2 style={sectionTitle}>
+                        📅 Book Appointment
+                    </h2>
+
+                    <form
+                        onSubmit={
+                            handleAppointmentSubmit
+                        }
+
+                        style={{
+                            display: 'flex',
+                            flexDirection:
+                                'column',
+
+                            gap: '18px'
+                        }}
+                    >
+
+                        <select
+                            value={
+                                appointmentForm.patient_id
+                            }
+
+                            onChange={(e) =>
+                                setAppointmentForm({
+
+                                    ...appointmentForm,
+
+                                    patient_id:
+                                        e.target.value
+                                })
+                            }
+
+                            required
+
+                            style={inputStyle}
+                        >
+
+                            <option value="">
+                                Select Patient
+                            </option>
+
+                            {patients.map((p) => (
+
+                                <option
+
+                                    key={p.patient_id}
+
+                                    value={p.patient_id}
+                                >
+
+                                    {p.name}
+
+                                </option>
+
+                            ))}
+
+                        </select>
+
+                        <select
+                            value={
+                                appointmentForm.doctor_id
+                            }
+
+                            onChange={(e) =>
+                                setAppointmentForm({
+
+                                    ...appointmentForm,
+
+                                    doctor_id:
+                                        e.target.value
+                                })
+                            }
+
+                            required
+
+                            style={inputStyle}
+                        >
+
+                            <option value="">
+                                Select Doctor
+                            </option>
+
+                            {doctors.map((d) => (
+
+                                <option
+
+                                    key={d.doctor_id}
+
+                                    value={d.doctor_id}
+                                >
+
+                                    {d.name}
+                                    {' - '}
+                                    {d.specialization}
+
+                                </option>
+
+                            ))}
+
+                        </select>
+
+                        <input
+                            type="date"
+                            value={
+                                appointmentForm.date
+                            }
+
+                            onChange={(e) =>
+                                setAppointmentForm({
+
+                                    ...appointmentForm,
+
+                                    date:
+                                        e.target.value
+                                })
+                            }
+
+                            required
+
+                            style={inputStyle}
+                        />
+
+                        <button
+                            type="submit"
+                            style={buttonStyle}
+                        >
+                            Book Appointment
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+            {/* PATIENTS */}
+
+            <div
+                style={{
+                    ...panelStyle,
+                    marginBottom: '30px'
+                }}
+            >
+
+                <div
+                    style={{
+                        display: 'flex',
+
+                        justifyContent:
+                            'space-between',
+
+                        alignItems: 'center',
+
+                        marginBottom: '20px'
+                    }}
+                >
+
+                    <h2 style={sectionTitle}>
+                        👥 Patients
+                    </h2>
+
+                    <input
+                        placeholder="Search patient..."
+                        value={searchPatient}
+                        onChange={(e) =>
+                            setSearchPatient(
+                                e.target.value
+                            )
+                        }
+                        style={searchInput}
+                    />
+
+                </div>
+
+                <table style={tableStyle}>
+
+                    <thead>
+
+                        <tr style={tableHeaderRow}>
+
+                            <th style={tableHead}>
+                                Name
+                            </th>
+
+                            <th style={tableHead}>
+                                Age
+                            </th>
+
+                            <th style={tableHead}>
+                                Phone
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {filteredPatients.map((p) => (
+
+                            <tr
+                                key={p.patient_id}
+                            >
+
+                                <td style={tableData}>
+                                    {p.name}
+                                </td>
+
+                                <td style={tableData}>
+                                    {p.age}
+                                </td>
+
+                                <td style={tableData}>
+                                    {p.phone}
+                                </td>
+
+                            </tr>
+
+                        ))}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            {/* APPOINTMENTS */}
+
+            <div
+                style={{
+                    ...panelStyle,
+                    marginBottom: '30px'
+                }}
+            >
 
                 <h2 style={sectionTitle}>
-                    💳 Bill Payments
+                    📋 Appointments
                 </h2>
 
                 <table style={tableStyle}>
@@ -442,15 +869,7 @@ export default function ReceptionistDashboard() {
                             </th>
 
                             <th style={tableHead}>
-                                Total
-                            </th>
-
-                            <th style={tableHead}>
                                 Status
-                            </th>
-
-                            <th style={tableHead}>
-                                Payment
                             </th>
 
                         </tr>
@@ -459,7 +878,136 @@ export default function ReceptionistDashboard() {
 
                     <tbody>
 
-                        {bills.map((b) => (
+                        {appointments.map((a) => (
+
+                            <tr
+                                key={a.appointment_id}
+                            >
+
+                                <td style={tableData}>
+                                    {a.patient_name}
+                                </td>
+
+                                <td style={tableData}>
+                                    {a.doctor_name}
+                                </td>
+
+                                <td style={tableData}>
+
+                                    {
+                                        new Date(a.date)
+                                            .toLocaleDateString()
+                                    }
+
+                                </td>
+
+                                <td
+                                    style={{
+                                        ...tableData,
+
+                                        color:
+
+                                            a.status === 'completed'
+                                                ? 'green'
+                                                : 'orange',
+
+                                        fontWeight:
+                                            'bold'
+                                    }}
+                                >
+
+                                    {
+                                        a.status ||
+                                        'pending'
+                                    }
+
+                                </td>
+
+                            </tr>
+
+                        ))}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            {/* BILLS */}
+
+            <div style={panelStyle}>
+
+                <div
+                    style={{
+                        display: 'flex',
+
+                        justifyContent:
+                            'space-between',
+
+                        alignItems: 'center',
+
+                        marginBottom: '20px'
+                    }}
+                >
+
+                    <h2 style={sectionTitle}>
+                        💳 Bills
+                    </h2>
+
+                    <input
+                        placeholder="Search bills..."
+                        value={searchBill}
+                        onChange={(e) =>
+                            setSearchBill(
+                                e.target.value
+                            )
+                        }
+                        style={searchInput}
+                    />
+
+                </div>
+
+                <table style={tableStyle}>
+
+                    <thead>
+
+                        <tr style={tableHeaderRow}>
+
+                            <th style={tableHead}>
+                                Patient
+                            </th>
+
+                            <th style={tableHead}>
+                                Doctor
+                            </th>
+
+                            <th style={tableHead}>
+                                Date
+                            </th>
+
+                            <th style={tableHead}>
+                                Amount
+                            </th>
+
+                            <th style={tableHead}>
+                                Method
+                            </th>
+
+                            <th style={tableHead}>
+                                Status
+                            </th>
+
+                            <th style={tableHead}>
+                                Action
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {filteredBills.map((b) => (
 
                             <tr
                                 key={b.bill_id}
@@ -486,6 +1034,13 @@ export default function ReceptionistDashboard() {
 
                                 <td style={tableData}>
                                     Rs. {b.total_amount}
+                                </td>
+
+                                <td style={tableData}>
+                                    {
+                                        b.payment_method
+                                        || '-'
+                                    }
                                 </td>
 
                                 <td
@@ -525,7 +1080,8 @@ export default function ReceptionistDashboard() {
                                                 value={
                                                     paymentMethods[
                                                         b.bill_id
-                                                    ] || 'Cash'
+                                                    ]
+                                                    || 'Cash'
                                                 }
 
                                                 onChange={(e) =>
@@ -617,137 +1173,124 @@ export default function ReceptionistDashboard() {
 /* STYLES */
 
 const statsGrid = {
-
     display: 'grid',
-
     gridTemplateColumns:
         'repeat(auto-fit, minmax(220px, 1fr))',
-
     gap: '20px',
-
     marginBottom: '30px'
 };
 
 const logoutBtn = {
-
     padding: '12px 22px',
-
     border: 'none',
-
     borderRadius: '12px',
-
     background: 'white',
-
     color: '#0f766e',
-
     fontWeight: '700',
-
     cursor: 'pointer'
 };
 
 const messageBox = {
-
     background: '#ecfeff',
-
     color: '#0f766e',
-
     padding: '14px',
-
     borderRadius: '12px',
-
     marginBottom: '25px',
-
     fontWeight: '600',
-
     textAlign: 'center'
 };
 
-const selectStyle = {
-
-    padding: '10px',
-
+const searchInput = {
+    padding: '12px',
     borderRadius: '10px',
+    border: '1px solid #cbd5e1',
+    width: '250px'
+};
 
+const selectStyle = {
+    padding: '10px',
+    borderRadius: '10px',
     border: '1px solid #cbd5e1'
 };
 
 const payBtn = {
-
     padding: '10px 15px',
-
     border: 'none',
-
     borderRadius: '10px',
-
     background: '#16a34a',
-
     color: 'white',
-
     cursor: 'pointer',
-
     fontWeight: '600'
 };
 
 const cardStyle = {
-
     background: 'white',
-
     borderRadius: '20px',
-
     padding: '25px'
 };
 
 const cardTitle = {
-
     color: '#64748b',
-
     marginBottom: '10px'
 };
 
 const cardValue = {
-
     fontSize: '42px',
-
     fontWeight: '700'
 };
 
 const panelStyle = {
-
     background: 'white',
-
     borderRadius: '20px',
-
     padding: '30px'
 };
 
 const sectionTitle = {
-
     marginBottom: '25px'
 };
 
-const tableStyle = {
-
+const inputStyle = {
     width: '100%',
+    padding: '14px',
+    borderRadius: '12px',
+    border: '1px solid #cbd5e1',
+    background: '#f8fafc',
+    fontSize: '15px',
+    outline: 'none',
+    boxSizing: 'border-box'
+};
 
+const buttonStyle = {
+    padding: '15px',
+    border: 'none',
+    borderRadius: '12px',
+    background:
+        'linear-gradient(to right, #0f766e, #0284c7)',
+    color: 'white',
+    fontSize: '15px',
+    fontWeight: '700',
+    cursor: 'pointer'
+};
+
+const tableStyle = {
+    width: '100%',
     borderCollapse: 'collapse'
 };
 
 const tableHeaderRow = {
-
     background: '#f1f5f9'
 };
 
 const tableHead = {
-
-    padding: '14px',
-
-    textAlign: 'left'
+    padding: '16px',
+    textAlign: 'left',
+    color: '#334155',
+    fontSize: '15px'
 };
 
 const tableData = {
-
-    padding: '14px',
-
+    padding: '16px',
     borderBottom:
-        '1px solid #e2e8f0'
+        '1px solid #e2e8f0',
+    color: '#0f172a'
 };
