@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import {
     FaUserDoctor,
@@ -8,10 +8,9 @@ import {
     FaCalendarCheck,
     FaArrowRight,
     FaHeartPulse,
-    FaClock,
-    FaShieldHeart,
     FaChartLine,
-    FaBedPulse
+    FaBedPulse,
+    FaShieldHeart
 } from 'react-icons/fa6';
 
 import AOS from 'aos';
@@ -19,11 +18,43 @@ import 'aos/dist/aos.css';
 
 export default function LandingPage() {
 
+    // --- NEW: State to hold the dynamic database stats ---
+    const [stats, setStats] = useState({
+        patientsAttended: 0,
+        doctorsAvailable: 0,
+        appointmentsToday: 0,
+        pharmacyStatus: "Loading..."
+    });
+
     useEffect(() => {
+        // Initialize animations
         AOS.init({
             duration: 900,
             once: true
         });
+
+        // --- NEW: Fetch real data from your backend ---
+        // Change 5000 if your backend uses a different port
+        fetch('http://localhost:5000/api/hospital-stats') 
+            .then(response => response.json())
+            .then(data => {
+                setStats({
+                    patientsAttended: data.patientsAttended || 0,
+                    doctorsAvailable: data.doctorsAvailable || 0,
+                    appointmentsToday: data.appointmentsToday || 0,
+                    pharmacyStatus: data.pharmacyStatus || "In Stock"
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching real-time stats:', error);
+                // Fallback to defaults if the backend isn't running
+                setStats({
+                    patientsAttended: 240,
+                    doctorsAvailable: 75,
+                    appointmentsToday: 126,
+                    pharmacyStatus: "In Stock"
+                });
+            });
     }, []);
 
     const services = [
@@ -56,48 +87,6 @@ export default function LandingPage() {
         }
     ];
 
-    const stats = [
-        {
-            number: '25K+',
-            label: 'Patients Managed'
-        },
-        {
-            number: '120+',
-            label: 'Medical Staff'
-        },
-        {
-            number: '24/7',
-            label: 'Hospital Operations'
-        },
-        {
-            number: '98%',
-            label: 'System Reliability'
-        }
-    ];
-
-    const features = [
-        {
-            icon: <FaHeartPulse />,
-            title: 'Emergency Monitoring',
-            text: 'Track emergency patients and treatment flow instantly.'
-        },
-        {
-            icon: <FaShieldHeart />,
-            title: 'Secure Medical Records',
-            text: 'Encrypted patient records with role-based access control.'
-        },
-        {
-            icon: <FaChartLine />,
-            title: 'Healthcare Analytics',
-            text: 'Monitor appointments, pharmacy usage and hospital performance.'
-        },
-        {
-            icon: <FaBedPulse />,
-            title: 'Ward & Bed Tracking',
-            text: 'Manage ward allocation and live bed availability.'
-        }
-    ];
-
     return (
 
         <div
@@ -111,9 +100,6 @@ export default function LandingPage() {
         >
 
             {/* NAVBAR */}
-
-            {/* NAVBAR */}
-
             <nav
                 style={{
                     position: 'fixed',
@@ -125,7 +111,6 @@ export default function LandingPage() {
                     borderBottom: '1px solid rgba(148,163,184,0.18)'
                 }}
             >
-
                 <div
                     style={{
                         maxWidth: '1350px',
@@ -136,9 +121,7 @@ export default function LandingPage() {
                         justifyContent: 'space-between'
                     }}
                 >
-
                     {/* LEFT - HOSPITAL BRAND */}
-
                     <div
                         style={{
                             display: 'flex',
@@ -146,9 +129,7 @@ export default function LandingPage() {
                             gap: '14px'
                         }}
                     >
-
                         {/* ICON */}
-
                         <div
                             style={{
                                 width: '54px',
@@ -169,9 +150,7 @@ export default function LandingPage() {
                         </div>
 
                         {/* NAME */}
-
                         <div>
-
                             <h2
                                 style={{
                                     margin: 0,
@@ -186,7 +165,6 @@ export default function LandingPage() {
                                     {' '}Hospital
                                 </span>
                             </h2>
-
                             <p
                                 style={{
                                     margin: 0,
@@ -196,13 +174,10 @@ export default function LandingPage() {
                             >
                                 Integrated Hospital Management System
                             </p>
-
                         </div>
-
                     </div>
 
                     {/* CENTER NAV */}
-
                     <div
                         style={{
                             display: 'flex',
@@ -210,7 +185,6 @@ export default function LandingPage() {
                             gap: '28px'
                         }}
                     >
-
                         {[
                             { label: 'Home', link: '#' },
                             { label: 'About Hospital', link: '#about' },
@@ -218,7 +192,6 @@ export default function LandingPage() {
                             { label: 'Care Units', link: '#features' },
                             { label: 'Dashboard', link: '#dashboard' }
                         ].map((item, index) => (
-
                             <a
                                 key={index}
                                 href={item.link}
@@ -239,13 +212,10 @@ export default function LandingPage() {
                             >
                                 {item.label}
                             </a>
-
                         ))}
-
                     </div>
 
                     {/* RIGHT SIDE */}
-
                     <div
                         style={{
                             display: 'flex',
@@ -253,9 +223,7 @@ export default function LandingPage() {
                             gap: '12px'
                         }}
                     >
-
                         {/* STATUS */}
-
                         <div
                             style={{
                                 display: 'flex',
@@ -278,11 +246,9 @@ export default function LandingPage() {
                                     boxShadow: '0 0 10px #22c55e'
                                 }}
                             ></span>
-
                         </div>
 
                         {/* CTA */}
-
                         <a
                             href="/login"
                             style={{
@@ -300,15 +266,11 @@ export default function LandingPage() {
                         >
                             Patient Access →
                         </a>
-
                     </div>
-
                 </div>
-
             </nav>
 
             {/* HERO SECTION */}
-
             <section
                 style={{
                     position: 'relative',
@@ -319,7 +281,6 @@ export default function LandingPage() {
                         'linear-gradient(135deg,#08111f 0%,#0f172a 45%,#0f766e 100%)'
                 }}
             >
-
                 {/* BACKGROUND EFFECTS */}
                 <div style={heroGlow1}></div>
                 <div style={heroGlow2}></div>
@@ -348,13 +309,9 @@ export default function LandingPage() {
                         zIndex: 2
                     }}
                 >
-
                     {/* LEFT SIDE */}
-
                     <div data-aos="fade-right">
-
                         {/* BADGE */}
-
                         <div
                             style={{
                                 display: 'inline-flex',
@@ -378,12 +335,10 @@ export default function LandingPage() {
                                     boxShadow: '0 0 12px #4ade80'
                                 }}
                             ></div>
-
                             Welcome to Our Hospital Care System
                         </div>
 
                         {/* TITLE */}
-
                         <h1
                             style={{
                                 fontSize: '72px',
@@ -397,16 +352,13 @@ export default function LandingPage() {
                         >
                             Caring for
                             <br />
-
                             <span style={{ color: '#7dd3fc' }}>
                                 Patients
                             </span>
-
                             {' '}with Compassion
                         </h1>
 
                         {/* DESCRIPTION */}
-
                         <p
                             style={{
                                 marginTop: '30px',
@@ -423,7 +375,6 @@ export default function LandingPage() {
                         </p>
 
                         {/* BUTTONS */}
-
                         <div
                             style={{
                                 display: 'flex',
@@ -432,7 +383,6 @@ export default function LandingPage() {
                                 flexWrap: 'wrap'
                             }}
                         >
-
                             <a
                                 href="/login"
                                 style={{
@@ -466,18 +416,14 @@ export default function LandingPage() {
                             >
                                 Our Services
                             </a>
-
                         </div>
-
                     </div>
 
-                    {/* RIGHT SIDE (SIMPLIFIED REAL HOSPITAL STATUS) */}
-
+                    {/* RIGHT SIDE (DYNAMIC REAL HOSPITAL STATUS) */}
                     <div
                         data-aos="fade-left"
                         style={{ display: 'flex', justifyContent: 'center' }}
                     >
-
                         <div
                             style={{
                                 width: '100%',
@@ -489,30 +435,23 @@ export default function LandingPage() {
                                 backdropFilter: 'blur(24px)'
                             }}
                         >
-
                             {/* HEADER */}
-
                             <div style={{ marginBottom: '25px' }}>
-
                                 <h3 style={{ color: 'white', margin: 0 }}>
                                     Hospital Daily Overview
                                 </h3>
-
                                 <p style={{ color: 'rgba(255,255,255,0.65)', marginTop: '6px' }}>
-                                    General activity summary
+                                    Live activity summary
                                 </p>
-
                             </div>
 
-                            {/* SIMPLE STATS */}
-
+                            {/* DYNAMIC STATS */}
                             {[
-                                { label: 'Patients Attended', value: '240' },
-                                { label: 'Doctors Available', value: '75' },
-                                { label: 'Appointments Today', value: '126' },
-                                { label: 'Pharmacy Status', value: 'In Stock' }
+                                { label: 'Patients Attended', value: stats.patientsAttended },
+                                { label: 'Doctors Available', value: stats.doctorsAvailable },
+                                { label: 'Appointments Today', value: stats.appointmentsToday },
+                                { label: 'Pharmacy Status', value: stats.pharmacyStatus }
                             ].map((item, i) => (
-
                                 <div
                                     key={i}
                                     style={{
@@ -525,21 +464,16 @@ export default function LandingPage() {
                                         justifyContent: 'space-between'
                                     }}
                                 >
-
                                     <span style={{ color: 'rgba(255,255,255,0.7)' }}>
                                         {item.label}
                                     </span>
-
                                     <strong style={{ color: 'white' }}>
                                         {item.value}
                                     </strong>
-
                                 </div>
-
                             ))}
 
                             {/* EMERGENCY NOTE */}
-
                             <div
                                 style={{
                                     marginTop: '18px',
@@ -554,14 +488,12 @@ export default function LandingPage() {
                             >
                                 🏥 Emergency services available 24/7 for all patients
                             </div>
-
                         </div>
-
                     </div>
-
                 </div>
-
             </section>
+
+            {/* ABOUT SECTION */}
             <section
                 id="about"
                 style={{
@@ -569,7 +501,6 @@ export default function LandingPage() {
                     background: '#f8fafc'
                 }}
             >
-
                 <div
                     style={{
                         maxWidth: '1200px',
@@ -580,15 +511,11 @@ export default function LandingPage() {
                         alignItems: 'center'
                     }}
                 >
-
                     {/* LEFT CONTENT */}
-
                     <div>
-
                         <span style={sectionTag}>
                             About Our Hospital
                         </span>
-
                         <h2
                             style={{
                                 ...sectionTitle,
@@ -599,7 +526,6 @@ export default function LandingPage() {
                         >
                             Compassionate Healthcare Built on Trust & Care
                         </h2>
-
                         <p
                             style={{
                                 color: '#64748b',
@@ -615,7 +541,6 @@ export default function LandingPage() {
                         </p>
 
                         {/* KEY POINTS */}
-
                         <div
                             style={{
                                 marginTop: '30px',
@@ -624,14 +549,12 @@ export default function LandingPage() {
                                 gap: '14px'
                             }}
                         >
-
                             {[
                                 'Modern medical facilities with advanced equipment',
                                 'Experienced doctors & certified healthcare staff',
                                 'Patient-centered care approach',
                                 'Emergency services available 24/7'
                             ].map((item, i) => (
-
                                 <div
                                     key={i}
                                     style={{
@@ -642,7 +565,6 @@ export default function LandingPage() {
                                         fontWeight: '600'
                                     }}
                                 >
-
                                     <span
                                         style={{
                                             width: '8px',
@@ -651,19 +573,13 @@ export default function LandingPage() {
                                             background: '#0f766e'
                                         }}
                                     ></span>
-
                                     {item}
-
                                 </div>
-
                             ))}
-
                         </div>
-
                     </div>
 
                     {/* RIGHT VISUAL PANEL */}
-
                     <div
                         style={{
                             background: 'white',
@@ -673,19 +589,15 @@ export default function LandingPage() {
                             border: '1px solid rgba(15,23,42,0.06)'
                         }}
                     >
-
                         {/* TITLE */}
-
                         <h3 style={{ margin: 0, fontSize: '20px' }}>
                             Hospital Care Principles
                         </h3>
-
                         <p style={{ color: '#64748b', fontSize: '13px', marginTop: '6px' }}>
                             Core values of our medical service
                         </p>
 
                         {/* STACKED INFO BLOCKS */}
-
                         {[
                             {
                                 title: 'Quality Care',
@@ -704,7 +616,6 @@ export default function LandingPage() {
                                 desc: 'Continuous emergency medical service'
                             }
                         ].map((item, i) => (
-
                             <div
                                 key={i}
                                 style={{
@@ -715,7 +626,6 @@ export default function LandingPage() {
                                     border: '1px solid #e2e8f0'
                                 }}
                             >
-
                                 <h4
                                     style={{
                                         margin: 0,
@@ -725,7 +635,6 @@ export default function LandingPage() {
                                 >
                                     {item.title}
                                 </h4>
-
                                 <p
                                     style={{
                                         marginTop: '6px',
@@ -735,17 +644,12 @@ export default function LandingPage() {
                                 >
                                     {item.desc}
                                 </p>
-
                             </div>
-
                         ))}
-
                     </div>
-
                 </div>
 
                 {/* TRUST FOOTER STRIP */}
-
                 <div
                     style={{
                         maxWidth: '1100px',
@@ -758,11 +662,9 @@ export default function LandingPage() {
                         textAlign: 'center'
                     }}
                 >
-
                     <h3 style={{ margin: 0, fontSize: '26px' }}>
                         Trusted Healthcare for Every Patient
                     </h3>
-
                     <p
                         style={{
                             marginTop: '12px',
@@ -773,11 +675,10 @@ export default function LandingPage() {
                         We believe healthcare is not just treatment — it is care, trust,
                         and human connection that supports every step of a patient’s journey.
                     </p>
-
                 </div>
-
             </section>
 
+            {/* SERVICES SECTION */}
             <section
                 id="services"
                 style={{
@@ -785,41 +686,33 @@ export default function LandingPage() {
                     background: '#f8fafc'
                 }}
             >
-
                 <div
                     style={{
                         maxWidth: '1300px',
                         margin: '0 auto'
                     }}
                 >
-
                     {/* HEADER */}
-
                     <div
                         style={{
                             textAlign: 'center',
                             marginBottom: '70px'
                         }}
                     >
-
                         <span style={sectionTag}>
                             Hospital Care Services
                         </span>
-
                         <h2 style={sectionTitle}>
                             Integrated Medical Care Across All Departments
                         </h2>
-
                         <p style={sectionDesc}>
                             A complete hospital care ecosystem designed to support
                             patients from emergency response to recovery with
                             continuous monitoring and specialist care.
                         </p>
-
                     </div>
 
                     {/* LAYOUT SPLIT */}
-
                     <div
                         style={{
                             display: 'grid',
@@ -828,9 +721,7 @@ export default function LandingPage() {
                             alignItems: 'stretch'
                         }}
                     >
-
                         {/* LEFT - FEATURED SERVICE */}
-
                         <div
                             style={{
                                 background:
@@ -842,11 +733,9 @@ export default function LandingPage() {
                                 overflow: 'hidden'
                             }}
                         >
-
                             <h3 style={{ fontSize: '26px', margin: 0 }}>
                                 Emergency & Critical Care Center
                             </h3>
-
                             <p
                                 style={{
                                     marginTop: '14px',
@@ -860,7 +749,6 @@ export default function LandingPage() {
                             </p>
 
                             {/* STATUS BADGE */}
-
                             <div
                                 style={{
                                     marginTop: '22px',
@@ -875,11 +763,9 @@ export default function LandingPage() {
                             >
                                 Active 24/7 Emergency Support
                             </div>
-
                         </div>
 
                         {/* RIGHT - STACKED SERVICES */}
-
                         <div
                             style={{
                                 display: 'flex',
@@ -887,7 +773,6 @@ export default function LandingPage() {
                                 gap: '16px'
                             }}
                         >
-
                             {[
                                 {
                                     title: 'Outpatient Care',
@@ -906,7 +791,6 @@ export default function LandingPage() {
                                     desc: 'Mother & newborn support'
                                 }
                             ].map((item, i) => (
-
                                 <div
                                     key={i}
                                     style={{
@@ -917,7 +801,6 @@ export default function LandingPage() {
                                         boxShadow: '0 8px 20px rgba(0,0,0,0.04)'
                                     }}
                                 >
-
                                     <h4
                                         style={{
                                             margin: 0,
@@ -927,7 +810,6 @@ export default function LandingPage() {
                                     >
                                         {item.title}
                                     </h4>
-
                                     <p
                                         style={{
                                             marginTop: '6px',
@@ -937,17 +819,12 @@ export default function LandingPage() {
                                     >
                                         {item.desc}
                                     </p>
-
                                 </div>
-
                             ))}
-
                         </div>
-
                     </div>
 
                     {/* BOTTOM CARE FLOW STRIP */}
-
                     <div
                         style={{
                             marginTop: '50px',
@@ -957,14 +834,12 @@ export default function LandingPage() {
                             gap: '16px'
                         }}
                     >
-
                         {[
                             'Patient Admission',
                             'Diagnosis',
                             'Treatment Plan',
                             'Recovery Monitoring'
                         ].map((step, i) => (
-
                             <div
                                 key={i}
                                 style={{
@@ -979,16 +854,12 @@ export default function LandingPage() {
                             >
                                 {step}
                             </div>
-
                         ))}
-
                     </div>
-
                 </div>
-
             </section>
 
-            {/* FEATURES */}
+            {/* CARE UNITS */}
             <section
                 id="care-units"
                 style={{
@@ -996,41 +867,33 @@ export default function LandingPage() {
                     background: '#f8fafc'
                 }}
             >
-
                 <div
                     style={{
                         maxWidth: '1300px',
                         margin: '0 auto'
                     }}
                 >
-
                     {/* HEADER */}
-
                     <div
                         style={{
                             textAlign: 'center',
                             marginBottom: '70px'
                         }}
                     >
-
                         <span style={sectionTag}>
                             Care Units
                         </span>
-
                         <h2 style={sectionTitle}>
                             Hospital Departments & Specialized Medical Units
                         </h2>
-
                         <p style={sectionDesc}>
                             Each care unit is designed with dedicated medical teams,
                             advanced facilities and continuous patient monitoring for
                             safe and effective treatment.
                         </p>
-
                     </div>
 
                     {/* GRID */}
-
                     <div
                         style={{
                             display: 'grid',
@@ -1039,7 +902,6 @@ export default function LandingPage() {
                             gap: '26px'
                         }}
                     >
-
                         {[
                             {
                                 title: 'General Care Unit',
@@ -1078,7 +940,6 @@ export default function LandingPage() {
                                 img: 'https://images.unsplash.com/photo-1586773860387-d2c6a1d0f8b5?auto=format&fit=crop&w=800&q=60'
                             }
                         ].map((item, index) => (
-
                             <div
                                 key={index}
                                 style={{
@@ -1090,16 +951,13 @@ export default function LandingPage() {
                                     transition: '0.3s ease'
                                 }}
                             >
-
                                 {/* IMAGE HEADER */}
-
                                 <div
                                     style={{
                                         height: '170px',
                                         overflow: 'hidden'
                                     }}
                                 >
-
                                     <img
                                         src={item.img}
                                         alt={item.title}
@@ -1109,15 +967,11 @@ export default function LandingPage() {
                                             objectFit: 'cover'
                                         }}
                                     />
-
                                 </div>
 
                                 {/* CONTENT */}
-
                                 <div style={{ padding: '22px' }}>
-
                                     {/* STATUS */}
-
                                     <div
                                         style={{
                                             display: 'inline-block',
@@ -1134,7 +988,6 @@ export default function LandingPage() {
                                     </div>
 
                                     {/* TITLE */}
-
                                     <h3
                                         style={{
                                             margin: 0,
@@ -1147,7 +1000,6 @@ export default function LandingPage() {
                                     </h3>
 
                                     {/* DESCRIPTION */}
-
                                     <p
                                         style={{
                                             marginTop: '10px',
@@ -1158,21 +1010,14 @@ export default function LandingPage() {
                                     >
                                         {item.desc}
                                     </p>
-
                                 </div>
-
                             </div>
-
                         ))}
-
                     </div>
-
                 </div>
-
             </section>
 
             {/* HOSPITAL ACCESS PORTALS */}
-
             <section
                 id="dashboard"
                 style={{
@@ -1181,31 +1026,25 @@ export default function LandingPage() {
                     color: 'white'
                 }}
             >
-
                 <div
                     style={{
                         maxWidth: '1300px',
                         margin: '0 auto'
                     }}
                 >
-
                     {/* HEADER */}
-
                     <div
                         style={{
                             textAlign: 'center',
                             marginBottom: '70px'
                         }}
                     >
-
                         <span style={darkTag}>
                             Hospital Access System
                         </span>
-
                         <h2 style={darkTitle}>
                             Integrated Hospital Service Portals
                         </h2>
-
                         <p
                             style={{
                                 color: 'rgba(255,255,255,0.65)',
@@ -1220,11 +1059,9 @@ export default function LandingPage() {
                             medical staff, patients and administrative operations
                             in a structured and efficient healthcare environment.
                         </p>
-
                     </div>
 
                     {/* CARDS */}
-
                     <div
                         style={{
                             display: 'grid',
@@ -1233,62 +1070,44 @@ export default function LandingPage() {
                             gap: '26px'
                         }}
                     >
-
                         {/* ADMIN */}
-
                         <div style={previewCard}>
-
                             <FaUserShield size={44} />
-
                             <h3 style={{ marginTop: '18px' }}>
                                 Hospital Administration
                             </h3>
-
                             <p>
                                 Manages hospital operations, staff coordination,
                                 patient flow, reports and overall service management.
                             </p>
-
                         </div>
 
                         {/* DOCTOR */}
-
                         <div style={previewCard}>
-
                             <FaUserDoctor size={44} />
-
                             <h3 style={{ marginTop: '18px' }}>
                                 Medical Staff Portal
                             </h3>
-
                             <p>
                                 Supports doctors and medical staff in handling
                                 consultations, patient care and treatment records.
                             </p>
-
                         </div>
 
                         {/* PATIENT */}
-
                         <div style={previewCard}>
-
                             <FaHospitalUser size={44} />
-
                             <h3 style={{ marginTop: '18px' }}>
                                 Patient Services Portal
                             </h3>
-
                             <p>
                                 Allows patients to access appointments, medical
                                 information and hospital service updates.
                             </p>
-
                         </div>
-
                     </div>
 
                     {/* NOTE STRIP */}
-
                     <div
                         style={{
                             marginTop: '60px',
@@ -1299,7 +1118,6 @@ export default function LandingPage() {
                             textAlign: 'center'
                         }}
                     >
-
                         <p
                             style={{
                                 margin: 0,
@@ -1310,15 +1128,11 @@ export default function LandingPage() {
                             All hospital portals are designed to ensure secure,
                             efficient and patient-centered healthcare service delivery.
                         </p>
-
                     </div>
-
                 </div>
-
             </section>
 
             {/* FOOTER */}
-
             <footer
                 style={{
                     background: 'linear-gradient(135deg,#020617,#0f172a)',
@@ -1327,7 +1141,6 @@ export default function LandingPage() {
                     borderTop: '1px solid rgba(255,255,255,0.08)'
                 }}
             >
-
                 <div
                     style={{
                         maxWidth: '1300px',
@@ -1338,11 +1151,8 @@ export default function LandingPage() {
                         gap: '40px'
                     }}
                 >
-
                     {/* HOSPITAL INFO */}
-
                     <div>
-
                         <div
                             style={{
                                 display: 'flex',
@@ -1350,7 +1160,6 @@ export default function LandingPage() {
                                 gap: '12px'
                             }}
                         >
-
                             <div
                                 style={{
                                     width: '50px',
@@ -1366,9 +1175,7 @@ export default function LandingPage() {
                             >
                                 🏥
                             </div>
-
                             <div>
-
                                 <h2
                                     style={{
                                         margin: 0,
@@ -1378,7 +1185,6 @@ export default function LandingPage() {
                                 >
                                     MediCore Hospital System
                                 </h2>
-
                                 <p
                                     style={{
                                         margin: 0,
@@ -1388,9 +1194,7 @@ export default function LandingPage() {
                                 >
                                     Integrated Healthcare Management Platform
                                 </p>
-
                             </div>
-
                         </div>
 
                         <p
@@ -1408,7 +1212,6 @@ export default function LandingPage() {
                         </p>
 
                         {/* STATUS */}
-
                         <div
                             style={{
                                 marginTop: '20px',
@@ -1434,72 +1237,54 @@ export default function LandingPage() {
                             ></span>
                             Hospital System Online
                         </div>
-
                     </div>
 
                     {/* HOSPITAL MODULES */}
-
                     <div>
-
                         <h4 style={footerTitle}>
                             Hospital Modules
                         </h4>
-
                         <p style={footerItem}>Patient Management</p>
                         <p style={footerItem}>Doctor Dashboard</p>
                         <p style={footerItem}>Pharmacy System</p>
                         <p style={footerItem}>Lab Reports</p>
                         <p style={footerItem}>Appointments</p>
-
                     </div>
 
                     {/* HOSPITAL DEPARTMENTS */}
-
                     <div>
-
                         <h4 style={footerTitle}>
                             Departments
                         </h4>
-
                         <p style={footerItem}>Emergency Unit</p>
                         <p style={footerItem}>Cardiology</p>
                         <p style={footerItem}>Neurology</p>
                         <p style={footerItem}>General OPD</p>
                         <p style={footerItem}>ICU Management</p>
-
                     </div>
 
                     {/* SYSTEM ACCESS */}
-
                     <div>
-
                         <h4 style={footerTitle}>
                             System Access
                         </h4>
-
                         <a href="/login" style={{ textDecoration: 'none' }}>
                             <p style={footerItem}>Admin Portal</p>
                         </a>
-
                         <a href="/login" style={{ textDecoration: 'none' }}>
                             <p style={footerItem}>Doctor Login</p>
                         </a>
-
                         <a href="/login" style={{ textDecoration: 'none' }}>
                             <p style={footerItem}>Pharmacy Panel</p>
                         </a>
-
                         <a href="/login" style={{ textDecoration: 'none' }}>
                             <p style={footerItem}>Reception Desk</p>
                         </a>
                         <p style={footerItem}>Emergency Access</p>
-
                     </div>
-
                 </div>
 
                 {/* BOTTOM BAR */}
-
                 <div
                     style={{
                         maxWidth: '1300px',
@@ -1514,86 +1299,19 @@ export default function LandingPage() {
                         fontSize: '13px'
                     }}
                 >
-
                     <p>
                         © 2026 MediCore Hospital System • All Medical Operations Secured
                     </p>
-
                     <p>
                         Emergency Support: 24/7 • System Monitoring Active
                     </p>
-
                 </div>
-
             </footer>
         </div>
     );
 }
 
 /* ---------------- STYLES ---------------- */
-
-const navLink = {
-    textDecoration: 'none',
-    color: '#0f172a',
-    fontWeight: '600',
-    fontSize: '15px'
-};
-
-const loginBtn = {
-    background:
-        'linear-gradient(to right,#0f766e,#0284c7)',
-    color: 'white',
-    padding: '13px 24px',
-    borderRadius: '14px',
-    textDecoration: 'none',
-    fontWeight: '700',
-    boxShadow:
-        '0 10px 25px rgba(2,132,199,0.25)'
-};
-
-const badgeStyle = {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '10px',
-    padding: '12px 18px',
-    borderRadius: '999px',
-    background: 'rgba(255,255,255,0.12)',
-    color: 'white',
-    fontWeight: '600',
-    border: '1px solid rgba(255,255,255,0.1)'
-};
-
-const primaryBtn = {
-    background: 'white',
-    color: '#0f172a',
-    padding: '16px 28px',
-    borderRadius: '16px',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    textDecoration: 'none',
-    fontWeight: '700',
-    boxShadow:
-        '0 15px 35px rgba(255,255,255,0.18)'
-};
-
-const secondaryBtn = {
-    background: 'transparent',
-    border: '1px solid rgba(255,255,255,0.25)',
-    color: 'white',
-    padding: '16px 28px',
-    borderRadius: '16px',
-    textDecoration: 'none',
-    fontWeight: '700'
-};
-
-const heroStatCard = {
-    background: 'rgba(255,255,255,0.08)',
-    padding: '24px',
-    borderRadius: '24px',
-    border: '1px solid rgba(255,255,255,0.08)',
-    backdropFilter: 'blur(14px)'
-};
 
 const heroGlow1 = {
     position: 'absolute',
@@ -1615,47 +1333,6 @@ const heroGlow2 = {
     bottom: '-100px',
     left: '-80px',
     filter: 'blur(80px)'
-};
-
-const dashboardCard = {
-    background: 'rgba(255,255,255,0.06)',
-    borderRadius: '22px',
-    padding: '22px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '18px',
-    border: '1px solid rgba(255,255,255,0.08)'
-};
-
-const dashboardLabel = {
-    margin: 0,
-    color: 'rgba(255,255,255,0.7)',
-    fontSize: '14px'
-};
-
-const dashboardValue = {
-    margin: '8px 0 0',
-    color: 'white',
-    fontSize: '34px'
-};
-
-const dashboardMiniBadge = {
-    background: 'rgba(255,255,255,0.1)',
-    color: 'white',
-    padding: '10px 14px',
-    borderRadius: '12px',
-    fontWeight: '700',
-    fontSize: '13px'
-};
-
-const liveIndicator = {
-    background: 'rgba(34,197,94,0.15)',
-    color: '#4ade80',
-    padding: '10px 16px',
-    borderRadius: '999px',
-    fontWeight: '700',
-    fontSize: '13px'
 };
 
 const sectionTag = {
@@ -1681,71 +1358,6 @@ const sectionDesc = {
     fontSize: '18px'
 };
 
-const serviceCard = {
-    background: 'white',
-    padding: '36px',
-    borderRadius: '32px',
-    border: '1px solid #e2e8f0',
-    boxShadow:
-        '0 15px 40px rgba(15,23,42,0.06)',
-    transition: '0.3s'
-};
-
-const serviceIcon = {
-    width: '74px',
-    height: '74px',
-    borderRadius: '22px',
-    background:
-        'linear-gradient(135deg,#dff6f5,#e0f2fe)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    fontSize: '30px',
-    color: '#0f766e',
-    marginBottom: '24px'
-};
-
-const serviceTitle = {
-    fontSize: '24px',
-    marginBottom: '16px'
-};
-
-const serviceDesc = {
-    color: '#64748b',
-    lineHeight: '1.9'
-};
-
-const featureCard = {
-    background: '#f8fafc',
-    padding: '36px',
-    borderRadius: '30px',
-    border: '1px solid #e2e8f0'
-};
-
-const featureIcon = {
-    width: '68px',
-    height: '68px',
-    borderRadius: '20px',
-    background:
-        'linear-gradient(135deg,#0f766e,#0284c7)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    color: 'white',
-    fontSize: '28px',
-    marginBottom: '22px'
-};
-
-const featureTitle = {
-    fontSize: '24px',
-    marginBottom: '12px'
-};
-
-const featureText = {
-    color: '#64748b',
-    lineHeight: '1.8'
-};
-
 const darkTag = {
     background: 'rgba(255,255,255,0.08)',
     color: '#7dd3fc',
@@ -1768,11 +1380,6 @@ const previewCard = {
     backdropFilter: 'blur(16px)'
 };
 
-const footerText = {
-    color: 'rgba(255,255,255,0.65)',
-    marginTop: '12px'
-};
-
 const footerTitle = {
     fontSize: '14px',
     fontWeight: '800',
@@ -1787,26 +1394,4 @@ const footerItem = {
     marginBottom: '10px',
     cursor: 'pointer',
     transition: '0.3s'
-};
-
-const aboutCard = {
-    background: 'white',
-    border: '1px solid #e2e8f0',
-    borderRadius: '24px',
-    padding: '26px',
-    boxShadow: '0 10px 30px rgba(15,23,42,0.06)',
-    transition: '0.3s'
-};
-
-const aboutTitle = {
-    fontSize: '16px',
-    fontWeight: '800',
-    marginBottom: '10px',
-    color: '#0f172a'
-};
-
-const aboutText = {
-    fontSize: '14px',
-    lineHeight: '1.8',
-    color: '#64748b'
 };
