@@ -5,64 +5,108 @@ import {
     FaUserShield,
     FaHospitalUser,
     FaPills,
-    FaCalendarCheck
+    FaCalendarCheck,
+    FaArrowRight,
+    FaHeartPulse,
+    FaClock,
+    FaShieldHeart,
+    FaChartLine,
+    FaBedPulse
 } from 'react-icons/fa6';
 
 import AOS from 'aos';
-
 import 'aos/dist/aos.css';
 
 export default function LandingPage() {
 
     useEffect(() => {
-
         AOS.init({
-            duration: 1000
+            duration: 900,
+            once: true
         });
-
     }, []);
 
     const services = [
-
         {
             icon: <FaUserShield />,
-            title: 'Admin Management',
+            title: 'Hospital Administration',
             desc:
-                'Complete user control, analytics and healthcare reporting system.'
+                'Control departments, staff accounts, reports and operational analytics from one centralized healthcare platform.'
         },
 
         {
             icon: <FaUserDoctor />,
-            title: 'Doctor Workspace',
+            title: 'Doctor Workflow',
             desc:
-                'Manage appointments, prescriptions and patient workflows.'
+                'Handle consultations, prescriptions, patient records and appointment scheduling with optimized workflows.'
         },
 
         {
             icon: <FaPills />,
-            title: 'Pharmacy Inventory',
+            title: 'Pharmacy & Inventory',
             desc:
-                'Track medicine stock and prescription usage dynamically.'
+                'Manage medicine stock, low inventory alerts, prescription tracking and pharmacy operations in real-time.'
         },
 
         {
             icon: <FaCalendarCheck />,
-            title: 'Appointment System',
+            title: 'Smart Appointment System',
             desc:
-                'Real-time patient appointment and reception management.'
+                'Reduce waiting time using structured patient scheduling and reception management workflows.'
         }
+    ];
 
+    const stats = [
+        {
+            number: '25K+',
+            label: 'Patients Managed'
+        },
+        {
+            number: '120+',
+            label: 'Medical Staff'
+        },
+        {
+            number: '24/7',
+            label: 'Hospital Operations'
+        },
+        {
+            number: '98%',
+            label: 'System Reliability'
+        }
+    ];
+
+    const features = [
+        {
+            icon: <FaHeartPulse />,
+            title: 'Emergency Monitoring',
+            text: 'Track emergency patients and treatment flow instantly.'
+        },
+        {
+            icon: <FaShieldHeart />,
+            title: 'Secure Medical Records',
+            text: 'Encrypted patient records with role-based access control.'
+        },
+        {
+            icon: <FaChartLine />,
+            title: 'Healthcare Analytics',
+            text: 'Monitor appointments, pharmacy usage and hospital performance.'
+        },
+        {
+            icon: <FaBedPulse />,
+            title: 'Ward & Bed Tracking',
+            text: 'Manage ward allocation and live bed availability.'
+        }
     ];
 
     return (
 
         <div
             style={{
-                background: '#f8fafc',
+                background: '#f4f8fb',
                 minHeight: '100vh',
-                fontFamily:
-                    "'Segoe UI', sans-serif",
-                color: '#0f172a'
+                fontFamily: "'Inter', sans-serif",
+                color: '#0f172a',
+                overflowX: 'hidden'
             }}
         >
 
@@ -74,47 +118,47 @@ export default function LandingPage() {
                     top: 0,
                     width: '100%',
                     zIndex: 1000,
-                    background:
-                        'rgba(255,255,255,0.88)',
-                    backdropFilter: 'blur(12px)',
-                    borderBottom:
-                        '1px solid #e2e8f0'
+                    background: 'rgba(255,255,255,0.82)',
+                    backdropFilter: 'blur(18px)',
+                    borderBottom: '1px solid rgba(148,163,184,0.12)'
                 }}
             >
 
                 <div
                     style={{
-                        maxWidth: '1300px',
+                        maxWidth: '1350px',
                         margin: '0 auto',
                         padding: '18px 30px',
                         display: 'flex',
-                        justifyContent:
-                            'space-between',
+                        justifyContent: 'space-between',
                         alignItems: 'center'
                     }}
                 >
+
+                    {/* LOGO */}
 
                     <div
                         style={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '12px'
+                            gap: '14px'
                         }}
                     >
 
                         <div
                             style={{
-                                width: '50px',
-                                height: '50px',
-                                borderRadius: '16px',
+                                width: '58px',
+                                height: '58px',
+                                borderRadius: '18px',
                                 background:
-                                    'linear-gradient(to right, #0f766e, #0284c7)',
+                                    'linear-gradient(135deg,#0f766e,#0284c7)',
                                 display: 'flex',
+                                justifyContent: 'center',
                                 alignItems: 'center',
-                                justifyContent:
-                                    'center',
                                 color: 'white',
-                                fontSize: '24px'
+                                fontSize: '24px',
+                                boxShadow:
+                                    '0 10px 30px rgba(2,132,199,0.28)'
                             }}
                         >
                             🏥
@@ -122,69 +166,58 @@ export default function LandingPage() {
 
                         <div>
 
-                            <div
+                            <h2
                                 style={{
-                                    fontWeight: '800',
-                                    fontSize: '24px'
+                                    margin: 0,
+                                    fontSize: '24px',
+                                    fontWeight: '800'
                                 }}
                             >
                                 HealthCare Pro
-                            </div>
+                            </h2>
 
                             <div
                                 style={{
                                     fontSize: '13px',
-                                    color: '#64748b'
+                                    color: '#64748b',
+                                    marginTop: '2px'
                                 }}
                             >
-                                Smart Healthcare Platform
+                                Advanced Hospital Management Platform
                             </div>
 
                         </div>
 
                     </div>
 
+                    {/* MENU */}
+
                     <div
                         style={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '28px'
+                            gap: '30px'
                         }}
                     >
 
-                        <a
-                            href="#services"
-                            style={navLink}
-                        >
+                        <a href="#services" style={navLink}>
                             Services
                         </a>
 
-                        <a
-                            href="#dashboards"
-                            style={navLink}
-                        >
-                            Dashboards
+                        <a href="#features" style={navLink}>
+                            Features
                         </a>
 
-                        <a
-                            href="#about"
-                            style={navLink}
-                        >
+                        <a href="#dashboard" style={navLink}>
+                            Dashboard
+                        </a>
+
+                        <a href="#about" style={navLink}>
                             About
                         </a>
 
-                        <a
-                            href="#contact"
-                            style={navLink}
-                        >
-                            Contact
-                        </a>
-
-                        <a
-                            href="/login"
-                            style={loginBtn}
-                        >
-                            Login
+                        <a href="/login" style={loginBtn}>
+                            Login System
                         </a>
 
                     </div>
@@ -193,182 +226,348 @@ export default function LandingPage() {
 
             </nav>
 
-            {/* HERO */}
+            {/* HERO SECTION */}
 
             <section
                 style={{
-                    minHeight: '100vh',
-                    background:
-                        'linear-gradient(135deg, #0f172a 0%, #0f766e 45%, #0284c7 100%)',
                     position: 'relative',
+                    minHeight: '100vh',
+                    padding: '150px 30px 120px',
                     overflow: 'hidden',
-                    display: 'flex',
-                    alignItems: 'center',
-                    padding:
-                        '140px 30px 100px'
+                    background:
+                        'linear-gradient(135deg,#08111f 0%,#0f172a 30%,#0f766e 100%)'
                 }}
             >
 
+                {/* BACKGROUND GLOW */}
+
+                <div style={heroGlow1}></div>
+                <div style={heroGlow2}></div>
+
                 <div
                     style={{
-                        maxWidth: '1300px',
+                        maxWidth: '1350px',
                         margin: '0 auto',
-                        width: '100%',
                         display: 'grid',
                         gridTemplateColumns:
-                            'repeat(auto-fit, minmax(320px, 1fr))',
+                            'repeat(auto-fit,minmax(340px,1fr))',
                         gap: '70px',
-                        alignItems: 'center'
+                        alignItems: 'center',
+                        position: 'relative',
+                        zIndex: 2
                     }}
                 >
 
-                    {/* LEFT */}
+                    {/* LEFT SIDE */}
 
                     <div data-aos="fade-right">
 
-                        <div
-                            style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '10px',
-                                background:
-                                    'rgba(255,255,255,0.12)',
-                                padding:
-                                    '12px 18px',
-                                borderRadius:
-                                    '999px',
-                                marginBottom:
-                                    '30px',
-                                color: 'white',
-                                fontWeight: '600'
-                            }}
-                        >
-                            🚀 AI Powered Healthcare Workflow
+                        <div style={badgeStyle}>
+                            <FaClock />
+                            <span>
+                                Smart Digital Healthcare Ecosystem
+                            </span>
                         </div>
 
                         <h1
                             style={{
-                                fontSize: '72px',
-                                lineHeight: '1.05',
+                                fontSize: '78px',
+                                lineHeight: '1.02',
+                                margin: '25px 0 0',
                                 color: 'white',
-                                margin: 0,
-                                fontWeight: '900'
+                                fontWeight: '900',
+                                letterSpacing: '-2px'
                             }}
                         >
-                            Next Generation
+                            Modern Hospital
                             <br />
-                            Hospital Management
+                            Operations
+                            <span
+                                style={{
+                                    color: '#7dd3fc'
+                                }}
+                            >
+                                {' '}
+                                Simplified
+                            </span>
                         </h1>
 
                         <p
                             style={{
-                                marginTop: '30px',
-                                color:
-                                    'rgba(255,255,255,0.9)',
-                                fontSize: '20px',
+                                marginTop: '32px',
+                                color: 'rgba(255,255,255,0.78)',
+                                fontSize: '19px',
                                 lineHeight: '1.9',
-                                maxWidth: '680px'
+                                maxWidth: '650px'
                             }}
                         >
-                            Manage appointments,
-                            prescriptions,
-                            patients, inventory
-                            and analytics through
-                            one modern healthcare
-                            ecosystem designed
-                            for hospitals and clinics.
+                            A complete healthcare management system designed
+                            for hospitals, clinics and medical centers with
+                            real-time appointment handling, patient workflows,
+                            pharmacy management and secure medical operations.
                         </p>
+
+                        {/* BUTTONS */}
 
                         <div
                             style={{
                                 display: 'flex',
                                 gap: '18px',
-                                marginTop: '45px',
+                                marginTop: '42px',
                                 flexWrap: 'wrap'
                             }}
                         >
 
-                            <a
-                                href="/login"
-                                style={heroPrimaryBtn}
-                            >
-                                Launch Dashboard
+                            <a href="/login" style={primaryBtn}>
+                                Launch System
+                                <FaArrowRight />
                             </a>
 
-                            <a
-                                href="#services"
-                                style={heroSecondaryBtn}
-                            >
-                                View Features
+                            <a href="#services" style={secondaryBtn}>
+                                Explore Features
                             </a>
+
+                        </div>
+
+                        {/* STATS */}
+
+                        <div
+                            style={{
+                                display: 'grid',
+                                gridTemplateColumns:
+                                    'repeat(auto-fit,minmax(150px,1fr))',
+                                gap: '18px',
+                                marginTop: '65px'
+                            }}
+                        >
+
+                            {stats.map((item, index) => (
+
+                                <div
+                                    key={index}
+                                    style={heroStatCard}
+                                >
+
+                                    <h2
+                                        style={{
+                                            margin: 0,
+                                            color: 'white',
+                                            fontSize: '34px'
+                                        }}
+                                    >
+                                        {item.number}
+                                    </h2>
+
+                                    <p
+                                        style={{
+                                            marginTop: '8px',
+                                            color:
+                                                'rgba(255,255,255,0.7)',
+                                            fontSize: '14px'
+                                        }}
+                                    >
+                                        {item.label}
+                                    </p>
+
+                                </div>
+
+                            ))}
 
                         </div>
 
                     </div>
 
-                    {/* RIGHT */}
+                    {/* RIGHT SIDE */}
 
                     <div
                         data-aos="fade-left"
                         style={{
                             display: 'flex',
-                            justifyContent:
-                                'center'
+                            justifyContent: 'center'
                         }}
                     >
 
                         <div
                             style={{
                                 width: '100%',
-                                maxWidth: '470px',
+                                maxWidth: '520px',
                                 background:
-                                    'rgba(255,255,255,0.14)',
-                                backdropFilter:
-                                    'blur(18px)',
+                                    'rgba(255,255,255,0.08)',
                                 border:
-                                    '1px solid rgba(255,255,255,0.18)',
-                                borderRadius:
-                                    '35px',
-                                padding: '35px',
+                                    '1px solid rgba(255,255,255,0.12)',
+                                backdropFilter: 'blur(22px)',
+                                borderRadius: '34px',
+                                padding: '28px',
                                 boxShadow:
-                                    '0 20px 60px rgba(0,0,0,0.25)'
+                                    '0 30px 80px rgba(0,0,0,0.35)'
                             }}
                         >
 
-                            <h2
+                            {/* TOP BAR */}
+
+                            <div
                                 style={{
-                                    color: 'white'
+                                    display: 'flex',
+                                    justifyContent:
+                                        'space-between',
+                                    alignItems: 'center',
+                                    marginBottom: '25px'
                                 }}
                             >
-                                📊 Live Dashboard
-                            </h2>
 
-                            <div style={dashboardGlassCard}>
-                                <span>
-                                    👨‍⚕️ Active Doctors
-                                </span>
-                                <strong>75</strong>
+                                <div>
+
+                                    <h3
+                                        style={{
+                                            color: 'white',
+                                            margin: 0
+                                        }}
+                                    >
+                                        Live Hospital Status
+                                    </h3>
+
+                                    <p
+                                        style={{
+                                            color:
+                                                'rgba(255,255,255,0.65)',
+                                            marginTop: '6px',
+                                            fontSize: '14px'
+                                        }}
+                                    >
+                                        Central Healthcare Dashboard
+                                    </p>
+
+                                </div>
+
+                                <div style={liveIndicator}>
+                                    LIVE
+                                </div>
+
                             </div>
 
-                            <div style={dashboardGlassCard}>
-                                <span>
-                                    🧑 Patients Today
-                                </span>
-                                <strong>240</strong>
+                            {/* DASHBOARD CARD */}
+
+                            <div style={dashboardCard}>
+                                <div>
+                                    <p style={dashboardLabel}>
+                                        Active Doctors
+                                    </p>
+                                    <h2 style={dashboardValue}>
+                                        75
+                                    </h2>
+                                </div>
+
+                                <div style={dashboardMiniBadge}>
+                                    +12%
+                                </div>
                             </div>
 
-                            <div style={dashboardGlassCard}>
-                                <span>
-                                    💊 Medicine Stock
-                                </span>
-                                <strong>530</strong>
+                            <div style={dashboardCard}>
+                                <div>
+                                    <p style={dashboardLabel}>
+                                        Patients Today
+                                    </p>
+                                    <h2 style={dashboardValue}>
+                                        240
+                                    </h2>
+                                </div>
+
+                                <div style={dashboardMiniBadge}>
+                                    +18%
+                                </div>
                             </div>
 
-                            <div style={dashboardGlassCard}>
-                                <span>
-                                    📅 Appointments
-                                </span>
-                                <strong>126</strong>
+                            <div style={dashboardCard}>
+                                <div>
+                                    <p style={dashboardLabel}>
+                                        Appointments
+                                    </p>
+                                    <h2 style={dashboardValue}>
+                                        126
+                                    </h2>
+                                </div>
+
+                                <div style={dashboardMiniBadge}>
+                                    Stable
+                                </div>
+                            </div>
+
+                            <div style={dashboardCard}>
+                                <div>
+                                    <p style={dashboardLabel}>
+                                        Pharmacy Stock
+                                    </p>
+                                    <h2 style={dashboardValue}>
+                                        530
+                                    </h2>
+                                </div>
+
+                                <div style={dashboardMiniBadge}>
+                                    Updated
+                                </div>
+                            </div>
+
+                            {/* ACTIVITY */}
+
+                            <div
+                                style={{
+                                    marginTop: '25px',
+                                    background:
+                                        'rgba(255,255,255,0.06)',
+                                    borderRadius: '24px',
+                                    padding: '22px'
+                                }}
+                            >
+
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        justifyContent:
+                                            'space-between',
+                                        alignItems: 'center'
+                                    }}
+                                >
+
+                                    <h4
+                                        style={{
+                                            color: 'white',
+                                            margin: 0
+                                        }}
+                                    >
+                                        Emergency Room
+                                    </h4>
+
+                                    <span
+                                        style={{
+                                            color: '#4ade80',
+                                            fontWeight: '700'
+                                        }}
+                                    >
+                                        Operational
+                                    </span>
+
+                                </div>
+
+                                <div
+                                    style={{
+                                        marginTop: '18px',
+                                        height: '10px',
+                                        background:
+                                            'rgba(255,255,255,0.08)',
+                                        borderRadius: '999px',
+                                        overflow: 'hidden'
+                                    }}
+                                >
+                                    <div
+                                        style={{
+                                            width: '82%',
+                                            height: '100%',
+                                            background:
+                                                'linear-gradient(to right,#0f766e,#38bdf8)'
+                                        }}
+                                    ></div>
+                                </div>
+
                             </div>
 
                         </div>
@@ -384,26 +583,32 @@ export default function LandingPage() {
             <section
                 id="services"
                 style={{
-                    maxWidth: '1250px',
-                    margin: '90px auto',
-                    padding: '0 20px'
+                    maxWidth: '1300px',
+                    margin: '100px auto',
+                    padding: '0 25px'
                 }}
             >
 
                 <div
                     style={{
                         textAlign: 'center',
-                        marginBottom: '60px'
+                        marginBottom: '70px'
                     }}
                 >
 
-                    <h2
-                        style={{
-                            fontSize: '48px'
-                        }}
-                    >
-                        Powerful Healthcare Features
+                    <span style={sectionTag}>
+                        Healthcare Modules
+                    </span>
+
+                    <h2 style={sectionTitle}>
+                        Designed for Real Hospital Workflows
                     </h2>
+
+                    <p style={sectionDesc}>
+                        Every module is structured to support healthcare
+                        operations efficiently with modern hospital-grade UI
+                        and workflow management.
+                    </p>
 
                 </div>
 
@@ -411,7 +616,7 @@ export default function LandingPage() {
                     style={{
                         display: 'grid',
                         gridTemplateColumns:
-                            'repeat(auto-fit, minmax(280px, 1fr))',
+                            'repeat(auto-fit,minmax(280px,1fr))',
                         gap: '28px'
                     }}
                 >
@@ -424,30 +629,15 @@ export default function LandingPage() {
                             style={serviceCard}
                         >
 
-                            <div
-                                style={{
-                                    fontSize: '50px',
-                                    color: '#0f766e',
-                                    marginBottom: '20px'
-                                }}
-                            >
+                            <div style={serviceIcon}>
                                 {service.icon}
                             </div>
 
-                            <h3
-                                style={{
-                                    fontSize: '24px'
-                                }}
-                            >
+                            <h3 style={serviceTitle}>
                                 {service.title}
                             </h3>
 
-                            <p
-                                style={{
-                                    color: '#64748b',
-                                    lineHeight: '1.8'
-                                }}
-                            >
+                            <p style={serviceDesc}>
                                 {service.desc}
                             </p>
 
@@ -459,20 +649,76 @@ export default function LandingPage() {
 
             </section>
 
+            {/* FEATURES */}
+
+            <section
+                id="features"
+                style={{
+                    padding: '110px 25px',
+                    background: '#ffffff'
+                }}
+            >
+
+                <div
+                    style={{
+                        maxWidth: '1300px',
+                        margin: '0 auto'
+                    }}
+                >
+
+                    <div
+                        style={{
+                            display: 'grid',
+                            gridTemplateColumns:
+                                'repeat(auto-fit,minmax(300px,1fr))',
+                            gap: '30px'
+                        }}
+                    >
+
+                        {features.map((item, index) => (
+
+                            <div
+                                key={index}
+                                data-aos="fade-up"
+                                style={featureCard}
+                            >
+
+                                <div style={featureIcon}>
+                                    {item.icon}
+                                </div>
+
+                                <h3 style={featureTitle}>
+                                    {item.title}
+                                </h3>
+
+                                <p style={featureText}>
+                                    {item.text}
+                                </p>
+
+                            </div>
+
+                        ))}
+
+                    </div>
+
+                </div>
+
+            </section>
+
             {/* DASHBOARD PREVIEW */}
 
             <section
-                id="dashboards"
+                id="dashboard"
                 style={{
-                    background: '#0f172a',
-                    padding: '100px 25px',
+                    background: '#07111f',
+                    padding: '110px 25px',
                     color: 'white'
                 }}
             >
 
                 <div
                     style={{
-                        maxWidth: '1250px',
+                        maxWidth: '1300px',
                         margin: '0 auto'
                     }}
                 >
@@ -480,26 +726,17 @@ export default function LandingPage() {
                     <div
                         style={{
                             textAlign: 'center',
-                            marginBottom: '60px'
+                            marginBottom: '70px'
                         }}
                     >
 
-                        <h2
-                            style={{
-                                fontSize: '48px'
-                            }}
-                        >
-                            Dashboard Preview
-                        </h2>
+                        <span style={darkTag}>
+                            Role Based System
+                        </span>
 
-                        <p
-                            style={{
-                                opacity: 0.8,
-                                marginTop: '15px'
-                            }}
-                        >
-                            Role based healthcare workflow system
-                        </p>
+                        <h2 style={darkTitle}>
+                            Multi Dashboard Healthcare Platform
+                        </h2>
 
                     </div>
 
@@ -507,66 +744,33 @@ export default function LandingPage() {
                         style={{
                             display: 'grid',
                             gridTemplateColumns:
-                                'repeat(auto-fit, minmax(280px, 1fr))',
+                                'repeat(auto-fit,minmax(300px,1fr))',
                             gap: '30px'
                         }}
                     >
 
-                        <div
-                            data-aos="zoom-in"
-                            style={previewCard}
-                        >
-
-                            <FaUserShield
-                                size={45}
-                            />
-
-                            <h3>
-                                Admin Dashboard
-                            </h3>
-
+                        <div style={previewCard}>
+                            <FaUserShield size={44} />
+                            <h3>Admin Dashboard</h3>
                             <p>
-                                Analytics, users and reports
+                                Reports, analytics, staff control and hospital operations.
                             </p>
-
                         </div>
 
-                        <div
-                            data-aos="zoom-in"
-                            style={previewCard}
-                        >
-
-                            <FaUserDoctor
-                                size={45}
-                            />
-
-                            <h3>
-                                Doctor Panel
-                            </h3>
-
+                        <div style={previewCard}>
+                            <FaUserDoctor size={44} />
+                            <h3>Doctor Workspace</h3>
                             <p>
-                                Appointments and prescriptions
+                                Patient diagnosis, appointments and prescriptions.
                             </p>
-
                         </div>
 
-                        <div
-                            data-aos="zoom-in"
-                            style={previewCard}
-                        >
-
-                            <FaHospitalUser
-                                size={45}
-                            />
-
-                            <h3>
-                                Patient Portal
-                            </h3>
-
+                        <div style={previewCard}>
+                            <FaHospitalUser size={44} />
+                            <h3>Patient Portal</h3>
                             <p>
-                                Medical history and appointments
+                                Medical records, appointments and treatment history.
                             </p>
-
                         </div>
 
                     </div>
@@ -580,41 +784,40 @@ export default function LandingPage() {
             <section
                 id="about"
                 style={{
-                    background: 'white',
-                    padding: '90px 25px'
+                    padding: '110px 25px',
+                    background: '#f8fafc'
                 }}
             >
 
                 <div
                     style={{
-                        maxWidth: '1200px',
+                        maxWidth: '1100px',
                         margin: '0 auto',
                         textAlign: 'center'
                     }}
                 >
 
-                    <h2
-                        style={{
-                            fontSize: '48px'
-                        }}
-                    >
-                        Built for Modern Healthcare
+                    <span style={sectionTag}>
+                        About Platform
+                    </span>
+
+                    <h2 style={sectionTitle}>
+                        Built for Modern Healthcare Institutions
                     </h2>
 
                     <p
                         style={{
                             color: '#64748b',
                             lineHeight: '2',
-                            fontSize: '18px',
-                            marginTop: '25px'
+                            marginTop: '25px',
+                            fontSize: '18px'
                         }}
                     >
-                        This Healthcare Management
-                        System simplifies hospital
-                        operations using React,
-                        Node.js and SQL Server with
-                        role-based dashboards and
-                        appointment workflows.
+                        HealthCare Pro combines modern UI engineering with
+                        hospital workflow management to deliver a scalable
+                        healthcare ecosystem for clinics, hospitals and medical
+                        institutions. Built using React, Node.js and SQL Server
+                        with secure role-based architecture.
                     </p>
 
                 </div>
@@ -624,27 +827,71 @@ export default function LandingPage() {
             {/* FOOTER */}
 
             <footer
-                id="contact"
                 style={{
                     background: '#020617',
                     color: 'white',
-                    padding: '50px 25px',
-                    textAlign: 'center'
+                    padding: '70px 25px'
                 }}
             >
 
-                <h2>
-                    HealthCare Pro
-                </h2>
-
-                <p
+                <div
                     style={{
-                        marginTop: '16px',
-                        opacity: 0.75
+                        maxWidth: '1300px',
+                        margin: '0 auto',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        flexWrap: 'wrap',
+                        gap: '30px'
                     }}
                 >
-                    Developed by ABCD • React • Node.js • SQL Server
-                </p>
+
+                    <div>
+
+                        <h2
+                            style={{
+                                margin: 0
+                            }}
+                        >
+                            HealthCare Pro
+                        </h2>
+
+                        <p
+                            style={{
+                                marginTop: '18px',
+                                color:
+                                    'rgba(255,255,255,0.65)',
+                                lineHeight: '1.8',
+                                maxWidth: '420px'
+                            }}
+                        >
+                            Smart healthcare infrastructure platform designed
+                            for modern medical institutions and hospital
+                            management systems.
+                        </p>
+
+                    </div>
+
+                    <div>
+
+                        <h4>
+                            System Technology
+                        </h4>
+
+                        <p style={footerText}>
+                            React.js
+                        </p>
+
+                        <p style={footerText}>
+                            Node.js
+                        </p>
+
+                        <p style={footerText}>
+                            SQL Server
+                        </p>
+
+                    </div>
+
+                </div>
 
             </footer>
 
@@ -652,115 +899,245 @@ export default function LandingPage() {
     );
 }
 
-/* STYLES */
+/* ---------------- STYLES ---------------- */
 
 const navLink = {
-
     textDecoration: 'none',
-
     color: '#0f172a',
-
-    fontWeight: '600'
+    fontWeight: '600',
+    fontSize: '15px'
 };
 
 const loginBtn = {
-
     background:
-        'linear-gradient(to right, #0f766e, #0284c7)',
-
+        'linear-gradient(to right,#0f766e,#0284c7)',
     color: 'white',
-
-    padding: '12px 22px',
-
-    borderRadius: '12px',
-
+    padding: '13px 24px',
+    borderRadius: '14px',
     textDecoration: 'none',
-
-    fontWeight: '700'
+    fontWeight: '700',
+    boxShadow:
+        '0 10px 25px rgba(2,132,199,0.25)'
 };
 
-const heroPrimaryBtn = {
+const badgeStyle = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '10px',
+    padding: '12px 18px',
+    borderRadius: '999px',
+    background: 'rgba(255,255,255,0.12)',
+    color: 'white',
+    fontWeight: '600',
+    border: '1px solid rgba(255,255,255,0.1)'
+};
 
+const primaryBtn = {
     background: 'white',
-
     color: '#0f172a',
-
     padding: '16px 28px',
-
-    borderRadius: '14px',
-
+    borderRadius: '16px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
     textDecoration: 'none',
+    fontWeight: '700',
+    boxShadow:
+        '0 15px 35px rgba(255,255,255,0.18)'
+};
 
+const secondaryBtn = {
+    background: 'transparent',
+    border: '1px solid rgba(255,255,255,0.25)',
+    color: 'white',
+    padding: '16px 28px',
+    borderRadius: '16px',
+    textDecoration: 'none',
     fontWeight: '700'
 };
 
-const heroSecondaryBtn = {
+const heroStatCard = {
+    background: 'rgba(255,255,255,0.08)',
+    padding: '24px',
+    borderRadius: '24px',
+    border: '1px solid rgba(255,255,255,0.08)',
+    backdropFilter: 'blur(14px)'
+};
 
-    background: 'transparent',
+const heroGlow1 = {
+    position: 'absolute',
+    width: '500px',
+    height: '500px',
+    borderRadius: '50%',
+    background: 'rgba(14,165,233,0.18)',
+    top: '-120px',
+    right: '-100px',
+    filter: 'blur(80px)'
+};
 
-    border:
-        '2px solid rgba(255,255,255,0.4)',
+const heroGlow2 = {
+    position: 'absolute',
+    width: '400px',
+    height: '400px',
+    borderRadius: '50%',
+    background: 'rgba(16,185,129,0.18)',
+    bottom: '-100px',
+    left: '-80px',
+    filter: 'blur(80px)'
+};
 
+const dashboardCard = {
+    background: 'rgba(255,255,255,0.06)',
+    borderRadius: '22px',
+    padding: '22px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '18px',
+    border: '1px solid rgba(255,255,255,0.08)'
+};
+
+const dashboardLabel = {
+    margin: 0,
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: '14px'
+};
+
+const dashboardValue = {
+    margin: '8px 0 0',
     color: 'white',
+    fontSize: '34px'
+};
 
-    padding: '16px 28px',
+const dashboardMiniBadge = {
+    background: 'rgba(255,255,255,0.1)',
+    color: 'white',
+    padding: '10px 14px',
+    borderRadius: '12px',
+    fontWeight: '700',
+    fontSize: '13px'
+};
 
-    borderRadius: '14px',
+const liveIndicator = {
+    background: 'rgba(34,197,94,0.15)',
+    color: '#4ade80',
+    padding: '10px 16px',
+    borderRadius: '999px',
+    fontWeight: '700',
+    fontSize: '13px'
+};
 
-    textDecoration: 'none',
+const sectionTag = {
+    background: '#dff6f5',
+    color: '#0f766e',
+    padding: '10px 18px',
+    borderRadius: '999px',
+    fontWeight: '700',
+    fontSize: '14px'
+};
 
-    fontWeight: '700'
+const sectionTitle = {
+    fontSize: '52px',
+    marginTop: '25px',
+    lineHeight: '1.15'
+};
+
+const sectionDesc = {
+    maxWidth: '720px',
+    margin: '20px auto 0',
+    color: '#64748b',
+    lineHeight: '1.9',
+    fontSize: '18px'
 };
 
 const serviceCard = {
-
     background: 'white',
-
-    padding: '35px',
-
-    borderRadius: '28px',
-
+    padding: '36px',
+    borderRadius: '32px',
+    border: '1px solid #e2e8f0',
     boxShadow:
-        '0 10px 30px rgba(0,0,0,0.06)'
+        '0 15px 40px rgba(15,23,42,0.06)',
+    transition: '0.3s'
 };
 
-const dashboardGlassCard = {
-
-    display: 'flex',
-
-    justifyContent: 'space-between',
-
-    alignItems: 'center',
-
+const serviceIcon = {
+    width: '74px',
+    height: '74px',
+    borderRadius: '22px',
     background:
-        'rgba(255,255,255,0.08)',
+        'linear-gradient(135deg,#dff6f5,#e0f2fe)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    fontSize: '30px',
+    color: '#0f766e',
+    marginBottom: '24px'
+};
 
-    padding: '18px 20px',
+const serviceTitle = {
+    fontSize: '24px',
+    marginBottom: '16px'
+};
 
-    borderRadius: '18px',
+const serviceDesc = {
+    color: '#64748b',
+    lineHeight: '1.9'
+};
 
+const featureCard = {
+    background: '#f8fafc',
+    padding: '36px',
+    borderRadius: '30px',
+    border: '1px solid #e2e8f0'
+};
+
+const featureIcon = {
+    width: '68px',
+    height: '68px',
+    borderRadius: '20px',
+    background:
+        'linear-gradient(135deg,#0f766e,#0284c7)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
     color: 'white',
+    fontSize: '28px',
+    marginBottom: '22px'
+};
 
-    marginBottom: '16px',
+const featureTitle = {
+    fontSize: '24px',
+    marginBottom: '12px'
+};
 
-    border:
-        '1px solid rgba(255,255,255,0.08)'
+const featureText = {
+    color: '#64748b',
+    lineHeight: '1.8'
+};
+
+const darkTag = {
+    background: 'rgba(255,255,255,0.08)',
+    color: '#7dd3fc',
+    padding: '10px 18px',
+    borderRadius: '999px',
+    fontWeight: '700'
+};
+
+const darkTitle = {
+    fontSize: '52px',
+    marginTop: '25px'
 };
 
 const previewCard = {
-
-    background:
-        'rgba(255,255,255,0.06)',
-
-    padding: '35px',
-
-    borderRadius: '24px',
-
+    background: 'rgba(255,255,255,0.05)',
+    border: '1px solid rgba(255,255,255,0.08)',
+    padding: '40px',
+    borderRadius: '28px',
     textAlign: 'center',
+    backdropFilter: 'blur(16px)'
+};
 
-    border:
-        '1px solid rgba(255,255,255,0.08)',
-
-    backdropFilter:
-        'blur(10px)'
+const footerText = {
+    color: 'rgba(255,255,255,0.65)',
+    marginTop: '12px'
 };
