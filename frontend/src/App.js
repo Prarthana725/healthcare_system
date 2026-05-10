@@ -47,7 +47,6 @@ function App() {
           path="/"
           element={<LandingPage />}
         />
-
         {/* LOGIN */}
 
         <Route
@@ -134,5 +133,4 @@ function App() {
 
   );
 }
-
 export default App;
