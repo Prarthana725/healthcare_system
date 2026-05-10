@@ -695,7 +695,7 @@ export default function LandingPage() {
                 id="services"
                 style={{
                     maxWidth: '1300px',
-                    margin: '110px auto',
+                    margin: '120px auto',
                     padding: '0 25px'
                 }}
             >
@@ -705,150 +705,141 @@ export default function LandingPage() {
                 <div
                     style={{
                         textAlign: 'center',
-                        marginBottom: '75px'
+                        marginBottom: '80px'
                     }}
                 >
 
                     <span style={sectionTag}>
-                        Our Hospital Services
+                        Hospital Services
                     </span>
 
                     <h2 style={sectionTitle}>
-                        Comprehensive Care for Every Patient Need
+                        Complete Medical Care & Patient Support Services
                     </h2>
 
                     <p style={sectionDesc}>
-                        We provide a wide range of medical services delivered by
-                        experienced healthcare professionals, ensuring quality treatment,
-                        patient comfort, and continuous care throughout every stage of recovery.
+                        Our hospital provides integrated healthcare services designed to
+                        ensure accurate diagnosis, safe treatment and continuous patient
+                        care delivered by qualified medical professionals.
                     </p>
 
                 </div>
 
-                {/* SERVICES GRID */}
+                {/* GRID */}
 
                 <div
                     style={{
                         display: 'grid',
                         gridTemplateColumns:
-                            'repeat(auto-fit,minmax(280px,1fr))',
-                        gap: '26px'
+                            'repeat(auto-fit,minmax(290px,1fr))',
+                        gap: '28px'
                     }}
                 >
 
-                    {/* EMERGENCY CARE */}
+                    {[
+                        {
+                            title: 'Emergency Care Unit',
+                            desc: '24/7 emergency response for critical patients, trauma cases and urgent medical attention.',
+                            tag: 'Critical Care'
+                        },
+                        {
+                            title: 'Outpatient Department',
+                            desc: 'General consultations, follow-up visits and routine health assessments for patients.',
+                            tag: 'OPD Services'
+                        },
+                        {
+                            title: 'Hospital Pharmacy',
+                            desc: 'Safe medication dispensing with pharmacist supervision and prescription management.',
+                            tag: 'Medication'
+                        },
+                        {
+                            title: 'Diagnostic Laboratory',
+                            desc: 'Accurate lab testing, imaging and diagnostics for clinical decision support.',
+                            tag: 'Lab Services'
+                        },
+                        {
+                            title: 'Maternity & Neonatal Care',
+                            desc: 'Comprehensive care for pregnancy, safe delivery and newborn health monitoring.',
+                            tag: 'Mother & Child'
+                        },
+                        {
+                            title: 'Inpatient Ward Care',
+                            desc: 'Continuous patient monitoring with nursing support and recovery management.',
+                            tag: 'Ward Care'
+                        }
+                    ].map((item, index) => (
 
-                    <div style={serviceCard}>
+                        <div
+                            key={index}
+                            style={{
+                                background: '#ffffff',
+                                border: '1px solid rgba(15,23,42,0.08)',
+                                borderRadius: '22px',
+                                padding: '28px',
+                                boxShadow: '0 10px 30px rgba(0,0,0,0.04)',
+                                transition: '0.3s ease',
+                                position: 'relative'
+                            }}
+                        >
 
-                        <div style={serviceIcon}>
-                            🚨
+                            {/* CATEGORY TAG */}
+
+                            <div
+                                style={{
+                                    display: 'inline-block',
+                                    fontSize: '12px',
+                                    fontWeight: '700',
+                                    color: '#0f766e',
+                                    background: 'rgba(15,118,110,0.08)',
+                                    padding: '6px 12px',
+                                    borderRadius: '999px',
+                                    marginBottom: '14px'
+                                }}
+                            >
+                                {item.tag}
+                            </div>
+
+                            {/* TITLE */}
+
+                            <h3
+                                style={{
+                                    fontSize: '18px',
+                                    fontWeight: '800',
+                                    color: '#0f172a',
+                                    marginBottom: '10px'
+                                }}
+                            >
+                                {item.title}
+                            </h3>
+
+                            {/* DESCRIPTION */}
+
+                            <p
+                                style={{
+                                    color: '#64748b',
+                                    lineHeight: '1.7',
+                                    fontSize: '14px'
+                                }}
+                            >
+                                {item.desc}
+                            </p>
+
+                            {/* BOTTOM ACCENT LINE */}
+
+                            <div
+                                style={{
+                                    marginTop: '18px',
+                                    width: '45px',
+                                    height: '3px',
+                                    borderRadius: '999px',
+                                    background:
+                                        'linear-gradient(to right,#0f766e,#38bdf8)'
+                                }}
+                            ></div>
+
                         </div>
 
-                        <h3 style={serviceTitle}>
-                            Emergency Care
-                        </h3>
-
-                        <p style={serviceDesc}>
-                            24/7 emergency medical support for critical patients,
-                            trauma care, and urgent treatment services.
-                        </p>
-
-                    </div>
-
-                    {/* OUTPATIENT */}
-
-                    <div style={serviceCard}>
-
-                        <div style={serviceIcon}>
-                            🏥
-                        </div>
-
-                        <h3 style={serviceTitle}>
-                            Outpatient Services
-                        </h3>
-
-                        <p style={serviceDesc}>
-                            General medical consultations, follow-up visits,
-                            and routine health checkups for all patients.
-                        </p>
-
-                    </div>
-
-                    {/* PHARMACY */}
-
-                    <div style={serviceCard}>
-
-                        <div style={serviceIcon}>
-                            💊
-                        </div>
-
-                        <h3 style={serviceTitle}>
-                            Pharmacy Care
-                        </h3>
-
-                        <p style={serviceDesc}>
-                            Safe and reliable medication dispensing with
-                            professional pharmacist guidance and support.
-                        </p>
-
-                    </div>
-
-                    {/* DIAGNOSTICS */}
-
-                    <div style={serviceCard}>
-
-                        <div style={serviceIcon}>
-                            🧪
-                        </div>
-
-                        <h3 style={serviceTitle}>
-                            Laboratory & Diagnostics
-                        </h3>
-
-                        <p style={serviceDesc}>
-                            Advanced lab testing and diagnostic services
-                            for accurate medical reports and health analysis.
-                        </p>
-
-                    </div>
-
-                    {/* MATERNITY */}
-
-                    <div style={serviceCard}>
-
-                        <div style={serviceIcon}>
-                            👶
-                        </div>
-
-                        <h3 style={serviceTitle}>
-                            Maternity Care
-                        </h3>
-
-                        <p style={serviceDesc}>
-                            Specialized care for mothers and newborns
-                            with safe delivery and postnatal support.
-                        </p>
-
-                    </div>
-
-                    {/* INPATIENT */}
-
-                    <div style={serviceCard}>
-
-                        <div style={serviceIcon}>
-                            🛏️
-                        </div>
-
-                        <h3 style={serviceTitle}>
-                            Inpatient Care
-                        </h3>
-
-                        <p style={serviceDesc}>
-                            Comfortable ward facilities with continuous
-                            monitoring and dedicated medical attention.
-                        </p>
-
-                    </div>
+                    ))}
 
                 </div>
 
@@ -885,13 +876,13 @@ export default function LandingPage() {
                         </span>
 
                         <h2 style={sectionTitle}>
-                            Specialized Medical Care Departments
+                            Hospital Care Departments & Clinical Services
                         </h2>
 
                         <p style={sectionDesc}>
-                            Our hospital provides dedicated care units designed to support
-                            different patient needs with specialized medical attention,
-                            experienced staff and continuous monitoring.
+                            Dedicated medical care units designed to support patients across
+                            different stages of treatment with professional staff, continuous
+                            monitoring and hospital-grade care standards.
                         </p>
 
                     </div>
@@ -907,119 +898,111 @@ export default function LandingPage() {
                         }}
                     >
 
-                        {/* CARD 1 */}
+                        {/* CARD TEMPLATE STYLE */}
 
-                        <div style={featureCard}>
+                        {[
+                            {
+                                title: 'General Care Unit',
+                                desc: 'Primary medical consultations, routine treatment and outpatient care services.',
+                                status: 'Active'
+                            },
+                            {
+                                title: 'Emergency Care Unit',
+                                desc: '24/7 emergency response for trauma, accidents and critical patients.',
+                                status: '24/7 Available'
+                            },
+                            {
+                                title: 'Maternity & Child Care',
+                                desc: 'Safe delivery, prenatal monitoring and newborn care services.',
+                                status: 'Specialized'
+                            },
+                            {
+                                title: 'Specialist Clinics',
+                                desc: 'Cardiology, neurology, orthopedics and other specialist consultations.',
+                                status: 'Consultation'
+                            },
+                            {
+                                title: 'Diagnostic Services',
+                                desc: 'Laboratory testing, imaging and medical diagnostics for accurate reports.',
+                                status: 'Lab Active'
+                            },
+                            {
+                                title: 'Inpatient Ward Care',
+                                desc: 'Continuous monitoring with nursing support and recovery care facilities.',
+                                status: 'In Care'
+                            }
+                        ].map((item, index) => (
 
-                            <div style={featureIcon}>
-                                🏥
+                            <div
+                                key={index}
+                                style={{
+                                    background: '#ffffff',
+                                    border: '1px solid rgba(15,23,42,0.08)',
+                                    borderRadius: '22px',
+                                    padding: '26px',
+                                    boxShadow: '0 10px 30px rgba(0,0,0,0.04)',
+                                    transition: '0.3s ease'
+                                }}
+                            >
+
+                                {/* STATUS BADGE */}
+
+                                <div
+                                    style={{
+                                        display: 'inline-block',
+                                        fontSize: '12px',
+                                        fontWeight: '700',
+                                        color: '#0f766e',
+                                        background: 'rgba(15,118,110,0.08)',
+                                        padding: '6px 12px',
+                                        borderRadius: '999px',
+                                        marginBottom: '14px'
+                                    }}
+                                >
+                                    {item.status}
+                                </div>
+
+                                {/* TITLE */}
+
+                                <h3
+                                    style={{
+                                        fontSize: '18px',
+                                        fontWeight: '800',
+                                        color: '#0f172a',
+                                        marginBottom: '10px'
+                                    }}
+                                >
+                                    {item.title}
+                                </h3>
+
+                                {/* DESCRIPTION */}
+
+                                <p
+                                    style={{
+                                        color: '#64748b',
+                                        lineHeight: '1.7',
+                                        fontSize: '14px'
+                                    }}
+                                >
+                                    {item.desc}
+                                </p>
+
+                                {/* FOOTER LINE */}
+
+                                <div
+                                    style={{
+                                        marginTop: '18px',
+                                        height: '2px',
+                                        width: '40px',
+                                        background:
+                                            'linear-gradient(to right,#0f766e,#38bdf8)',
+                                        borderRadius: '999px'
+                                    }}
+                                ></div>
+
                             </div>
 
-                            <h3 style={featureTitle}>
-                                General Care Unit
-                            </h3>
-
-                            <p style={featureText}>
-                                Provides routine medical consultations, basic treatments,
-                                and general patient care services.
-                            </p>
-
-                        </div>
-
-                        {/* CARD 2 */}
-
-                        <div style={featureCard}>
-
-                            <div style={featureIcon}>
-                                🚨
-                            </div>
-
-                            <h3 style={featureTitle}>
-                                Emergency Unit
-                            </h3>
-
-                            <p style={featureText}>
-                                24/7 emergency response unit for critical conditions,
-                                trauma cases and urgent medical attention.
-                            </p>
-
-                        </div>
-
-                        {/* CARD 3 */}
-
-                        <div style={featureCard}>
-
-                            <div style={featureIcon}>
-                                👶
-                            </div>
-
-                            <h3 style={featureTitle}>
-                                Maternity Care Unit
-                            </h3>
-
-                            <p style={featureText}>
-                                Dedicated care for mothers and newborns with safe delivery,
-                                monitoring and postnatal support.
-                            </p>
-
-                        </div>
-
-                        {/* CARD 4 */}
-
-                        <div style={featureCard}>
-
-                            <div style={featureIcon}>
-                                🧠
-                            </div>
-
-                            <h3 style={featureTitle}>
-                                Specialist Clinics
-                            </h3>
-
-                            <p style={featureText}>
-                                Specialized doctors providing treatment for cardiology,
-                                neurology, orthopedics and other conditions.
-                            </p>
-
-                        </div>
-
-                        {/* CARD 5 */}
-
-                        <div style={featureCard}>
-
-                            <div style={featureIcon}>
-                                🧪
-                            </div>
-
-                            <h3 style={featureTitle}>
-                                Diagnostic Unit
-                            </h3>
-
-                            <p style={featureText}>
-                                Laboratory and diagnostic services for accurate medical
-                                testing and health analysis.
-                            </p>
-
-                        </div>
-
-                        {/* CARD 6 */}
-
-                        <div style={featureCard}>
-
-                            <div style={featureIcon}>
-                                🛏️
-                            </div>
-
-                            <h3 style={featureTitle}>
-                                Inpatient Ward Care
-                            </h3>
-
-                            <p style={featureText}>
-                                Continuous patient monitoring with comfortable ward facilities
-                                and dedicated nursing care.
-                            </p>
-
-                        </div>
+                        ))}
 
                     </div>
 
@@ -1333,10 +1316,21 @@ export default function LandingPage() {
                             System Access
                         </h4>
 
-                        <p style={footerItem}>Admin Portal</p>
-                        <p style={footerItem}>Doctor Login</p>
-                        <p style={footerItem}>Pharmacy Panel</p>
-                        <p style={footerItem}>Reception Desk</p>
+                        <a href="/login" style={{ textDecoration: 'none' }}>
+                            <p style={footerItem}>Admin Portal</p>
+                        </a>
+
+                        <a href="/login" style={{ textDecoration: 'none' }}>
+                            <p style={footerItem}>Doctor Login</p>
+                        </a>
+
+                        <a href="/login" style={{ textDecoration: 'none' }}>
+                            <p style={footerItem}>Pharmacy Panel</p>
+                        </a>
+
+                        <a href="/login" style={{ textDecoration: 'none' }}>
+                            <p style={footerItem}>Reception Desk</p>
+                        </a>
                         <p style={footerItem}>Emergency Access</p>
 
                     </div>
