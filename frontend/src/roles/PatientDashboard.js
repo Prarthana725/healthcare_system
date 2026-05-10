@@ -4,6 +4,10 @@ const API_URL = 'http://localhost:5000/api';
 
 export default function PatientDashboard() {
 
+    //--------------------------------------------------
+    // STATES
+    //--------------------------------------------------
+
     const [data, setData] = useState(null);
 
     const [loading, setLoading] = useState(true);
@@ -26,13 +30,17 @@ export default function PatientDashboard() {
     const [message, setMessage] =
         useState('');
 
-    const [activeSection,
-        setActiveSection] =
-        useState('dashboard');
+    //--------------------------------------------------
+    // GET LOGGED USER
+    //--------------------------------------------------
 
     const user = JSON.parse(
         localStorage.getItem('user')
     );
+
+    //--------------------------------------------------
+    // LOAD DASHBOARD
+    //--------------------------------------------------
 
     useEffect(() => {
 
@@ -53,6 +61,10 @@ export default function PatientDashboard() {
         }
 
     }, []);
+
+    //--------------------------------------------------
+    // FETCH PATIENT DATA
+    //--------------------------------------------------
 
     async function loadDashboard() {
 
@@ -123,6 +135,10 @@ export default function PatientDashboard() {
         }
     }
 
+    //--------------------------------------------------
+    // LOAD DOCTORS
+    //--------------------------------------------------
+
     async function loadDoctors() {
 
         try {
@@ -144,6 +160,10 @@ export default function PatientDashboard() {
 
         }
     }
+
+    //--------------------------------------------------
+    // BOOK APPOINTMENT
+    //--------------------------------------------------
 
     async function bookAppointment(e) {
 
@@ -221,6 +241,10 @@ export default function PatientDashboard() {
         }
     }
 
+    //--------------------------------------------------
+    // LOGOUT
+    //--------------------------------------------------
+
     function logout() {
 
         localStorage.clear();
@@ -228,6 +252,10 @@ export default function PatientDashboard() {
         window.location.href =
             '/login';
     }
+
+    //--------------------------------------------------
+    // LOADING SCREEN
+    //--------------------------------------------------
 
     if (loading) {
 
@@ -248,6 +276,10 @@ export default function PatientDashboard() {
         );
     }
 
+    //--------------------------------------------------
+    // ERROR SCREEN
+    //--------------------------------------------------
+
     if (error) {
 
         return (
@@ -267,113 +299,46 @@ export default function PatientDashboard() {
         );
     }
 
+    //--------------------------------------------------
+    // MAIN UI
+    //--------------------------------------------------
+
     return (
 
         <div
             style={{
-                display: 'flex',
                 minHeight: '100vh',
-                background: '#f1f5f9'
+                background: '#f1f5f9',
+                padding: '30px',
+                fontFamily:
+                    "'Segoe UI', sans-serif"
             }}
         >
 
-            {/* SIDEBAR */}
-
-            <div style={sidebarStyle}>
-
-                <h2 style={logoStyle}>
-                    🏥 Patient
-                </h2>
-
-                <button
-                    onClick={() =>
-                        setActiveSection(
-                            'dashboard'
-                        )
-                    }
-                    style={sidebarButton}
-                >
-                    📊 Dashboard
-                </button>
-
-                <button
-                    onClick={() =>
-                        setActiveSection(
-                            'appointments'
-                        )
-                    }
-                    style={sidebarButton}
-                >
-                    📅 Appointments
-                </button>
-
-                <button
-                    onClick={() =>
-                        setActiveSection(
-                            'book'
-                        )
-                    }
-                    style={sidebarButton}
-                >
-                    ➕ Book Appointment
-                </button>
-
-                <button
-                    onClick={() =>
-                        setActiveSection(
-                            'history'
-                        )
-                    }
-                    style={sidebarButton}
-                >
-                    💊 Medical History
-                </button>
-
-                <button
-                    onClick={() =>
-                        setActiveSection(
-                            'bills'
-                        )
-                    }
-                    style={sidebarButton}
-                >
-                    💳 Bills
-                </button>
-
-                <button
-                    onClick={logout}
-                    style={logoutSidebarBtn}
-                >
-                    Logout
-                </button>
-
-            </div>
-
-            {/* CONTENT */}
+            {/* HEADER */}
 
             <div
                 style={{
-                    flex: 1,
-                    padding: '30px'
+                    background:
+                        'linear-gradient(to right, #0f766e, #0284c7)',
+
+                    borderRadius: '24px',
+
+                    padding: '35px',
+
+                    color: 'white',
+
+                    marginBottom: '30px',
+
+                    display: 'flex',
+
+                    justifyContent: 'space-between',
+
+                    alignItems: 'center'
                 }}
             >
 
-                {/* HEADER */}
-
-                <div
-                    style={{
-                        background:
-                            'linear-gradient(to right, #0f766e, #0284c7)',
-
-                        borderRadius: '24px',
-
-                        padding: '35px',
-
-                        color: 'white',
-
-                        marginBottom: '30px'
-                    }}
-                >
+                <div>
 
                     <h1
                         style={{
@@ -391,519 +356,440 @@ export default function PatientDashboard() {
                         }}
                     >
                         View medical history,
-                        appointments and
-                        billing information
+                        appointments and billing information
                     </p>
 
                 </div>
 
-                {/* DASHBOARD */}
+                <button
+                    onClick={logout}
+                    style={logoutButton}
+                >
+                    Logout
+                </button>
 
-                {activeSection ===
-                'dashboard' && (
+            </div>
 
-                    <>
+            {/* STATS */}
 
-                        {/* STATS */}
+            <div style={statsGrid}>
 
-                        <div style={statsGrid}>
+                <div style={statsCard}>
 
-                            <div style={statsCard}>
+                    <h3>Total Appointments</h3>
 
-                                <h3>
-                                    Total Appointments
-                                </h3>
+                    <h1>
+                        {data.appointments.length}
+                    </h1>
 
-                                <h1>
-                                    {
-                                        data.appointments
-                                            .length
-                                    }
-                                </h1>
+                </div>
 
-                            </div>
+                <div style={statsCard}>
 
-                            <div style={statsCard}>
+                    <h3>Prescriptions</h3>
 
-                                <h3>
-                                    Prescriptions
-                                </h3>
+                    <h1>
+                        {data.prescriptions.length}
+                    </h1>
 
-                                <h1>
-                                    {
-                                        data.prescriptions
-                                            .length
-                                    }
-                                </h1>
+                </div>
 
-                            </div>
+                <div style={statsCard}>
 
-                            <div style={statsCard}>
+                    <h3>Total Bills</h3>
 
-                                <h3>
-                                    Total Bills
-                                </h3>
+                    <h1>
+                        {data.bills.length}
+                    </h1>
 
-                                <h1>
-                                    {
-                                        data.bills.length
-                                    }
-                                </h1>
+                </div>
 
-                            </div>
+            </div>
 
-                        </div>
+            {/* PATIENT INFO */}
 
-                        {/* PATIENT INFO */}
+            <div style={cardStyle}>
 
-                        <div style={cardStyle}>
+                <h2 style={sectionTitle}>
+                    👤 Patient Information
+                </h2>
 
-                            <h2 style={sectionTitle}>
-                                👤 Patient Information
-                            </h2>
+                <div style={infoGrid}>
 
-                            <div style={infoGrid}>
+                    <div style={infoBox}>
+                        <p style={infoLabel}>
+                            Name
+                        </p>
 
-                                <div style={infoBox}>
-                                    <p style={infoLabel}>
-                                        Name
-                                    </p>
-
-                                    <h3>
-                                        {
-                                            data.patient
-                                                .name
-                                        }
-                                    </h3>
-                                </div>
-
-                                <div style={infoBox}>
-                                    <p style={infoLabel}>
-                                        Age
-                                    </p>
-
-                                    <h3>
-                                        {
-                                            data.patient
-                                                .age
-                                        }
-                                    </h3>
-                                </div>
-
-                                <div style={infoBox}>
-                                    <p style={infoLabel}>
-                                        Phone
-                                    </p>
-
-                                    <h3>
-                                        {
-                                            data.patient
-                                                .phone
-                                        }
-                                    </h3>
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </>
-
-                )}
-
-                {/* APPOINTMENTS */}
-
-                {activeSection ===
-                'appointments' && (
-
-                    <div style={cardStyle}>
-
-                        <h2 style={sectionTitle}>
-                            📅 Pending Appointments
-                        </h2>
-
-                        <table style={tableStyle}>
-
-                            <thead>
-
-                                <tr style={tableHeaderRow}>
-
-                                    <th style={tableHead}>
-                                        Date
-                                    </th>
-
-                                    <th style={tableHead}>
-                                        Doctor
-                                    </th>
-
-                                    <th style={tableHead}>
-                                        Specialization
-                                    </th>
-
-                                </tr>
-
-                            </thead>
-
-                            <tbody>
-
-                                {data.appointments.map((a) => (
-
-                                    <tr
-                                        key={
-                                            a.appointment_id
-                                        }
-                                    >
-
-                                        <td style={tableData}>
-
-                                            {
-                                                new Date(
-                                                    a.date
-                                                )
-                                                .toLocaleDateString()
-                                            }
-
-                                        </td>
-
-                                        <td style={tableData}>
-                                            {
-                                                a.doctor_name
-                                            }
-                                        </td>
-
-                                        <td style={tableData}>
-                                            {
-                                                a.specialization
-                                            }
-                                        </td>
-
-                                    </tr>
-
-                                ))}
-
-                            </tbody>
-
-                        </table>
-
+                        <h3>
+                            {data.patient.name}
+                        </h3>
                     </div>
 
-                )}
+                    <div style={infoBox}>
+                        <p style={infoLabel}>
+                            Age
+                        </p>
 
-                {/* BOOK */}
+                        <h3>
+                            {data.patient.age}
+                        </h3>
+                    </div>
 
-                {activeSection ===
-                'book' && (
+                    <div style={infoBox}>
+                        <p style={infoLabel}>
+                            Phone
+                        </p>
 
-                    <div style={cardStyle}>
+                        <h3>
+                            {data.patient.phone}
+                        </h3>
+                    </div>
 
-                        <h2 style={sectionTitle}>
-                            📅 Book Appointment
-                        </h2>
+                </div>
 
-                        <form
-                            onSubmit={
-                                bookAppointment
-                            }
+            </div>
 
-                            style={{
-                                display: 'flex',
-                                flexDirection:
-                                    'column',
+            {/* APPOINTMENTS */}
 
-                                gap: '18px'
-                            }}
-                        >
+            <div style={cardStyle}>
 
-                            <select
-                                value={
-                                    appointmentForm.doctor_id
-                                }
+                <h2 style={sectionTitle}>
+                    📅 Pending Appointments
+                </h2>
 
-                                onChange={(e) =>
+                <table style={tableStyle}>
 
-                                    setAppointmentForm({
+                    <thead>
 
-                                        ...appointmentForm,
+                        <tr style={tableHeaderRow}>
 
-                                        doctor_id:
-                                            e.target.value
-                                    })
+                            <th style={tableHead}>
+                                Date
+                            </th>
 
-                                }
+                            <th style={tableHead}>
+                                Doctor
+                            </th>
 
-                                required
+                            <th style={tableHead}>
+                                Specialization
+                            </th>
 
-                                style={inputStyle}
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {data.appointments.map((a) => (
+
+                            <tr
+                                key={a.appointment_id}
                             >
 
-                                <option value="">
-                                    Select Doctor
-                                </option>
+                                <td style={tableData}>
 
-                                {doctors.map((doctor) => (
+                                    {
+                                        new Date(a.date)
+                                            .toLocaleDateString()
+                                    }
 
-                                    <option
+                                </td>
 
-                                        key={
-                                            doctor.doctor_id
-                                        }
+                                <td style={tableData}>
+                                    {a.doctor_name}
+                                </td>
 
-                                        value={
-                                            doctor.doctor_id
-                                        }
-                                    >
+                                <td style={tableData}>
+                                    {a.specialization}
+                                </td>
 
-                                        {doctor.name}
-                                        {' - '}
-                                        {
-                                            doctor.specialization
-                                        }
+                            </tr>
 
-                                    </option>
+                        ))}
 
-                                ))}
+                    </tbody>
 
-                            </select>
+                </table>
 
-                            <input
-                                type="date"
+            </div>
 
-                                value={
-                                    appointmentForm.date
-                                }
+            {/* BOOK APPOINTMENT */}
 
-                                onChange={(e) =>
+            <div style={cardStyle}>
 
-                                    setAppointmentForm({
+                <h2 style={sectionTitle}>
+                    📅 Book Appointment
+                </h2>
 
-                                        ...appointmentForm,
+                <form
+                    onSubmit={bookAppointment}
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '18px'
+                    }}
+                >
 
-                                        date:
-                                            e.target.value
-                                    })
+                    <select
+                        value={
+                            appointmentForm.doctor_id
+                        }
 
-                                }
+                        onChange={(e) =>
 
-                                required
+                            setAppointmentForm({
 
-                                style={inputStyle}
-                            />
+                                ...appointmentForm,
 
-                            <button
-                                type="submit"
-                                style={buttonStyle}
+                                doctor_id:
+                                    e.target.value
+                            })
+
+                        }
+
+                        required
+
+                        style={inputStyle}
+                    >
+
+                        <option value="">
+                            Select Doctor
+                        </option>
+
+                        {doctors.map((doctor) => (
+
+                            <option
+
+                                key={doctor.doctor_id}
+
+                                value={doctor.doctor_id}
                             >
-                                Book Appointment
-                            </button>
 
-                        </form>
+                                {doctor.name}
+                                {' - '}
+                                {doctor.specialization}
 
-                        {message && (
+                            </option>
 
-                            <div style={messageStyle}>
-                                {message}
-                            </div>
+                        ))}
 
-                        )}
+                    </select>
 
+                    <input
+                        type="date"
+                        value={
+                            appointmentForm.date
+                        }
+
+                        onChange={(e) =>
+
+                            setAppointmentForm({
+
+                                ...appointmentForm,
+
+                                date:
+                                    e.target.value
+                            })
+
+                        }
+
+                        required
+
+                        style={inputStyle}
+                    />
+
+                    <button
+                        type="submit"
+                        style={buttonStyle}
+                    >
+                        Book Appointment
+                    </button>
+
+                </form>
+
+                {message && (
+
+                    <div style={messageStyle}>
+                        {message}
                     </div>
 
                 )}
 
-                {/* HISTORY */}
+            </div>
 
-                {activeSection ===
-                'history' && (
+            {/* PRESCRIPTIONS */}
 
-                    <div style={cardStyle}>
+            <div style={cardStyle}>
 
-                        <h2 style={sectionTitle}>
-                            💊 Medical History
-                        </h2>
+                <h2 style={sectionTitle}>
+                    💊 Medical History
+                </h2>
 
-                        <table style={tableStyle}>
+                <table style={tableStyle}>
 
-                            <thead>
+                    <thead>
 
-                                <tr style={tableHeaderRow}>
+                        <tr style={tableHeaderRow}>
 
-                                    <th style={tableHead}>
-                                        Date
-                                    </th>
+                            <th style={tableHead}>
+                                Date
+                            </th>
 
-                                    <th style={tableHead}>
-                                        Doctor
-                                    </th>
+                            <th style={tableHead}>
+                                Doctor
+                            </th>
 
-                                    <th style={tableHead}>
-                                        Medicine
-                                    </th>
+                            <th style={tableHead}>
+                                Medicine
+                            </th>
 
-                                    <th style={tableHead}>
-                                        Quantity
-                                    </th>
+                            <th style={tableHead}>
+                                Quantity
+                            </th>
 
-                                </tr>
+                        </tr>
 
-                            </thead>
+                    </thead>
 
-                            <tbody>
+                    <tbody>
 
-                                {data.prescriptions.map((p) => (
+                        {data.prescriptions.map((p) => (
 
-                                    <tr
-                                        key={
-                                            p.prescription_id
-                                        }
-                                    >
+                            <tr
+                                key={p.prescription_id}
+                            >
 
-                                        <td style={tableData}>
+                                <td style={tableData}>
 
-                                            {
-                                                new Date(
-                                                    p.date
-                                                )
-                                                .toLocaleDateString()
-                                            }
+                                    {
+                                        new Date(p.date)
+                                            .toLocaleDateString()
+                                    }
 
-                                        </td>
+                                </td>
 
-                                        <td style={tableData}>
-                                            {
-                                                p.doctor_name
-                                            }
-                                        </td>
+                                <td style={tableData}>
+                                    {p.doctor_name}
+                                </td>
 
-                                        <td style={tableData}>
+                                <td style={tableData}>
 
-                                            {
-                                                p.details
-                                                    ?.map(
+                                    {
+                                        p.details
+                                            ?.map(
 
-                                                        d =>
+                                                d =>
 
-                                                            d.medicine_name
-                                                    )
+                                                    d.medicine_name
+                                            )
 
-                                                    .join(', ')
-                                            }
+                                            .join(', ')
+                                    }
 
-                                        </td>
+                                </td>
 
-                                        <td style={tableData}>
+                                <td style={tableData}>
 
-                                            {
-                                                p.details
-                                                    ?.map(
+                                    {
+                                        p.details
+                                            ?.map(
 
-                                                        d =>
+                                                d =>
 
-                                                            d.quantity
-                                                    )
+                                                    d.quantity
+                                            )
 
-                                                    .join(', ')
-                                            }
+                                            .join(', ')
+                                    }
 
-                                        </td>
+                                </td>
 
-                                    </tr>
+                            </tr>
 
-                                ))}
+                        ))}
 
-                            </tbody>
+                    </tbody>
 
-                        </table>
+                </table>
 
-                    </div>
+            </div>
 
-                )}
+            {/* BILLS */}
 
-                {/* BILLS */}
+            <div style={cardStyle}>
 
-                {activeSection ===
-                'bills' && (
+                <h2 style={sectionTitle}>
+                    💳 Bills
+                </h2>
 
-                    <div style={cardStyle}>
+                <table style={tableStyle}>
 
-                        <h2 style={sectionTitle}>
-                            💳 Bills
-                        </h2>
+                    <thead>
 
-                        <table style={tableStyle}>
+                        <tr style={tableHeaderRow}>
 
-                            <thead>
+                            <th style={tableHead}>
+                                Bill Date
+                            </th>
 
-                                <tr style={tableHeaderRow}>
+                            <th style={tableHead}>
+                                Total Amount
+                            </th>
 
-                                    <th style={tableHead}>
-                                        Bill Date
-                                    </th>
+                            <th style={tableHead}>
+                                Status
+                            </th>
 
-                                    <th style={tableHead}>
-                                        Total Amount
-                                    </th>
+                        </tr>
 
-                                    <th style={tableHead}>
-                                        Status
-                                    </th>
+                    </thead>
 
-                                </tr>
+                    <tbody>
 
-                            </thead>
+                        {data.bills.map((b) => (
 
-                            <tbody>
+                            <tr key={b.bill_id}>
 
-                                {data.bills.map((b) => (
+                                <td style={tableData}>
 
-                                    <tr
-                                        key={b.bill_id}
-                                    >
+                                    {
+                                        new Date(
+                                            b.bill_date
+                                        )
+                                        .toLocaleDateString()
+                                    }
 
-                                        <td style={tableData}>
+                                </td>
 
-                                            {
-                                                new Date(
-                                                    b.bill_date
-                                                )
-                                                .toLocaleDateString()
-                                            }
+                                <td style={tableData}>
+                                    Rs. {b.total_amount}
+                                </td>
 
-                                        </td>
+                                <td
+                                    style={{
+                                        ...tableData,
 
-                                        <td style={tableData}>
-                                            Rs. {
-                                                b.total_amount
-                                            }
-                                        </td>
+                                        color:
 
-                                        <td
-                                            style={{
-                                                ...tableData,
+                                            b.status === 'paid'
+                                                ? 'green'
+                                                : 'orange',
 
-                                                color:
+                                        fontWeight: 'bold'
+                                    }}
+                                >
+                                    {b.status}
+                                </td>
 
-                                                    b.status === 'paid'
-                                                        ? 'green'
-                                                        : 'orange',
+                            </tr>
 
-                                                fontWeight:
-                                                    'bold'
-                                            }}
-                                        >
-                                            {b.status}
-                                        </td>
+                        ))}
 
-                                    </tr>
+                    </tbody>
 
-                                ))}
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                )}
+                </table>
 
             </div>
 
@@ -929,72 +815,6 @@ const centerStyle = {
         "'Segoe UI', sans-serif"
 };
 
-const sidebarStyle = {
-
-    width: '260px',
-
-    background:
-        'linear-gradient(to bottom, #0f766e, #0284c7)',
-
-    padding: '30px 20px',
-
-    display: 'flex',
-
-    flexDirection: 'column',
-
-    gap: '15px',
-
-    color: 'white'
-};
-
-const logoStyle = {
-
-    marginBottom: '30px',
-
-    textAlign: 'center'
-};
-
-const sidebarButton = {
-
-    padding: '15px',
-
-    border: 'none',
-
-    borderRadius: '12px',
-
-    background:
-        'rgba(255,255,255,0.12)',
-
-    color: 'white',
-
-    textAlign: 'left',
-
-    cursor: 'pointer',
-
-    fontSize: '15px',
-
-    fontWeight: '600'
-};
-
-const logoutSidebarBtn = {
-
-    marginTop: 'auto',
-
-    padding: '15px',
-
-    border: 'none',
-
-    borderRadius: '12px',
-
-    background: '#dc2626',
-
-    color: 'white',
-
-    cursor: 'pointer',
-
-    fontWeight: '700'
-};
-
 const statsGrid = {
 
     display: 'grid',
@@ -1017,6 +837,24 @@ const statsCard = {
 
     boxShadow:
         '0 5px 20px rgba(0,0,0,0.06)'
+};
+
+const logoutButton = {
+
+    padding:
+        '12px 24px',
+
+    border: 'none',
+
+    borderRadius: '12px',
+
+    background: 'white',
+
+    color: '#0f766e',
+
+    fontWeight: 'bold',
+
+    cursor: 'pointer'
 };
 
 const infoGrid = {
