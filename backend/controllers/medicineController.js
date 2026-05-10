@@ -54,13 +54,17 @@ class MedicineController {
     // Create new medicine
     async create(req, res) {
         try {
-            const { name, quantity } = req.body;
-            console.log('MedicineController.create - Request body:', { name, quantity });
+            const { name, quantity, price, category, expiry_date } = req.body;
+            console.log('MedicineController.create - Request body:', {
+                name, quantity, price,
+                category,
+                expiry_date
+            });
 
             if (!name || quantity === undefined) {
                 return res.status(400).json({ error: 'Missing required fields: name, quantity' });
             }
-            const result = await medicineQueries.createMedicine(name, quantity);
+            const result = await medicineQueries.createMedicine(name, quantity, price, category, expiry_date);
             res.status(201).json({ message: 'Medicine created successfully', medicineId: result.id });
         } catch (error) {
             console.error('MedicineController.create - Error:', error.message);
@@ -87,6 +91,63 @@ class MedicineController {
         }
     }
 
+    // ISSUE MEDICINE
+    async issue(req, res) {
+
+        try {
+
+            const {
+                medicine_id,
+                quantity,
+                price,
+                category,
+                expiry_date
+            } = req.body;
+
+            await medicineQueries.issueMedicine(
+                medicine_id,
+                quantity,
+                price,
+                category,
+                expiry_date
+            );
+
+            res.json({
+                message:
+                    'Medicine issued successfully'
+            });
+
+        } catch (error) {
+
+            console.error(error);
+
+            res.status(500).json({
+                error: error.message
+            });
+        }
+    }
+
+    // GET ISSUE HISTORY
+    async issueHistory(req, res) {
+
+        try {
+
+            const history =
+                await medicineQueries.getIssueHistory();
+
+            res.json(history);
+
+        } catch (error) {
+
+            console.error(error);
+
+            res.status(500).json({
+                error:
+                    'Failed to fetch issue history'
+            });
+        }
+    }
+
     // Delete medicine
     async delete(req, res) {
         try {
@@ -99,6 +160,46 @@ class MedicineController {
         } catch (error) {
             console.error('Error deleting medicine:', error);
             res.status(500).json({ error: 'Failed to delete medicine' });
+        }
+    }
+
+    // REDUCE STOCK
+
+    async reduceStock(req, res) {
+
+        try {
+
+            const {
+                medicine_id,
+                quantity,
+                price,
+                category,
+                expiry_date
+            } = req.body;
+
+            const medicine =
+                await medicineQueries.reduceStock(
+                    medicine_id,
+                    quantity,
+                    price,
+                    category,
+                    expiry_date
+                );
+
+            res.json({
+                message:
+                    'Medicine issued successfully',
+                medicine
+            });
+
+        } catch (error) {
+
+            console.error(error);
+
+            res.status(500).json({
+                error: error.message
+            });
+
         }
     }
 }

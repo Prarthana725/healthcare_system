@@ -36,7 +36,7 @@ export default function DoctorPanel() {
             ]
         });
 
-  
+
 
     useEffect(() => {
 
@@ -189,7 +189,7 @@ export default function DoctorPanel() {
         });
     }
 
-   
+
 
     function addMedicineRow() {
 
@@ -209,7 +209,7 @@ export default function DoctorPanel() {
         });
     }
 
-  
+
 
     async function handlePrescriptionSubmit(
         e
@@ -326,8 +326,8 @@ export default function DoctorPanel() {
             '/login';
     }
 
-    
-   
+
+
 
     const completedAppointments =
 
