@@ -15,6 +15,7 @@ import Appointments from './Appointments';
 import Prescriptions from './Prescriptions';
 import Reports from './Reports';
 import  Views from './Views';
+import ForgotPassword from './ForgotPassword';
 
 // ROLE PAGES
 
@@ -126,6 +127,8 @@ function App() {
           element={<Reports />}
         />
 <Route path="/views" element={<Views />} />
+
+<Route path="/forgot-password" element={<ForgotPassword />} />
       
    </Routes>
 
