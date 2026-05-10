@@ -572,119 +572,206 @@ export default function LandingPage() {
 
                 <div
                     style={{
-                        maxWidth: '1100px',
-                        margin: '0 auto',
-                        textAlign: 'center'
-                    }}
-                >
-
-                    <span style={sectionTag}>
-                        About Our Hospital
-                    </span>
-
-                    <h2
-                        style={{
-                            ...sectionTitle,
-                            fontSize: '54px'
-                        }}
-                    >
-                        Caring for Patients with Compassion and Trust
-                    </h2>
-
-                    <p
-                        style={{
-                            color: '#64748b',
-                            lineHeight: '2',
-                            marginTop: '25px',
-                            fontSize: '18px',
-                            maxWidth: '850px',
-                            marginLeft: 'auto',
-                            marginRight: 'auto'
-                        }}
-                    >
-                        We are committed to providing high-quality healthcare services
-                        with a focus on patient well-being, safety, and comfort.
-                        Our hospital brings together experienced doctors, caring nurses,
-                        and dedicated staff to ensure every patient receives the attention
-                        they deserve in a safe and supportive environment.
-                    </p>
-
-                </div>
-
-                {/* HOSPITAL HIGHLIGHTS */}
-
-                <div
-                    style={{
                         maxWidth: '1200px',
-                        margin: '70px auto 0',
+                        margin: '0 auto',
                         display: 'grid',
-                        gridTemplateColumns:
-                            'repeat(auto-fit,minmax(250px,1fr))',
-                        gap: '24px'
+                        gridTemplateColumns: '1.2fr 0.8fr',
+                        gap: '60px',
+                        alignItems: 'center'
                     }}
                 >
 
-                    <div style={aboutCard}>
-                        <h3 style={aboutTitle}>🏥 Quality Care</h3>
-                        <p style={aboutText}>
-                            We focus on delivering safe and reliable healthcare services
-                            for all patients with professional medical attention.
+                    {/* LEFT CONTENT */}
+
+                    <div>
+
+                        <span style={sectionTag}>
+                            About Our Hospital
+                        </span>
+
+                        <h2
+                            style={{
+                                ...sectionTitle,
+                                fontSize: '52px',
+                                lineHeight: '1.1',
+                                marginTop: '18px'
+                            }}
+                        >
+                            Compassionate Healthcare Built on Trust & Care
+                        </h2>
+
+                        <p
+                            style={{
+                                color: '#64748b',
+                                lineHeight: '1.9',
+                                marginTop: '22px',
+                                fontSize: '17px'
+                            }}
+                        >
+                            We are a patient-focused hospital dedicated to delivering
+                            safe, reliable and high-quality healthcare services. Our mission
+                            is to combine medical expertise with compassion, ensuring every
+                            patient receives personalized care in a supportive environment.
                         </p>
+
+                        {/* KEY POINTS */}
+
+                        <div
+                            style={{
+                                marginTop: '30px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '14px'
+                            }}
+                        >
+
+                            {[
+                                'Modern medical facilities with advanced equipment',
+                                'Experienced doctors & certified healthcare staff',
+                                'Patient-centered care approach',
+                                'Emergency services available 24/7'
+                            ].map((item, i) => (
+
+                                <div
+                                    key={i}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '10px',
+                                        color: '#0f172a',
+                                        fontWeight: '600'
+                                    }}
+                                >
+
+                                    <span
+                                        style={{
+                                            width: '8px',
+                                            height: '8px',
+                                            borderRadius: '50%',
+                                            background: '#0f766e'
+                                        }}
+                                    ></span>
+
+                                    {item}
+
+                                </div>
+
+                            ))}
+
+                        </div>
+
                     </div>
 
-                    <div style={aboutCard}>
-                        <h3 style={aboutTitle}>👨‍⚕️ Experienced Doctors</h3>
-                        <p style={aboutText}>
-                            Our medical team includes qualified doctors and specialists
-                            dedicated to patient care and recovery.
-                        </p>
-                    </div>
+                    {/* RIGHT VISUAL PANEL */}
 
-                    <div style={aboutCard}>
-                        <h3 style={aboutTitle}>❤️ Patient First</h3>
-                        <p style={aboutText}>
-                            Every decision we make is centered around patient comfort,
-                            dignity, and well-being.
-                        </p>
-                    </div>
+                    <div
+                        style={{
+                            background: 'white',
+                            borderRadius: '26px',
+                            padding: '28px',
+                            boxShadow: '0 20px 50px rgba(0,0,0,0.06)',
+                            border: '1px solid rgba(15,23,42,0.06)'
+                        }}
+                    >
 
-                    <div style={aboutCard}>
-                        <h3 style={aboutTitle}>🕒 24/7 Care</h3>
-                        <p style={aboutText}>
-                            Emergency and critical care services are available at all times
-                            to support patients when they need it most.
+                        {/* TITLE */}
+
+                        <h3 style={{ margin: 0, fontSize: '20px' }}>
+                            Hospital Care Principles
+                        </h3>
+
+                        <p style={{ color: '#64748b', fontSize: '13px', marginTop: '6px' }}>
+                            Core values of our medical service
                         </p>
+
+                        {/* STACKED INFO BLOCKS */}
+
+                        {[
+                            {
+                                title: 'Quality Care',
+                                desc: 'Safe and reliable healthcare services'
+                            },
+                            {
+                                title: 'Experienced Staff',
+                                desc: 'Qualified doctors & medical professionals'
+                            },
+                            {
+                                title: 'Patient First',
+                                desc: 'Care focused on dignity and comfort'
+                            },
+                            {
+                                title: '24/7 Support',
+                                desc: 'Continuous emergency medical service'
+                            }
+                        ].map((item, i) => (
+
+                            <div
+                                key={i}
+                                style={{
+                                    marginTop: '16px',
+                                    padding: '16px',
+                                    borderRadius: '16px',
+                                    background: '#f8fafc',
+                                    border: '1px solid #e2e8f0'
+                                }}
+                            >
+
+                                <h4
+                                    style={{
+                                        margin: 0,
+                                        fontSize: '15px',
+                                        color: '#0f172a'
+                                    }}
+                                >
+                                    {item.title}
+                                </h4>
+
+                                <p
+                                    style={{
+                                        marginTop: '6px',
+                                        fontSize: '13px',
+                                        color: '#64748b'
+                                    }}
+                                >
+                                    {item.desc}
+                                </p>
+
+                            </div>
+
+                        ))}
+
                     </div>
 
                 </div>
 
-                {/* SIMPLE MESSAGE BANNER */}
+                {/* TRUST FOOTER STRIP */}
 
                 <div
                     style={{
-                        maxWidth: '1000px',
+                        maxWidth: '1100px',
                         margin: '80px auto 0',
-                        background: 'white',
-                        border: '1px solid #e2e8f0',
+                        background:
+                            'linear-gradient(135deg,#0f172a,#0f766e)',
                         borderRadius: '28px',
-                        padding: '35px',
+                        padding: '40px',
+                        color: 'white',
                         textAlign: 'center'
                     }}
                 >
 
-                    <h3 style={{ margin: 0, fontSize: '24px' }}>
-                        Your Health, Our Priority
+                    <h3 style={{ margin: 0, fontSize: '26px' }}>
+                        Trusted Healthcare for Every Patient
                     </h3>
 
                     <p
                         style={{
                             marginTop: '12px',
-                            color: '#64748b',
-                            lineHeight: '1.9'
+                            color: 'rgba(255,255,255,0.75)',
+                            lineHeight: '1.8'
                         }}
                     >
-                        We believe healthcare is not just treatment — it is care,
-                        understanding, and support throughout every step of a patient’s journey.
+                        We believe healthcare is not just treatment — it is care, trust,
+                        and human connection that supports every step of a patient’s journey.
                     </p>
 
                 </div>
@@ -694,164 +781,219 @@ export default function LandingPage() {
             <section
                 id="services"
                 style={{
-                    maxWidth: '1300px',
-                    margin: '120px auto',
-                    padding: '0 25px'
+                    padding: '120px 25px',
+                    background: '#f8fafc'
                 }}
             >
 
-                {/* HEADER */}
-
                 <div
                     style={{
-                        textAlign: 'center',
-                        marginBottom: '80px'
+                        maxWidth: '1300px',
+                        margin: '0 auto'
                     }}
                 >
 
-                    <span style={sectionTag}>
-                        Hospital Services
-                    </span>
+                    {/* HEADER */}
 
-                    <h2 style={sectionTitle}>
-                        Complete Medical Care & Patient Support Services
-                    </h2>
+                    <div
+                        style={{
+                            textAlign: 'center',
+                            marginBottom: '70px'
+                        }}
+                    >
 
-                    <p style={sectionDesc}>
-                        Our hospital provides integrated healthcare services designed to
-                        ensure accurate diagnosis, safe treatment and continuous patient
-                        care delivered by qualified medical professionals.
-                    </p>
+                        <span style={sectionTag}>
+                            Hospital Care Services
+                        </span>
 
-                </div>
+                        <h2 style={sectionTitle}>
+                            Integrated Medical Care Across All Departments
+                        </h2>
 
-                {/* GRID */}
+                        <p style={sectionDesc}>
+                            A complete hospital care ecosystem designed to support
+                            patients from emergency response to recovery with
+                            continuous monitoring and specialist care.
+                        </p>
 
-                <div
-                    style={{
-                        display: 'grid',
-                        gridTemplateColumns:
-                            'repeat(auto-fit,minmax(290px,1fr))',
-                        gap: '28px'
-                    }}
-                >
+                    </div>
 
-                    {[
-                        {
-                            title: 'Emergency Care Unit',
-                            desc: '24/7 emergency response for critical patients, trauma cases and urgent medical attention.',
-                            tag: 'Critical Care'
-                        },
-                        {
-                            title: 'Outpatient Department',
-                            desc: 'General consultations, follow-up visits and routine health assessments for patients.',
-                            tag: 'OPD Services'
-                        },
-                        {
-                            title: 'Hospital Pharmacy',
-                            desc: 'Safe medication dispensing with pharmacist supervision and prescription management.',
-                            tag: 'Medication'
-                        },
-                        {
-                            title: 'Diagnostic Laboratory',
-                            desc: 'Accurate lab testing, imaging and diagnostics for clinical decision support.',
-                            tag: 'Lab Services'
-                        },
-                        {
-                            title: 'Maternity & Neonatal Care',
-                            desc: 'Comprehensive care for pregnancy, safe delivery and newborn health monitoring.',
-                            tag: 'Mother & Child'
-                        },
-                        {
-                            title: 'Inpatient Ward Care',
-                            desc: 'Continuous patient monitoring with nursing support and recovery management.',
-                            tag: 'Ward Care'
-                        }
-                    ].map((item, index) => (
+                    {/* LAYOUT SPLIT */}
+
+                    <div
+                        style={{
+                            display: 'grid',
+                            gridTemplateColumns: '1.2fr 0.8fr',
+                            gap: '30px',
+                            alignItems: 'stretch'
+                        }}
+                    >
+
+                        {/* LEFT - FEATURED SERVICE */}
 
                         <div
-                            key={index}
                             style={{
-                                background: '#ffffff',
-                                border: '1px solid rgba(15,23,42,0.08)',
-                                borderRadius: '22px',
-                                padding: '28px',
-                                boxShadow: '0 10px 30px rgba(0,0,0,0.04)',
-                                transition: '0.3s ease',
-                                position: 'relative'
+                                background:
+                                    'linear-gradient(135deg,#0f172a,#0f766e)',
+                                borderRadius: '26px',
+                                padding: '40px',
+                                color: 'white',
+                                position: 'relative',
+                                overflow: 'hidden'
                             }}
                         >
 
-                            {/* CATEGORY TAG */}
-
-                            <div
-                                style={{
-                                    display: 'inline-block',
-                                    fontSize: '12px',
-                                    fontWeight: '700',
-                                    color: '#0f766e',
-                                    background: 'rgba(15,118,110,0.08)',
-                                    padding: '6px 12px',
-                                    borderRadius: '999px',
-                                    marginBottom: '14px'
-                                }}
-                            >
-                                {item.tag}
-                            </div>
-
-                            {/* TITLE */}
-
-                            <h3
-                                style={{
-                                    fontSize: '18px',
-                                    fontWeight: '800',
-                                    color: '#0f172a',
-                                    marginBottom: '10px'
-                                }}
-                            >
-                                {item.title}
+                            <h3 style={{ fontSize: '26px', margin: 0 }}>
+                                Emergency & Critical Care Center
                             </h3>
-
-                            {/* DESCRIPTION */}
 
                             <p
                                 style={{
-                                    color: '#64748b',
-                                    lineHeight: '1.7',
-                                    fontSize: '14px'
+                                    marginTop: '14px',
+                                    color: 'rgba(255,255,255,0.75)',
+                                    lineHeight: '1.8'
                                 }}
                             >
-                                {item.desc}
+                                24/7 rapid response emergency unit designed to handle
+                                trauma, critical conditions and urgent medical situations
+                                with immediate specialist intervention.
                             </p>
 
-                            {/* BOTTOM ACCENT LINE */}
+                            {/* STATUS BADGE */}
 
                             <div
                                 style={{
-                                    marginTop: '18px',
-                                    width: '45px',
-                                    height: '3px',
+                                    marginTop: '22px',
+                                    display: 'inline-block',
+                                    padding: '8px 14px',
                                     borderRadius: '999px',
-                                    background:
-                                        'linear-gradient(to right,#0f766e,#38bdf8)'
+                                    background: 'rgba(34,197,94,0.18)',
+                                    color: '#4ade80',
+                                    fontWeight: '700',
+                                    fontSize: '13px'
                                 }}
-                            ></div>
+                            >
+                                Active 24/7 Emergency Support
+                            </div>
 
                         </div>
 
-                    ))}
+                        {/* RIGHT - STACKED SERVICES */}
+
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '16px'
+                            }}
+                        >
+
+                            {[
+                                {
+                                    title: 'Outpatient Care',
+                                    desc: 'Consultation & follow-ups'
+                                },
+                                {
+                                    title: 'Pharmacy Unit',
+                                    desc: 'Medication & prescription control'
+                                },
+                                {
+                                    title: 'Diagnostic Lab',
+                                    desc: 'Reports & medical testing'
+                                },
+                                {
+                                    title: 'Maternity Care',
+                                    desc: 'Mother & newborn support'
+                                }
+                            ].map((item, i) => (
+
+                                <div
+                                    key={i}
+                                    style={{
+                                        background: 'white',
+                                        borderRadius: '18px',
+                                        padding: '18px 20px',
+                                        border: '1px solid #e2e8f0',
+                                        boxShadow: '0 8px 20px rgba(0,0,0,0.04)'
+                                    }}
+                                >
+
+                                    <h4
+                                        style={{
+                                            margin: 0,
+                                            fontSize: '15px',
+                                            color: '#0f172a'
+                                        }}
+                                    >
+                                        {item.title}
+                                    </h4>
+
+                                    <p
+                                        style={{
+                                            marginTop: '6px',
+                                            fontSize: '13px',
+                                            color: '#64748b'
+                                        }}
+                                    >
+                                        {item.desc}
+                                    </p>
+
+                                </div>
+
+                            ))}
+
+                        </div>
+
+                    </div>
+
+                    {/* BOTTOM CARE FLOW STRIP */}
+
+                    <div
+                        style={{
+                            marginTop: '50px',
+                            display: 'grid',
+                            gridTemplateColumns:
+                                'repeat(auto-fit,minmax(220px,1fr))',
+                            gap: '16px'
+                        }}
+                    >
+
+                        {[
+                            'Patient Admission',
+                            'Diagnosis',
+                            'Treatment Plan',
+                            'Recovery Monitoring'
+                        ].map((step, i) => (
+
+                            <div
+                                key={i}
+                                style={{
+                                    background: '#ffffff',
+                                    border: '1px solid #e2e8f0',
+                                    borderRadius: '18px',
+                                    padding: '18px',
+                                    textAlign: 'center',
+                                    fontWeight: '600',
+                                    color: '#0f172a'
+                                }}
+                            >
+                                {step}
+                            </div>
+
+                        ))}
+
+                    </div>
 
                 </div>
 
             </section>
 
             {/* FEATURES */}
-
             <section
                 id="care-units"
                 style={{
                     padding: '120px 25px',
-                    background: '#ffffff'
+                    background: '#f8fafc'
                 }}
             >
 
@@ -876,13 +1018,13 @@ export default function LandingPage() {
                         </span>
 
                         <h2 style={sectionTitle}>
-                            Hospital Care Departments & Clinical Services
+                            Hospital Departments & Specialized Medical Units
                         </h2>
 
                         <p style={sectionDesc}>
-                            Dedicated medical care units designed to support patients across
-                            different stages of treatment with professional staff, continuous
-                            monitoring and hospital-grade care standards.
+                            Each care unit is designed with dedicated medical teams,
+                            advanced facilities and continuous patient monitoring for
+                            safe and effective treatment.
                         </p>
 
                     </div>
@@ -898,107 +1040,126 @@ export default function LandingPage() {
                         }}
                     >
 
-                        {/* CARD TEMPLATE STYLE */}
-
                         {[
                             {
                                 title: 'General Care Unit',
-                                desc: 'Primary medical consultations, routine treatment and outpatient care services.',
-                                status: 'Active'
+                                desc: 'Primary consultations and routine medical treatment services.',
+                                status: 'Active',
+                                img: 'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=800&q=60'
                             },
                             {
                                 title: 'Emergency Care Unit',
-                                desc: '24/7 emergency response for trauma, accidents and critical patients.',
-                                status: '24/7 Available'
+                                desc: '24/7 critical response for trauma and urgent medical cases.',
+                                status: '24/7 Emergency',
+                                img: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=60'
                             },
                             {
-                                title: 'Maternity & Child Care',
-                                desc: 'Safe delivery, prenatal monitoring and newborn care services.',
-                                status: 'Specialized'
+                                title: 'Maternity Care Unit',
+                                desc: 'Safe delivery, prenatal monitoring and newborn care.',
+                                status: 'Specialized',
+                                img: 'https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&w=800&q=60'
                             },
                             {
                                 title: 'Specialist Clinics',
-                                desc: 'Cardiology, neurology, orthopedics and other specialist consultations.',
-                                status: 'Consultation'
+                                desc: 'Cardiology, neurology and orthopedic consultations.',
+                                status: 'Consultation',
+                                img: 'https://unsplash.com/photos/main-thing-that-children-were-healthy-beautiful-mother-with-her-son-smiling-and-talking-with-handsome-middle-aged-pediatrician-in-his-office-MovaY_VL6cU'
                             },
                             {
-                                title: 'Diagnostic Services',
-                                desc: 'Laboratory testing, imaging and medical diagnostics for accurate reports.',
-                                status: 'Lab Active'
+                                title: 'Diagnostic Lab',
+                                desc: 'Medical tests, imaging and accurate diagnostic reporting.',
+                                status: 'Lab Active',
+                                img: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=800&q=60'
                             },
                             {
-                                title: 'Inpatient Ward Care',
-                                desc: 'Continuous monitoring with nursing support and recovery care facilities.',
-                                status: 'In Care'
+                                title: 'Inpatient Ward',
+                                desc: 'Continuous patient monitoring with nursing care support.',
+                                status: 'In Care',
+                                img: 'https://images.unsplash.com/photo-1586773860387-d2c6a1d0f8b5?auto=format&fit=crop&w=800&q=60'
                             }
                         ].map((item, index) => (
 
                             <div
                                 key={index}
                                 style={{
-                                    background: '#ffffff',
-                                    border: '1px solid rgba(15,23,42,0.08)',
+                                    background: '#fff',
                                     borderRadius: '22px',
-                                    padding: '26px',
-                                    boxShadow: '0 10px 30px rgba(0,0,0,0.04)',
+                                    overflow: 'hidden',
+                                    border: '1px solid #e2e8f0',
+                                    boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
                                     transition: '0.3s ease'
                                 }}
                             >
 
-                                {/* STATUS BADGE */}
+                                {/* IMAGE HEADER */}
 
                                 <div
                                     style={{
-                                        display: 'inline-block',
-                                        fontSize: '12px',
-                                        fontWeight: '700',
-                                        color: '#0f766e',
-                                        background: 'rgba(15,118,110,0.08)',
-                                        padding: '6px 12px',
-                                        borderRadius: '999px',
-                                        marginBottom: '14px'
+                                        height: '170px',
+                                        overflow: 'hidden'
                                     }}
                                 >
-                                    {item.status}
+
+                                    <img
+                                        src={item.img}
+                                        alt={item.title}
+                                        style={{
+                                            width: '100%',
+                                            height: '100%',
+                                            objectFit: 'cover'
+                                        }}
+                                    />
+
                                 </div>
 
-                                {/* TITLE */}
+                                {/* CONTENT */}
 
-                                <h3
-                                    style={{
-                                        fontSize: '18px',
-                                        fontWeight: '800',
-                                        color: '#0f172a',
-                                        marginBottom: '10px'
-                                    }}
-                                >
-                                    {item.title}
-                                </h3>
+                                <div style={{ padding: '22px' }}>
 
-                                {/* DESCRIPTION */}
+                                    {/* STATUS */}
 
-                                <p
-                                    style={{
-                                        color: '#64748b',
-                                        lineHeight: '1.7',
-                                        fontSize: '14px'
-                                    }}
-                                >
-                                    {item.desc}
-                                </p>
+                                    <div
+                                        style={{
+                                            display: 'inline-block',
+                                            fontSize: '12px',
+                                            fontWeight: '700',
+                                            color: '#0f766e',
+                                            background: 'rgba(15,118,110,0.08)',
+                                            padding: '6px 12px',
+                                            borderRadius: '999px',
+                                            marginBottom: '12px'
+                                        }}
+                                    >
+                                        {item.status}
+                                    </div>
 
-                                {/* FOOTER LINE */}
+                                    {/* TITLE */}
 
-                                <div
-                                    style={{
-                                        marginTop: '18px',
-                                        height: '2px',
-                                        width: '40px',
-                                        background:
-                                            'linear-gradient(to right,#0f766e,#38bdf8)',
-                                        borderRadius: '999px'
-                                    }}
-                                ></div>
+                                    <h3
+                                        style={{
+                                            margin: 0,
+                                            fontSize: '18px',
+                                            fontWeight: '800',
+                                            color: '#0f172a'
+                                        }}
+                                    >
+                                        {item.title}
+                                    </h3>
+
+                                    {/* DESCRIPTION */}
+
+                                    <p
+                                        style={{
+                                            marginTop: '10px',
+                                            fontSize: '14px',
+                                            color: '#64748b',
+                                            lineHeight: '1.7'
+                                        }}
+                                    >
+                                        {item.desc}
+                                    </p>
+
+                                </div>
 
                             </div>
 
