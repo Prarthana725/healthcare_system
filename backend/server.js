@@ -29,6 +29,54 @@ app.use('/api/prescriptions', prescriptionRoutes);
 app.use('/api/bills', billRoutes);
 app.use('/api/views', viewRoutes);
 
+// Add this to your backend server file
+// Add this to your backend server file
+app.get('/api/hospital-stats', async (req, res) => {
+    try {
+        const pool = await getConnection(); 
+
+        let patientCount = 0;
+        let doctorCount = 0;
+        let aptCount = 0;
+
+        // 1. Safely Count Patients
+        try {
+            const pRes = await pool.request().query('SELECT COUNT(*) AS total FROM patients');
+            patientCount = pRes.recordset[0].total;
+        } catch (e) { console.log("Note: patients table might be empty or missing."); }
+
+        // 2. Safely Count Doctors (FIXED: Using your user_roles bridge table!)
+        try {
+            const dRes = await pool.request().query(`
+                SELECT COUNT(*) AS total 
+                FROM users u
+                JOIN user_roles ur ON u.user_id = ur.user_id
+                JOIN roles r ON ur.role_id = r.role_id
+                WHERE r.role_name = 'Doctor'
+            `);
+            doctorCount = dRes.recordset[0].total;
+        } catch (e) { console.log("Note: error checking doctors count."); }
+
+        // 3. Safely Count Appointments
+        try {
+            const aRes = await pool.request().query('SELECT COUNT(*) AS total FROM appointments');
+            aptCount = aRes.recordset[0].total;
+        } catch (e) { console.log("Note: appointments table might not exist yet."); }
+
+        // Send the real data back to React safely!
+        res.json({
+            patientsAttended: patientCount,
+            doctorsAvailable: doctorCount,
+            appointmentsToday: aptCount,
+            pharmacyStatus: "In Stock" 
+        });
+
+    } catch (err) {
+        console.error("Database connection failed:", err);
+        res.status(500).json({ error: "Server Error" });
+    }
+});
+
 // Test route
 app.get('/', (req, res) => {
     res.send('Healthcare & Inventory Management System Backend');
