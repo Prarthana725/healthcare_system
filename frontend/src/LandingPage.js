@@ -10,7 +10,12 @@ import {
     FaHeartPulse,
     FaChartLine,
     FaBedPulse,
-    FaShieldHeart
+    FaShieldHeart,
+    // --- NEW ICONS ADDED FOR ABOUT PAGE ---
+    FaCircleCheck,
+    FaShieldHalved,
+    FaUserGroup,
+    FaClock
 } from 'react-icons/fa6';
 
 import AOS from 'aos';
@@ -18,7 +23,7 @@ import 'aos/dist/aos.css';
 
 export default function LandingPage() {
 
-    // --- NEW: State to hold the dynamic database stats ---
+    // --- State to hold the dynamic database stats ---
     const [stats, setStats] = useState({
         patientsAttended: 0,
         doctorsAvailable: 0,
@@ -33,8 +38,7 @@ export default function LandingPage() {
             once: true
         });
 
-        // --- NEW: Fetch real data from your backend ---
-        // Change 5000 if your backend uses a different port
+        // --- Fetch real data from your backend ---
         fetch('http://localhost:5000/api/hospital-stats') 
             .then(response => response.json())
             .then(data => {
@@ -493,12 +497,12 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* ABOUT SECTION */}
+            {/* --- UPDATED ABOUT SECTION --- */}
             <section
                 id="about"
                 style={{
                     padding: '120px 25px',
-                    background: '#f8fafc'
+                    background: '#07111f' // Updated to match the dark UI
                 }}
             >
                 <div
@@ -513,25 +517,28 @@ export default function LandingPage() {
                 >
                     {/* LEFT CONTENT */}
                     <div>
-                        <span style={sectionTag}>
+                        <span style={darkTag}>
                             About Our Hospital
                         </span>
                         <h2
                             style={{
-                                ...sectionTitle,
-                                fontSize: '52px',
-                                lineHeight: '1.1',
-                                marginTop: '18px'
+                                fontSize: '48px',
+                                lineHeight: '1.2',
+                                marginTop: '22px',
+                                marginBottom: '20px',
+                                color: 'white',
+                                fontWeight: '800'
                             }}
                         >
-                            Compassionate Healthcare Built on Trust & Care
+                            Compassionate Healthcare <br />
+                            <span style={{ color: '#7dd3fc' }}>Built on Trust & Care</span>
                         </h2>
                         <p
                             style={{
-                                color: '#64748b',
+                                color: 'rgba(255,255,255,0.75)',
                                 lineHeight: '1.9',
-                                marginTop: '22px',
-                                fontSize: '17px'
+                                fontSize: '16px',
+                                maxWidth: '600px'
                             }}
                         >
                             We are a patient-focused hospital dedicated to delivering
@@ -540,13 +547,13 @@ export default function LandingPage() {
                             patient receives personalized care in a supportive environment.
                         </p>
 
-                        {/* KEY POINTS */}
+                        {/* KEY POINTS (Updated with icons) */}
                         <div
                             style={{
                                 marginTop: '30px',
                                 display: 'flex',
                                 flexDirection: 'column',
-                                gap: '14px'
+                                gap: '16px'
                             }}
                         >
                             {[
@@ -560,123 +567,147 @@ export default function LandingPage() {
                                     style={{
                                         display: 'flex',
                                         alignItems: 'center',
-                                        gap: '10px',
-                                        color: '#0f172a',
-                                        fontWeight: '600'
+                                        gap: '12px',
+                                        color: 'rgba(255,255,255,0.9)',
+                                        fontWeight: '500',
+                                        fontSize: '15px'
                                     }}
                                 >
-                                    <span
-                                        style={{
-                                            width: '8px',
-                                            height: '8px',
-                                            borderRadius: '50%',
-                                            background: '#0f766e'
-                                        }}
-                                    ></span>
+                                    <FaCircleCheck style={{ color: '#0d9488', fontSize: '18px' }} />
                                     {item}
                                 </div>
                             ))}
                         </div>
                     </div>
 
-                    {/* RIGHT VISUAL PANEL */}
+                    {/* RIGHT VISUAL PANEL (Updated to Glassmorphism) */}
                     <div
                         style={{
-                            background: 'white',
+                            background: 'rgba(255,255,255,0.03)',
                             borderRadius: '26px',
-                            padding: '28px',
-                            boxShadow: '0 20px 50px rgba(0,0,0,0.06)',
-                            border: '1px solid rgba(15,23,42,0.06)'
+                            padding: '32px',
+                            border: '1px solid rgba(255,255,255,0.08)',
+                            backdropFilter: 'blur(16px)'
                         }}
                     >
-                        {/* TITLE */}
-                        <h3 style={{ margin: 0, fontSize: '20px' }}>
-                            Hospital Care Principles
-                        </h3>
-                        <p style={{ color: '#64748b', fontSize: '13px', marginTop: '6px' }}>
-                            Core values of our medical service
-                        </p>
+                        {/* PANEL HEADER */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '24px' }}>
+                            <div style={{ background: 'rgba(34,197,94,0.15)', color: '#4ade80', padding: '12px', borderRadius: '12px', display: 'flex' }}>
+                                <FaHeartPulse size={22} />
+                            </div>
+                            <div>
+                                <h3 style={{ margin: 0, fontSize: '20px', color: 'white' }}>
+                                    Hospital Care Principles
+                                </h3>
+                                <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', margin: '4px 0 0' }}>
+                                    Core values of our medical service
+                                </p>
+                            </div>
+                        </div>
 
-                        {/* STACKED INFO BLOCKS */}
+                        {/* STACKED INFO BLOCKS (Updated with icons) */}
                         {[
                             {
                                 title: 'Quality Care',
-                                desc: 'Safe and reliable healthcare services'
+                                desc: 'Safe and reliable healthcare services',
+                                icon: <FaShieldHalved />
                             },
                             {
                                 title: 'Experienced Staff',
-                                desc: 'Qualified doctors & medical professionals'
+                                desc: 'Qualified doctors & medical professionals',
+                                icon: <FaUserGroup />
                             },
                             {
                                 title: 'Patient First',
-                                desc: 'Care focused on dignity and comfort'
+                                desc: 'Care focused on dignity and comfort',
+                                icon: <FaBedPulse />
                             },
                             {
                                 title: '24/7 Support',
-                                desc: 'Continuous emergency medical service'
+                                desc: 'Continuous emergency medical service',
+                                icon: <FaClock />
                             }
                         ].map((item, i) => (
                             <div
                                 key={i}
                                 style={{
-                                    marginTop: '16px',
-                                    padding: '16px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '16px',
+                                    marginTop: '12px',
+                                    padding: '16px 20px',
                                     borderRadius: '16px',
-                                    background: '#f8fafc',
-                                    border: '1px solid #e2e8f0'
+                                    background: 'rgba(255,255,255,0.04)',
+                                    border: '1px solid rgba(255,255,255,0.05)'
                                 }}
                             >
-                                <h4
-                                    style={{
-                                        margin: 0,
-                                        fontSize: '15px',
-                                        color: '#0f172a'
-                                    }}
-                                >
-                                    {item.title}
-                                </h4>
-                                <p
-                                    style={{
-                                        marginTop: '6px',
-                                        fontSize: '13px',
-                                        color: '#64748b'
-                                    }}
-                                >
-                                    {item.desc}
-                                </p>
+                                {/* Left Box Icon */}
+                                <div style={{ 
+                                    background: 'rgba(15, 118, 110, 0.25)', 
+                                    color: '#2dd4bf', 
+                                    padding: '12px', 
+                                    borderRadius: '12px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}>
+                                    {item.icon}
+                                </div>
+                                
+                                {/* Right Text */}
+                                <div>
+                                    <h4 style={{ margin: 0, fontSize: '15px', color: 'white' }}>
+                                        {item.title}
+                                    </h4>
+                                    <p style={{ marginTop: '4px', marginBottom: 0, fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>
+                                        {item.desc}
+                                    </p>
+                                </div>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                {/* TRUST FOOTER STRIP */}
+                {/* TRUST FOOTER STRIP (Updated Colors and Icons) */}
                 <div
                     style={{
                         maxWidth: '1100px',
                         margin: '80px auto 0',
-                        background:
-                            'linear-gradient(135deg,#0f172a,#0f766e)',
-                        borderRadius: '28px',
-                        padding: '40px',
+                        background: 'linear-gradient(90deg, #064e3b, #0f766e)',
+                        borderRadius: '24px',
+                        padding: '40px 50px',
                         color: 'white',
-                        textAlign: 'center'
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        flexWrap: 'wrap',
+                        gap: '20px'
                     }}
                 >
-                    <h3 style={{ margin: 0, fontSize: '26px' }}>
-                        Trusted Healthcare for Every Patient
-                    </h3>
-                    <p
-                        style={{
-                            marginTop: '12px',
-                            color: 'rgba(255,255,255,0.75)',
-                            lineHeight: '1.8'
-                        }}
-                    >
-                        We believe healthcare is not just treatment — it is care, trust,
-                        and human connection that supports every step of a patient’s journey.
-                    </p>
+                    {/* Left Icon */}
+                    <div style={{ background: 'rgba(255,255,255,0.1)', padding: '16px', borderRadius: '50%', display: 'flex' }}>
+                        <FaShieldHeart size={32} />
+                    </div>
+
+                    {/* Center Text */}
+                    <div style={{ textAlign: 'center', flex: 1, maxWidth: '700px', margin: '0 auto' }}>
+                        <h3 style={{ margin: 0, fontSize: '26px' }}>
+                            Trusted Healthcare for Every Patient
+                        </h3>
+                        <p style={{ marginTop: '12px', marginBottom: 0, color: 'rgba(255,255,255,0.85)', lineHeight: '1.8' }}>
+                            We believe healthcare is not just treatment — it is care, trust,
+                            and human connection that supports every step of a patient’s journey.
+                        </p>
+                    </div>
+
+                    {/* Right Icon */}
+                    <div style={{ background: 'rgba(255,255,255,0.1)', padding: '16px', borderRadius: '50%', display: 'flex' }}>
+                        <FaHeartPulse size={32} />
+                    </div>
                 </div>
             </section>
+            {/* --- END OF UPDATED ABOUT SECTION --- */}
+
 
             {/* SERVICES SECTION */}
             <section
