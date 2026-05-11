@@ -739,7 +739,7 @@ export default function AdminDashboard() {
 
         <div>
             <div style={{ fontWeight: 600, fontSize: 15 }}>Admin</div>
-            <div style={{ fontSize: 12, opacity: 0.6, marginTop: 2 }}>Super Administrator</div>
+            <div style={{ fontSize: 12, opacity: 0.6, marginTop: 2 }}>Shashi</div>
         </div>
     </div>
     <button onClick={() => navigate('/')} style={{ width: '100%', padding: '12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.15)', background: 'transparent', color: 'rgba(255,255,255,0.8)', cursor: 'pointer', fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: '0.2s' }}>
