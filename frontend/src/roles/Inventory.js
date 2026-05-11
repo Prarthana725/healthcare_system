@@ -20,7 +20,12 @@ export default function PharmacistDashboard() {
 
         );
 
+    const [prescriptions,
+        setPrescriptions] =
+        useState([]);
+
     const [form, setForm] = useState({
+
         name: '',
         quantity: '',
         price: ''
@@ -31,13 +36,15 @@ export default function PharmacistDashboard() {
         quantity: ''
     });
 
-    const [message, setMessage] = useState('');
+    const [message, setMessage] =
+        useState('');
 
     //---------------------------------------------
     // LOAD DATA
     //---------------------------------------------
 
     useEffect(() => {
+
         loadMedicines();
         loadUsage();
         loadIssueHistory();
@@ -211,6 +218,7 @@ export default function PharmacistDashboard() {
                 );
 
                 setForm({
+
                     name: '',
                     quantity: '',
                     price: ''
@@ -250,7 +258,8 @@ export default function PharmacistDashboard() {
                 currentQty
             );
 
-        if (newQty === null) return;
+        if (newQty === null)
+            return;
 
         try {
 
@@ -409,8 +418,11 @@ export default function PharmacistDashboard() {
                 style={{
                     background:
                         'linear-gradient(to right, #0f766e, #0284c7)',
+
                     borderRadius: '24px',
+
                     padding: '35px',
+
                     color: 'white',
                     marginBottom: '30px'
                 }}
@@ -460,14 +472,17 @@ export default function PharmacistDashboard() {
             <div
                 style={{
                     display: 'grid',
+
                     gridTemplateColumns:
                         'repeat(auto-fit, minmax(220px, 1fr))',
                     gap: '20px',
+
                     marginBottom: '30px'
                 }}
             >
 
                 <div style={cardStyle}>
+
                     <div style={cardTitle}>
                         📦 Medicines
                     </div>
@@ -475,9 +490,11 @@ export default function PharmacistDashboard() {
                     <div style={cardValue}>
                         {medicines.length}
                     </div>
+
                 </div>
 
                 <div style={cardStyle}>
+
                     <div style={cardTitle}>
                         ⚠️ Low Stock
                     </div>
@@ -490,6 +507,19 @@ export default function PharmacistDashboard() {
                     >
                         {lowStockMedicines.length}
                     </div>
+
+                </div>
+
+                <div style={cardStyle}>
+
+                    <div style={cardTitle}>
+                        💊 Prescriptions
+                    </div>
+
+                    <div style={cardValue}>
+                        {prescriptions.length}
+                    </div>
+
                 </div>
 
                 <div style={cardStyle}>
@@ -512,6 +542,7 @@ export default function PharmacistDashboard() {
                     gridTemplateColumns:
                         '1fr 1fr',
                     gap: '25px',
+
                     marginBottom: '30px'
                 }}
             >
@@ -532,14 +563,20 @@ export default function PharmacistDashboard() {
                         <input
                             placeholder='Medicine Name'
                             value={form.name}
+
                             onChange={(e) =>
+
                                 setForm({
+
                                     ...form,
                                     name:
                                         e.target.value
                                 })
+
                             }
+
                             required
+
                             style={inputStyle}
                         />
 
@@ -547,8 +584,11 @@ export default function PharmacistDashboard() {
                             type='number'
                             placeholder='Quantity'
                             value={form.quantity}
+
                             onChange={(e) =>
+
                                 setForm({
+
                                     ...form,
                                     quantity:
                                         e.target.value
@@ -568,8 +608,33 @@ export default function PharmacistDashboard() {
                                     price:
                                         e.target.value
                                 })
+
                             }
+
                             required
+
+                            style={inputStyle}
+                        />
+
+                        <input
+                            type="number"
+                            placeholder="Price"
+                            value={form.price}
+
+                            onChange={(e) =>
+
+                                setForm({
+
+                                    ...form,
+
+                                    price:
+                                        e.target.value
+                                })
+
+                            }
+
+                            required
+
                             style={inputStyle}
                         />
 
@@ -696,7 +761,23 @@ export default function PharmacistDashboard() {
                             </strong>
                         </p>
 
-                    </div>
+                                                }
+
+                                                style={issueBtnStyle}
+                                            >
+                                                Issue Medicine
+                                            </button>
+
+                                        </td>
+
+                                    </tr>
+
+                                );
+                            })}
+
+                        </tbody>
+
+                    </table>
 
                 ))}
 
@@ -938,12 +1019,15 @@ export default function PharmacistDashboard() {
 /* STYLES */
 
 const cardStyle = {
+
     background: 'white',
+
     borderRadius: '20px',
     padding: '25px'
 };
 
 const cardTitle = {
+
     color: '#64748b',
     marginBottom: '15px'
 };
@@ -954,7 +1038,9 @@ const cardValue = {
 };
 
 const panelStyle = {
+
     background: 'white',
+
     borderRadius: '20px',
     padding: '30px'
 };
@@ -971,6 +1057,7 @@ const formStyle = {
 
 const inputStyle = {
     padding: '14px',
+
     borderRadius: '12px',
     border: '1px solid #cbd5e1',
     background: '#f8fafc'
@@ -979,29 +1066,86 @@ const inputStyle = {
 const buttonStyle = {
     padding: '14px',
     border: 'none',
+
     borderRadius: '12px',
+
     background:
         'linear-gradient(to right, #0f766e, #0284c7)',
+
     color: 'white',
     fontWeight: '700',
+
     cursor: 'pointer'
 };
 
+const issueBtnStyle = {
+
+    padding:
+        '10px 16px',
+
+    border:
+        'none',
+
+    borderRadius:
+        '10px',
+
+    background:
+        '#16a34a',
+
+    color:
+        'white',
+
+    fontWeight:
+        '700',
+
+    cursor:
+        'pointer'
+};
+
+const updateBtnStyle = {
+
+    padding:
+        '10px 16px',
+
+    border:
+        'none',
+
+    borderRadius:
+        '10px',
+
+    background:
+        '#0284c7',
+
+    color:
+        'white',
+
+    fontWeight:
+        '600',
+
+    cursor:
+        'pointer'
+};
+
 const tableStyle = {
+
     width: '100%',
+
     borderCollapse: 'collapse'
 };
 
 const tableHeaderRow = {
+
     background: '#f1f5f9'
 };
 
 const tableHead = {
+
     padding: '16px',
     textAlign: 'left'
 };
 
 const tableData = {
+
     padding: '16px',
     borderBottom: '1px solid #e2e8f0'
 };

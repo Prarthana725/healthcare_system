@@ -63,6 +63,10 @@ export default function PatientDashboard() {
         }
     }
 
+    //--------------------------------------------------
+    // BOOK APPOINTMENT
+    //--------------------------------------------------
+
     async function bookAppointment(e) {
         e.preventDefault();
         setMessage('');
@@ -90,6 +94,10 @@ export default function PatientDashboard() {
         }
     }
 
+    //--------------------------------------------------
+    // LOGOUT
+    //--------------------------------------------------
+
     function logout() {
         localStorage.clear();
         window.location.href = '/login';
@@ -103,6 +111,10 @@ export default function PatientDashboard() {
             </div>
         );
     }
+
+    //--------------------------------------------------
+    // ERROR SCREEN
+    //--------------------------------------------------
 
     if (error) {
         return (
