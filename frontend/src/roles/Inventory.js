@@ -1,351 +1,370 @@
 import React, { useEffect, useState } from 'react';
+import { 
+    LayoutDashboard, 
+    Pill, 
+    ClipboardList, 
+    Package, 
+    AlertTriangle, 
+    TrendingUp, 
+    Plus, 
+    MinusCircle, 
+    Search, 
+    Edit, 
+    Trash2, 
+    LogOut,
+    Building2,
+    ChevronLeft,
+    ChevronRight,
+    Wallet
+} from 'lucide-react';
 
 const API_URL = 'http://localhost:5000/api';
 
 export default function PharmacistDashboard() {
+    // --- STATE MANAGEMENT ---
+    const [activeTab, setActiveTab] = useState('dashboard');
     const [medicines, setMedicines] = useState([]);
     const [usageData, setUsageData] = useState([]);
     const [issueHistory, setIssueHistory] = useState([]);
     const [search, setSearch] = useState('');
-
-    const filteredMedicines = usageData.filter(med =>
-        med.name.toLowerCase().includes(search.toLowerCase())
-    );
-
-    const [prescriptions, setPrescriptions] = useState([]);
-
-    const [form, setForm] = useState({
-        name: '',
-        quantity: '',
-        price: ''
-    });
-
-    const [issueForm, setIssueForm] = useState({
-        medicine_id: '',
-        quantity: ''
-    });
-
     const [message, setMessage] = useState('');
 
-    //---------------------------------------------
-    // LOAD DATA
-    //---------------------------------------------
+    const [form, setForm] = useState({ name: '', quantity: '', price: '' });
+    const [issueForm, setIssueForm] = useState({ medicine_id: '', quantity: '' });
+
+    // Get User Details
+    const user = JSON.parse(localStorage.getItem('user'));
+    const loginName = user?.username || "pharmacist1";
+
+    // --- INITIAL DATA LOAD ---
     useEffect(() => {
-        loadMedicines();
-        loadUsage();
-        loadIssueHistory();
+        loadAllData();
     }, []);
 
-    async function loadMedicines() {
+    async function loadAllData() {
         try {
-            const response = await fetch(`${API_URL}/medicines`);
-            const data = await response.json();
-            setMedicines(Array.isArray(data) ? data : []);
-        } catch (error) {
-            console.error(error);
+            const [medsRes, usageRes, historyRes] = await Promise.all([
+                fetch(`${API_URL}/medicines`),
+                fetch(`${API_URL}/medicines/with-usage`),
+                fetch(`${API_URL}/medicines/issue-history`)
+            ]);
+
+            const medsData = await medsRes.json();
+            const usageDataRaw = await usageRes.json();
+            const historyData = await historyRes.json();
+
+            setMedicines(Array.isArray(medsData) ? medsData : []);
+            setUsageData(Array.isArray(usageDataRaw) ? usageDataRaw : []);
+            setIssueHistory(Array.isArray(historyData) ? historyData : []);
+        } catch (err) {
+            console.error("Error loading data:", err);
         }
     }
 
-    //---------------------------------------------
-    // DELETE MEDICINE
-    //---------------------------------------------
-    async function deleteMedicine(id) {
-        const confirmDelete = window.confirm('Delete this medicine?');
-        if (!confirmDelete) return;
-
-        try {
-            const response = await fetch(`${API_URL}/medicines/${id}`, {
-                method: 'DELETE'
-            });
-
-            if (response.ok) {
-                setMessage('Medicine deleted successfully ✅');
-                loadMedicines();
-                loadUsage();
-            } else {
-                setMessage('Failed to delete medicine ❌');
-            }
-        } catch (error) {
-            setMessage('Server error ❌');
-        }
-    }
-
-    //---------------------------------------------
-    // LOAD ISSUE HISTORY
-    //---------------------------------------------
-    async function loadIssueHistory() {
-        try {
-            const response = await fetch(`${API_URL}/medicines/issue-history`);
-            const data = await response.json();
-            setIssueHistory(Array.isArray(data) ? data : []);
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    //---------------------------------------------
-    // LOAD ANALYTICS
-    //---------------------------------------------
-    async function loadUsage() {
-        try {
-            const response = await fetch(`${API_URL}/medicines/with-usage`);
-            const data = await response.json();
-            setUsageData(Array.isArray(data) ? data : []);
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    //---------------------------------------------
-    // ADD MEDICINE
-    //---------------------------------------------
+    // --- ACTIONS ---
     async function handleSubmit(e) {
         e.preventDefault();
         try {
-            const response = await fetch(`${API_URL}/medicines`, {
+            const res = await fetch(`${API_URL}/medicines`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name: form.name,
-                    quantity: Number(form.quantity),
-                    price: Number(form.price)
-                })
+                body: JSON.stringify({ name: form.name, quantity: Number(form.quantity), price: Number(form.price) })
             });
-
-            if (response.ok) {
+            if (res.ok) {
                 setMessage('Medicine added successfully ✅');
                 setForm({ name: '', quantity: '', price: '' });
-                loadMedicines();
-            } else {
-                setMessage('Failed to add medicine ❌');
+                loadAllData();
             }
-        } catch (error) {
-            setMessage('Server error ❌');
-        }
+        } catch { setMessage('Server error ❌'); }
+        setTimeout(() => setMessage(''), 4000);
     }
 
-    //---------------------------------------------
-    // UPDATE STOCK
-    //---------------------------------------------
-    async function updateStock(id, currentQty) {
-        const newQty = prompt('Enter new quantity:', currentQty);
-        if (newQty === null) return;
-
-        try {
-            const medicine = medicines.find(m => m.medicine_id === id);
-            const response = await fetch(`${API_URL}/medicines/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name: medicine.name,
-                    quantity: Number(newQty),
-                    price: medicine.price
-                })
-            });
-
-            if (response.ok) {
-                setMessage('Stock updated successfully ✅');
-                loadMedicines();
-            } else {
-                setMessage('Failed to update stock ❌');
-            }
-        } catch (error) {
-            setMessage('Server error ❌');
-        }
-    }
-
-    //---------------------------------------------
-    // ISSUE MEDICINE
-    //---------------------------------------------
     async function issueMedicine(e) {
         e.preventDefault();
         try {
-            const response = await fetch(`${API_URL}/medicines/reduce-stock`, {
+            const res = await fetch(`${API_URL}/medicines/reduce-stock`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    medicine_id: issueForm.medicine_id,
-                    quantity: Number(issueForm.quantity)
-                })
+                body: JSON.stringify({ medicine_id: issueForm.medicine_id, quantity: Number(issueForm.quantity) })
             });
-
-            const data = await response.json();
-
-            if (response.ok) {
+            if (res.ok) {
                 setMessage('Medicine issued successfully ✅');
                 setIssueForm({ medicine_id: '', quantity: '' });
-                loadMedicines();
+                loadAllData();
             } else {
+                const data = await res.json();
                 setMessage(data.error || 'Failed ❌');
             }
-        } catch (error) {
-            setMessage('Server error ❌');
-        }
+        } catch { setMessage('Server error ❌'); }
+        setTimeout(() => setMessage(''), 4000);
     }
 
-    //---------------------------------------------
-    // LOW STOCK
-    //---------------------------------------------
-    const lowStockMedicines = medicines.filter(med => Number(med.quantity) < 10);
+    async function updateStock(id, currentQty) {
+        const med = medicines.find(m => (m.medicine_id || m.id) === id);
+        const newQty = prompt(`Updating ${med.name}\nEnter new total quantity:`, currentQty);
+        if (newQty === null || newQty === "" || isNaN(newQty)) return;
 
-    //---------------------------------------------
-    // TOTAL STOCK VALUE
-    //---------------------------------------------
-    const totalValue = medicines.reduce(
-        (sum, med) => sum + Number(med.quantity) * Number(med.price || 0),
-        0
+        try {
+            const res = await fetch(`${API_URL}/medicines/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: med.name, quantity: Number(newQty), price: med.price })
+            });
+            if (res.ok) {
+                setMessage('Stock updated ✅');
+                loadAllData();
+            }
+        } catch { setMessage('Update failed ❌'); }
+        setTimeout(() => setMessage(''), 4000);
+    }
+
+    async function deleteMedicine(id) {
+        if (!window.confirm('Delete this medicine from inventory?')) return;
+        try {
+            const res = await fetch(`${API_URL}/medicines/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                setMessage('Medicine deleted ✅');
+                loadAllData();
+            }
+        } catch { setMessage('Delete failed ❌'); }
+        setTimeout(() => setMessage(''), 4000);
+    }
+
+    function logout() {
+        localStorage.clear();
+        window.location.href = '/login';
+    }
+
+    // --- LOGIC CALCULATIONS ---
+    const totalInventoryValue = medicines.reduce((sum, m) => sum + (Number(m.quantity) * Number(m.price || 0)), 0);
+    const lowStockCount = medicines.filter(m => Number(m.quantity) < 10).length;
+    const issuedToday = issueHistory.filter(h => new Date(h.issued_date).toDateString() === new Date().toDateString()).length;
+
+    const filteredMeds = (usageData.length > 0 ? usageData : medicines).filter(m => 
+        (m.name || '').toLowerCase().includes(search.toLowerCase())
     );
 
     return (
-        <div style={{ minHeight: '100vh', background: '#f1f5f9', padding: '30px', fontFamily: "'Segoe UI', sans-serif" }}>
-
-            {/* HEADER */}
-            <div style={{ background: 'linear-gradient(to right, #0f766e, #0284c7)', borderRadius: '24px', padding: '35px', color: 'white', marginBottom: '30px' }}>
-                <h1 style={{ margin: 0, fontSize: '34px' }}>💊 Pharmacist Dashboard</h1>
-                <p style={{ marginTop: '10px', opacity: 0.9 }}>Inventory & Medicine Control</p>
-            </div>
-
-            {/* MESSAGE */}
-            {message && (
-                <div style={{ background: '#dcfce7', color: '#166534', padding: '14px', borderRadius: '12px', marginBottom: '20px', fontWeight: '600' }}>
-                    {message}
-                </div>
-            )}
-
-            {/* STATS */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px', marginBottom: '30px' }}>
-                <div style={cardStyle}>
-                    <div style={cardTitle}>📦 Medicines</div>
-                    <div style={cardValue}>{medicines.length}</div>
-                </div>
-                <div style={cardStyle}>
-                    <div style={cardTitle}>⚠️ Low Stock</div>
-                    <div style={{ ...cardValue, color: '#dc2626' }}>{lowStockMedicines.length}</div>
-                </div>
-                <div style={cardStyle}>
-                    <div style={cardTitle}>💊 Prescriptions</div>
-                    <div style={cardValue}>{prescriptions.length}</div>
-                </div>
-                <div style={cardStyle}>
-                    <div style={cardTitle}>💰 Inventory Value</div>
-                    <div style={cardValue}>Rs. {totalValue}</div>
-                </div>
-            </div>
-
-            {/* FORMS */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '25px', marginBottom: '30px' }}>
-
-                {/* ADD */}
-                <div style={panelStyle}>
-                    <h2 style={sectionTitle}>➕ Add Medicine</h2>
-                    <form onSubmit={handleSubmit} style={formStyle}>
-                        <input placeholder='Medicine Name' value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required style={inputStyle} />
-                        <input type='number' placeholder='Quantity' value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} required style={inputStyle} />
-                        <input type='number' placeholder='Price' value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required style={inputStyle} />
-                        <button type='submit' style={buttonStyle}>Add Medicine</button>
-                    </form>
-                </div>
-
-                {/* ISSUE */}
-                <div style={panelStyle}>
-                    <h2 style={sectionTitle}>💊 Issue Medicine</h2>
-                    <form onSubmit={issueMedicine} style={formStyle}>
-                        <select value={issueForm.medicine_id} onChange={(e) => setIssueForm({ ...issueForm, medicine_id: e.target.value })} required style={inputStyle}>
-                            <option value=''>Select Medicine</option>
-                            {medicines.map(med => (
-                                <option key={med.medicine_id} value={med.medicine_id}>{med.name}</option>
-                            ))}
-                        </select>
-                        <input type='number' placeholder='Quantity' value={issueForm.quantity} onChange={(e) => setIssueForm({ ...issueForm, quantity: e.target.value })} required style={inputStyle} />
-                        <button type='submit' style={buttonStyle}>Issue Medicine</button>
-                    </form>
-                </div>
-            </div>
-
-            {/* LOW STOCK WARNING CARDS */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '30px' }}>
-                {lowStockMedicines.map(med => (
-                    <div key={med.medicine_id} style={{ background: '#fee2e2', padding: '20px', borderRadius: '18px' }}>
-                        <h3 style={{ margin: '0 0 10px 0', color: '#991b1b' }}>{med.name}</h3>
-                        <p style={{ margin: 0, color: '#7f1d1d' }}>Remaining: <strong>{med.quantity}</strong></p>
+        <div style={pageLayout}>
+            {/* SIDEBAR */}
+            <div style={sidebarStyle}>
+                <div style={sidebarHeader}>
+                    <div style={sidebarLogo}><Building2 size={24} color="white" /></div>
+                    <div>
+                        <div style={sidebarTitle}>Health Care Hospital</div>
+                        <div style={sidebarSub}>Pharmacist Portal</div>
                     </div>
-                ))}
+                </div>
+
+                <div style={sidebarNav}>
+                    <div style={activeTab === 'dashboard' ? activeNavItem : navItem} onClick={() => setActiveTab('dashboard')}>
+                        <LayoutDashboard size={24} /> Dashboard
+                    </div>
+                    <div style={activeTab === 'inventory' ? activeNavItem : navItem} onClick={() => setActiveTab('inventory')}>
+                        <Package size={24} /> Inventory
+                    </div>
+                    <div style={activeTab === 'prescriptions' ? activeNavItem : navItem} onClick={() => setActiveTab('prescriptions')}>
+                        <ClipboardList size={24} /> Prescriptions
+                    </div>
+                </div>
+
+                <div style={sidebarProfileSection}>
+                    <div style={profileInfo}>
+                        <div style={profileAvatar}>👨‍🔬</div>
+                        <div>
+                            <div style={profileName}>Pharmacist</div>
+                            <div style={profileRole}>{loginName}</div>
+                        </div>
+                    </div>
+                    <button onClick={logout} style={sidebarLogoutBtn}>
+                        <LogOut size={18} /> Logout
+                    </button>
+                </div>
             </div>
 
-            <input placeholder='Search medicine...' value={search} onChange={(e) => setSearch(e.target.value)} style={{ ...inputStyle, marginBottom: '20px', width: '300px' }} />
+            {/* MAIN CONTENT */}
+            <div style={mainContentStyle}>
+                
+                {/* BANNER WITH IMAGE */}
+                <div style={bannerStyle}>
+                    <div style={bannerTextContainer}>
+                        <h1 style={{ margin: 0, fontSize: '38px', fontWeight: '800' }}>
+                            Welcome, Pharmacist!
+                        </h1>
+                        <p style={{ marginTop: '12px', opacity: 0.9, fontSize: '20px' }}>
+                            Manage medicines, inventory and prescriptions efficiently.
+                        </p>
+                    </div>
+                    <div style={bannerImageContainer}>
+                        {/* Make sure to place pharmacist-hero.png in your public folder */}
+                        <img src="/pharmacist-hero.png" alt="Hero" style={bannerImage} 
+                             onError={(e) => e.target.src = "https://img.freepik.com/free-vector/pharmacist-concept-illustration_114360-2649.jpg"} />
+                    </div>
+                </div>
 
-            {/* INVENTORY TABLE */}
-            <div style={panelStyle}>
-                <h2 style={sectionTitle}>📦 Inventory Table</h2>
-                <table style={tableStyle}>
-                    <thead>
-                        <tr style={tableHeaderRow}>
-                            <th style={tableHead}>ID</th>
-                            <th style={tableHead}>Medicine</th>
-                            <th style={tableHead}>Quantity</th>
-                            <th style={tableHead}>Price</th>
-                            <th style={tableHead}>Used</th>
-                            <th style={tableHead}>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredMedicines.map(med => (
-                            <tr key={med.medicine_id}>
-                                <td style={tableData}>{med.medicine_id}</td>
-                                <td style={tableData}>{med.name}</td>
-                                <td style={tableData}>
-                                    <span style={{ padding: '6px 12px', borderRadius: '30px', background: med.quantity < 10 ? '#fee2e2' : '#dcfce7', color: med.quantity < 10 ? '#dc2626' : '#166534', fontWeight: '600' }}>
-                                        {med.quantity}
-                                    </span>
-                                </td>
-                                <td style={tableData}>Rs. {med.price}</td>
-                                <td style={tableData}>{med.total_used}</td>
-                                <td style={tableData}>
-                                    <button onClick={() => updateStock(med.medicine_id, med.quantity)} style={{ padding: '10px 14px', border: 'none', borderRadius: '10px', background: '#0284c7', color: 'white', cursor: 'pointer' }}>Update</button>
-                                    <button onClick={() => deleteMedicine(med.medicine_id)} style={{ padding: '10px 14px', border: 'none', borderRadius: '10px', background: '#dc2626', color: 'white', cursor: 'pointer', marginLeft: '10px' }}>Delete</button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+                {message && <div style={messageStyle}>{message}</div>}
 
-            {/* ISSUE HISTORY */}
-            <div style={{ ...panelStyle, marginTop: '30px' }}>
-                <h2 style={sectionTitle}>📜 Medicine Issue History</h2>
-                <table style={tableStyle}>
-                    <thead>
-                        <tr style={tableHeaderRow}>
-                            <th style={tableHead}>Medicine</th>
-                            <th style={tableHead}>Quantity</th>
-                            <th style={tableHead}>Issued Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {issueHistory.map(issue => (
-                            <tr key={issue.issue_id}>
-                                <td style={tableData}>{issue.name}</td>
-                                <td style={tableData}>{issue.quantity}</td>
-                                <td style={tableData}>{new Date(issue.issued_date).toLocaleDateString()}</td>
+                {activeTab === 'dashboard' && (
+                    <>
+                        {/* HIGHLIGHTED STATS */}
+                        <div style={statsGrid}>
+                            <div style={statCard}>
+                                <div style={statTopRow}><Package size={32} color="#16a34a" /></div>
+                                <div style={statValue}>{medicines.length}</div>
+                                <div style={statLabel}>Total Medicines</div>
+                            </div>
+                            <div style={statCard}>
+                                <div style={statTopRow}><AlertTriangle size={32} color="#dc2626" /></div>
+                                <div style={{...statValue, color: '#dc2626'}}>{lowStockCount}</div>
+                                <div style={statLabel}>Low Stock Items</div>
+                            </div>
+                            <div style={statCard}>
+                                <div style={statTopRow}><ClipboardList size={32} color="#9333ea" /></div>
+                                <div style={statValue}>{issuedToday}</div>
+                                <div style={statLabel}>Issued Today</div>
+                            </div>
+                            <div style={statCard}>
+                                <div style={statTopRow}><Wallet size={32} color="#0284c7" /></div>
+                                <div style={statValue}>Rs. {totalInventoryValue.toLocaleString()}</div>
+                                <div style={statLabel}>Inventory Value</div>
+                            </div>
+                        </div>
+
+                        {/* FORMS SECTION */}
+                        <div style={formsGrid}>
+                            <div style={panelCard}>
+                                <h2 style={panelTitle}>➕ Add New Medicine</h2>
+                                <form onSubmit={handleSubmit} style={formStyle}>
+                                    <input placeholder='Medicine Name' value={form.name} onChange={e => setForm({...form, name: e.target.value})} required style={inputStyle} />
+                                    <div style={{display: 'flex', gap: '20px'}}>
+                                        <input type='number' placeholder='Qty' value={form.quantity} onChange={e => setForm({...form, quantity: e.target.value})} required style={inputStyle} />
+                                        <input type='number' placeholder='Price' value={form.price} onChange={e => setForm({...form, price: e.target.value})} required style={inputStyle} />
+                                    </div>
+                                    <button type='submit' style={primaryBtn}>Add Medicine</button>
+                                </form>
+                            </div>
+                            <div style={panelCard}>
+                                <h2 style={panelTitle}>💊 Issue to Patient</h2>
+                                <form onSubmit={issueMedicine} style={formStyle}>
+                                    <select value={issueForm.medicine_id} onChange={e => setIssueForm({...issueForm, medicine_id: e.target.value})} required style={inputStyle}>
+                                        <option value=''>Select Medicine</option>
+                                        {medicines.map(m => <option key={m.medicine_id || m.id} value={m.medicine_id || m.id}>{m.name} (Stock: {m.quantity})</option>)}
+                                    </select>
+                                    <input type='number' placeholder='Quantity to Issue' value={issueForm.quantity} onChange={e => setIssueForm({...issueForm, quantity: e.target.value})} required style={inputStyle} />
+                                    <button type='submit' style={tealBtn}>Confirm Issue</button>
+                                </form>
+                            </div>
+                        </div>
+                    </>
+                )}
+
+                {/* INVENTORY TABLE - LARGE FONT & SEARCH */}
+                <div style={{...panelCard, marginTop: '30px'}}>
+                    <div style={tableHeaderArea}>
+                        <h2 style={panelTitle}>📦 Inventory Management</h2>
+                        <div style={searchWrapper}>
+                            <Search size={22} color="#94a3b8" style={searchIcon} />
+                            <input placeholder='Search medicines...' value={search} onChange={e => setSearch(e.target.value)} style={searchInput} />
+                        </div>
+                    </div>
+                    <table style={tableStyle}>
+                        <thead>
+                            <tr style={tableHeaderRow}>
+                                <th style={tableHead}>Medicine Name</th>
+                                <th style={tableHead}>Quantity</th>
+                                <th style={tableHead}>Price (Rs.)</th>
+                                <th style={tableHead}>Status</th>
+                                <th style={tableHead}>Action</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {filteredMeds.map((med, i) => {
+                                const isLow = Number(med.quantity) < 10;
+                                return (
+                                    <tr key={i} style={tableRow}>
+                                        <td style={{...tableData, fontWeight: 'bold', fontSize: '18px'}}>{med.name}</td>
+                                        <td style={{...tableData, fontWeight: '900', color: isLow ? '#dc2626' : '#16a34a'}}>{med.quantity}</td>
+                                        <td style={tableData}>{Number(med.price || 0).toFixed(2)}</td>
+                                        <td style={tableData}>
+                                            <span style={isLow ? statusLowBadge : statusOkBadge}>
+                                                {isLow ? 'LOW STOCK' : 'IN STOCK'}
+                                            </span>
+                                        </td>
+                                        <td style={tableData}>
+                                            <div style={{display: 'flex', gap: '10px'}}>
+                                                <button onClick={() => updateStock(med.medicine_id || med.id, med.quantity)} style={updateBtn}><Edit size={16}/> Update</button>
+                                                <button onClick={() => deleteMedicine(med.medicine_id || med.id)} style={deleteBtn}><Trash2 size={16}/></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+
             </div>
         </div>
     );
 }
 
-/* STYLES */
-const cardStyle = { background: 'white', borderRadius: '20px', padding: '25px' };
-const cardTitle = { color: '#64748b', marginBottom: '15px' };
-const cardValue = { fontSize: '38px', fontWeight: '700' };
-const panelStyle = { background: 'white', borderRadius: '20px', padding: '30px' };
-const sectionTitle = { marginBottom: '25px' };
-const formStyle = { display: 'flex', flexDirection: 'column', gap: '18px' };
-const inputStyle = { padding: '14px', borderRadius: '12px', border: '1px solid #cbd5e1', background: '#f8fafc' };
-const buttonStyle = { padding: '14px', border: 'none', borderRadius: '12px', background: 'linear-gradient(to right, #0f766e, #0284c7)', color: 'white', fontWeight: '700', cursor: 'pointer' };
+// --- FULLY UPDATED STYLES ---
+const pageLayout = { display: 'flex', minHeight: '100vh', background: '#f8fafc', fontFamily: "'Segoe UI', sans-serif" };
+
+const sidebarStyle = { width: '300px', background: '#0f172a', color: 'white', display: 'flex', flexDirection: 'column' };
+const sidebarHeader = { padding: '30px 25px', display: 'flex', alignItems: 'center', gap: '15px', borderBottom: '1px solid rgba(255,255,255,0.05)' };
+const sidebarLogo = { background: '#0ea5e9', width: '48px', height: '48px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' };
+const sidebarTitle = { fontSize: '18px', fontWeight: 'bold' };
+const sidebarSub = { fontSize: '14px', color: '#94a3b8' };
+
+const sidebarNav = { padding: '25px 20px', display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 };
+const navItem = { display: 'flex', alignItems: 'center', gap: '18px', padding: '16px 20px', borderRadius: '12px', color: '#cbd5e1', cursor: 'pointer', fontSize: '18px', fontWeight: '600', transition: '0.2s' };
+const activeNavItem = { ...navItem, background: 'linear-gradient(to right, #0ea5e9, #0284c7)', color: 'white' };
+
+const sidebarProfileSection = { padding: '25px', borderTop: '1px solid rgba(255,255,255,0.05)' };
+const profileInfo = { display: 'flex', alignItems: 'center', gap: '18px', marginBottom: '25px' };
+const profileAvatar = { width: '55px', height: '55px', background: '#e2e8f0', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '26px' };
+const profileName = { fontSize: '16px', fontWeight: 'bold' };
+const profileRole = { fontSize: '14px', color: '#94a3b8' };
+const sidebarLogoutBtn = { width: '100%', padding: '14px', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: 'white', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px' };
+
+const mainContentStyle = { flex: 1, padding: '50px', overflowY: 'auto' };
+
+const bannerStyle = { position: 'relative', background: 'linear-gradient(to right, #0284c7, #0f766e)', borderRadius: '24px', padding: '0 50px', color: 'white', marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', overflow: 'hidden', height: '220px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' };
+const bannerTextContainer = { zIndex: 2, flex: 1 };
+const bannerImageContainer = { height: '100%', display: 'flex', alignItems: 'flex-end', zIndex: 1 };
+const bannerImage = { height: '240px', width: 'auto', objectFit: 'contain' };
+
+const statsGrid = { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '25px', marginBottom: '50px' };
+const statCard = { background: 'white', padding: '30px', borderRadius: '22px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' };
+const statTopRow = { marginBottom: '15px' };
+const statValue = { fontSize: '42px', fontWeight: '900', color: '#0f172a', marginBottom: '6px' };
+const statLabel = { fontSize: '16px', color: '#64748b', fontWeight: 'bold' };
+
+const formsGrid = { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' };
+const panelCard = { background: 'white', padding: '35px', borderRadius: '22px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' };
+const panelTitle = { margin: '0 0 30px 0', fontSize: '24px', fontWeight: '900', color: '#0f172a' };
+
+const formStyle = { display: 'flex', flexDirection: 'column', gap: '22px' };
+const inputStyle = { width: '100%', padding: '18px', borderRadius: '14px', border: '2px solid #e2e8f0', background: '#f8fafc', boxSizing: 'border-box', fontSize: '17px', outline: 'none' };
+const primaryBtn = { padding: '18px', border: 'none', borderRadius: '14px', background: '#0284c7', color: 'white', fontWeight: 'bold', fontSize: '18px', cursor: 'pointer' };
+const tealBtn = { padding: '18px', border: 'none', borderRadius: '14px', background: '#0f766e', color: 'white', fontWeight: 'bold', fontSize: '18px', cursor: 'pointer' };
+
+const tableHeaderArea = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '35px' };
+const searchWrapper = { position: 'relative', display: 'flex', alignItems: 'center' };
+const searchIcon = { position: 'absolute', left: '18px' };
+const searchInput = { padding: '16px 16px 16px 52px', borderRadius: '14px', border: '2px solid #e2e8f0', width: '380px', fontSize: '17px', outline: 'none' };
+
 const tableStyle = { width: '100%', borderCollapse: 'collapse' };
-const tableHeaderRow = { background: '#f1f5f9' };
-const tableHead = { padding: '16px', textAlign: 'left' };
-const tableData = { padding: '16px', borderBottom: '1px solid #e2e8f0' };
+const tableHeaderRow = { borderBottom: '3px solid #e2e8f0' };
+const tableHead = { padding: '20px 15px', color: '#475569', fontSize: '15px', fontWeight: '800', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '1px' };
+const tableRow = { borderBottom: '1px solid #f1f5f9' };
+const tableData = { padding: '22px 15px', fontSize: '17px', color: '#1e293b' };
+
+const statusOkBadge = { background: '#dcfce7', color: '#16a34a', padding: '8px 16px', borderRadius: '30px', fontSize: '13px', fontWeight: 'bold' };
+const statusLowBadge = { background: '#ffedd5', color: '#ea580c', padding: '8px 16px', borderRadius: '30px', fontSize: '13px', fontWeight: 'bold' };
+
+const updateBtn = { display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', borderRadius: '12px', border: 'none', background: '#0284c7', color: 'white', fontWeight: 'bold', cursor: 'pointer', fontSize: '15px' };
+const deleteBtn = { padding: '12px', borderRadius: '12px', border: 'none', background: '#fee2e2', color: '#dc2626', cursor: 'pointer' };
+
+const messageStyle = { padding: '20px', borderRadius: '15px', fontWeight: 'bold', marginBottom: '35px', fontSize: '18px', background: '#dcfce7', color: '#166534', border: '2px solid #bbf7d0' };
