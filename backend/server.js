@@ -13,7 +13,7 @@ const appointmentRoutes = require('./routes/appointments');
 const prescriptionRoutes = require('./routes/prescriptions');
 const billRoutes = require('./routes/bills');
 const viewRoutes = require('./routes/views');
-const forgotPasswordRoutes = require('./routes/auth.forgotPassword'); // New forgot password route
+const forgotPasswordRoutes = require('./routes/auth.forgotPassword');
 
 const app = express();
 
@@ -24,7 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Link routes to paths
 app.use('/api/auth', authRoutes);
-app.use('/api/auth', forgotPasswordRoutes); // Link the forgot password routes here correctly
+app.use('/api/auth', forgotPasswordRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/patients', patientRoutes);
 app.use('/api/doctors', doctorRoutes);
@@ -34,31 +34,54 @@ app.use('/api/prescriptions', prescriptionRoutes);
 app.use('/api/bills', billRoutes);
 app.use('/api/views', viewRoutes);
 
-// --- UPDATED HOSPITAL STATS ROUTE ---
+// --- FULLY ACTIVATED HOSPITAL STATS ROUTE ---
 app.get('/api/hospital-stats', async (req, res) => {
     try {
         const pool = await getConnection(); 
 
-        // 1. Count total patients
-        const patientsResult = await pool.request().query('SELECT COUNT(*) AS total FROM patients');
+        // 1. Fetch Main Counts
+        const patients = await pool.request().query('SELECT COUNT(*) AS total FROM patients');
+        const doctors = await pool.request().query('SELECT COUNT(*) AS total FROM doctors');
+        const medicines = await pool.request().query('SELECT COUNT(*) AS total FROM medicines');
+        const appointments = await pool.request().query('SELECT COUNT(*) AS total FROM appointments');
+        const totalUsers = await pool.request().query('SELECT COUNT(*) AS total FROM users');
         
-        // 2. Count doctors (Using your user_roles bridge table to avoid 'role_id' error)
-        const doctorsResult = await pool.request().query(`
-            SELECT COUNT(DISTINCT u.user_id) AS total 
-            FROM users u
-            JOIN user_roles ur ON u.user_id = ur.user_id
-            JOIN roles r ON ur.role_id = r.role_id
-            WHERE r.role_name = 'Doctor'
-        `);
-        
-        // 3. Count appointments
-        const appointmentsResult = await pool.request().query('SELECT COUNT(*) AS total FROM appointments');
+        let activeUsersValue = 0;
+        let loginsTodayValue = 0;
+        let totalActivitiesValue = 0;
 
+        // 2. Fetch Supplemental Stats (System Overview)
+        try {
+            // Note: Ensure you ran the 'ALTER TABLE users ADD status...' command in SSMS first!
+            const activeRes = await pool.request().query("SELECT COUNT(*) AS total FROM users WHERE status = 'Active'");
+            activeUsersValue = activeRes.recordset[0].total;
+            
+            const loginsRes = await pool.request().query("SELECT COUNT(*) AS total FROM user_logins WHERE CAST(login_time AS DATE) = CAST(GETDATE() AS DATE)");
+            loginsTodayValue = loginsRes.recordset[0].total;
+
+            const activityRes = await pool.request().query("SELECT COUNT(*) AS total FROM activity_logs");
+            totalActivitiesValue = activityRes.recordset[0].total;
+        } catch (e) {
+            console.log("Supplemental tables not found, using defaults.");
+        }
+
+        // 3. Send Response (Includes naming for BOTH Dashboard and Landing Page)
         res.json({
-            patientsAttended: patientsResult.recordset[0].total,
-            doctorsAvailable: doctorsResult.recordset[0].total,
-            appointmentsToday: appointmentsResult.recordset[0].total,
-            pharmacyStatus: "In Stock"
+            // For Admin Dashboard
+            patients: patients.recordset[0].total,
+            doctors: doctors.recordset[0].total,
+            medicines: medicines.recordset[0].total,
+            appointments: appointments.recordset[0].total,
+            totalUsers: totalUsers.recordset[0].total,
+            activeUsers: activeUsersValue,
+            loginsToday: loginsTodayValue,
+            totalActivities: totalActivitiesValue,
+
+            // For Landing Page (Home)
+            patientsAttended: patients.recordset[0].total,
+            doctorsAvailable: doctors.recordset[0].total,
+            appointmentsToday: appointments.recordset[0].total,
+            pharmacyStatus: medicines.recordset[0].total > 0 ? "In Stock" : "Out of Stock"
         });
     } catch (err) {
         console.error("Database error in stats:", err);
