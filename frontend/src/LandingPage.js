@@ -31,6 +31,7 @@ export default function LandingPage() {
         pharmacyStatus: "Loading..."
     });
 
+   // --- Fetch real data from your backend ---
     useEffect(() => {
         // Initialize animations
         AOS.init({
@@ -38,25 +39,24 @@ export default function LandingPage() {
             once: true
         });
 
-        // --- Fetch real data from your backend ---
         fetch('http://localhost:5000/api/hospital-stats') 
             .then(response => response.json())
             .then(data => {
+                // FIXED: Mapping backend names (patients) to frontend state (patientsAttended)
                 setStats({
-                    patientsAttended: data.patientsAttended || 0,
-                    doctorsAvailable: data.doctorsAvailable || 0,
-                    appointmentsToday: data.appointmentsToday || 0,
-                    pharmacyStatus: data.pharmacyStatus || "In Stock"
+                    patientsAttended: data.patients || 0,
+                    doctorsAvailable: data.doctors || 0,
+                    appointmentsToday: data.appointments || 0,
+                    pharmacyStatus: data.medicines > 0 ? "In Stock" : "Low Stock"
                 });
             })
             .catch(error => {
                 console.error('Error fetching real-time stats:', error);
-                // Fallback to defaults if the backend isn't running
                 setStats({
-                    patientsAttended: 240,
-                    doctorsAvailable: 75,
-                    appointmentsToday: 126,
-                    pharmacyStatus: "In Stock"
+                    patientsAttended: 0,
+                    doctorsAvailable: 0,
+                    appointmentsToday: 0,
+                    pharmacyStatus: "Offline"
                 });
             });
     }, []);
