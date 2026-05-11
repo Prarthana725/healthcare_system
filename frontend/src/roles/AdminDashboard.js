@@ -40,9 +40,9 @@ export default function AdminDashboard() {
     
     // UPDATED: Stats state now includes the System Overview fields
     const [stats, setStats] = useState({ 
-    patients: 0, doctors: 0, medicines: 0, appointments: 0,
-    totalUsers: 0, activeUsers: 0, loginsToday: 0, totalActivities: 0 
-});
+        patients: 0, doctors: 0, medicines: 0, appointments: 0,
+        totalUsers: 0, activeUsers: 0, loginsToday: 0, totalActivities: 0 
+    });
     
     // UI State
     const [activeNav, setActiveNav] = useState('Dashboard');
@@ -80,17 +80,16 @@ export default function AdminDashboard() {
     }, []);
 
     async function loadStats() {
-    try {
-        const res = await fetch(`${API_URL}/hospital-stats`);
-        if (res.ok) {
-            const data = await res.json();
-            // This ensures both the top 4 cards and bottom 4 bar items update
-            setStats(data); 
+        try {
+            const res = await fetch(`${API_URL}/hospital-stats`);
+            if (res.ok) {
+                const data = await res.json();
+                setStats(data); 
+            }
+        } catch (err) { 
+            console.error("Failed to load stats:", err); 
         }
-    } catch (err) { 
-        console.error("Failed to load stats:", err); 
     }
-}
 
     async function loadUsers() {
         try {
@@ -133,22 +132,22 @@ export default function AdminDashboard() {
     }
 
     async function handleUserSubmit(e) {
-    e.preventDefault();
-    try {
-        const res = await fetch(`${API_URL}/users`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(form),
-        });
-        if (res.ok) {
-            setMessage('success');
-            setForm({ username: '', password: '', role_id: '' });
-            loadUsers(); // Refreshes the table
-            loadStats(); // <--- ADD THIS: Refreshes the Top Cards and Bottom Bar
-        } else { setMessage('error'); }
-    } catch { setMessage('error'); }
-    setTimeout(() => setMessage(''), 3000);
-}
+        e.preventDefault();
+        try {
+            const res = await fetch(`${API_URL}/users`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(form),
+            });
+            if (res.ok) {
+                setMessage('success');
+                setForm({ username: '', password: '', role_id: '' });
+                loadUsers(); 
+                loadStats(); 
+            } else { setMessage('error'); }
+        } catch { setMessage('error'); }
+        setTimeout(() => setMessage(''), 3000);
+    }
 
     async function handleDoctorSubmit(e) {
         e.preventDefault();
@@ -224,13 +223,29 @@ export default function AdminDashboard() {
 
     const today = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
+   // ✅ UPDATED: The 'trend' values are now dynamically pulled from the database stats!
     const statCards = [
-        { label: 'Total Doctors', value: stats.doctors, icon: '🩺', trend: '5%' },
-        { label: 'Total Patients', value: stats.patients, icon: '🧑', trend: '25%' },
-        { label: 'Total Medicines', value: stats.medicines, icon: '💊', trend: '0%' },
-        { label: "Today's Appointments", value: stats.appointments, icon: '📅', trend: '12%' },
+        { 
+            label: 'Total Doctors', value: stats.doctors, icon: '🩺', 
+            trend: stats.doctorTrend ? `${stats.doctorTrend}%` : '0%', 
+            navTarget: 'Doctors' 
+        },
+        { 
+            label: 'Total Patients', value: stats.patients, icon: '🧑', 
+            trend: stats.patientTrend ? `${stats.patientTrend}%` : '0%', 
+            navTarget: 'Patients' 
+        },
+        { 
+            label: 'Total Medicines', value: stats.medicines, icon: '💊', 
+            trend: stats.medicineTrend ? `${stats.medicineTrend}%` : '0%', 
+            navTarget: 'Pharmacy' 
+        },
+        { 
+            label: "Total Appointments", value: stats.appointments, icon: '📅', 
+            trend: stats.appointmentTrend ? `${stats.appointmentTrend}%` : '0%', 
+            navTarget: 'Appointments' 
+        },
     ];
-
     // --- DYNAMIC CONTENT RENDERER ---
     const renderMainContent = () => {
         if (activeNav === 'Dashboard' || activeNav === 'Users') {
@@ -283,7 +298,6 @@ export default function AdminDashboard() {
                                     <div style={{ fontSize: 14, color: '#94a3b8', marginTop: 4 }}>Manage all system users</div>
                                 </div>
                             </div>
-                            <button style={viewAllBtn}>View All Users ›</button>
                         </div>
                         <div style={{ overflowX: 'auto' }}>
                             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -364,7 +378,6 @@ export default function AdminDashboard() {
                                     <div style={{ fontSize: 14, color: '#94a3b8', marginTop: 4 }}>Manage medical staff records</div>
                                 </div>
                             </div>
-                            <button style={viewAllBtn}>View All Doctors ›</button>
                         </div>
                         <div style={{ overflowX: 'auto' }}>
                             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -448,7 +461,6 @@ export default function AdminDashboard() {
                                     <div style={{ fontSize: 14, color: '#94a3b8', marginTop: 4 }}>Manage registered patients</div>
                                 </div>
                             </div>
-                            <button style={viewAllBtn}>View All Patients ›</button>
                         </div>
                         <div style={{ overflowX: 'auto' }}>
                             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -530,7 +542,6 @@ export default function AdminDashboard() {
                                     <div style={{ fontSize: 14, color: '#94a3b8', marginTop: 4 }}>Manage medical stock & pricing</div>
                                 </div>
                             </div>
-                            <button style={viewAllBtn}>View Full Inventory ›</button>
                         </div>
                         <div style={{ overflowX: 'auto' }}>
                             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -591,7 +602,6 @@ export default function AdminDashboard() {
                                 <label style={labelSt}>Select Patient</label>
                                 <select value={apptForm.patient_id} onChange={e => setApptForm({ ...apptForm, patient_id: e.target.value })} required style={inputSt}>
                                     <option value="">Choose Patient</option>
-                                    {/* FIX: Use ID as value so SQL doesn't crash */}
                                     {patientsList.map(p => (
                                         <option key={p.patient_id || p.id} value={p.patient_id || p.id}>
                                             {p.name}
@@ -603,7 +613,6 @@ export default function AdminDashboard() {
                                 <label style={labelSt}>Select Doctor</label>
                                 <select value={apptForm.doctor_id} onChange={e => setApptForm({ ...apptForm, doctor_id: e.target.value })} required style={inputSt}>
                                     <option value="">Choose Doctor</option>
-                                    {/* FIX: Use ID as value so SQL doesn't crash */}
                                     {doctorsList.map(d => (
                                         <option key={d.doctor_id || d.id} value={d.doctor_id || d.id}>
                                             {d.name} ({d.specialization})
@@ -639,7 +648,6 @@ export default function AdminDashboard() {
                                     <div style={{ fontSize: 14, color: '#94a3b8', marginTop: 4 }}>Manage today's hospital visits</div>
                                 </div>
                             </div>
-                            <button style={viewAllBtn}>View Full Schedule ›</button>
                         </div>
                         <div style={{ overflowX: 'auto' }}>
                             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -711,17 +719,33 @@ export default function AdminDashboard() {
                 </nav>
 
                 <div style={{ padding: '20px 24px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
-                        <div style={{ width: 42, height: 42, borderRadius: '50%', background: '#334155', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>👤</div>
-                        <div>
-                            <div style={{ fontWeight: 600, fontSize: 15 }}>Admin</div>
-                            <div style={{ fontSize: 12, opacity: 0.6, marginTop: 2 }}>Super Administrator</div>
-                        </div>
-                    </div>
-                    <button onClick={() => navigate('/')} style={{ width: '100%', padding: '12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.15)', background: 'transparent', color: 'rgba(255,255,255,0.8)', cursor: 'pointer', fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: '0.2s' }}>
-                        🚪 Log Out
-                    </button>
-                </div>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
+        
+        {/* THIS IS THE LOGO YOU ARE ASKING ABOUT */}
+        <div style={{ 
+            width: 42, 
+            height: 42, 
+            borderRadius: '50%', 
+            background: '#334155', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            fontSize: 20, 
+            flexShrink: 0 
+        }}>
+            👤
+        </div>
+        {/* --------------------------------------- */}
+
+        <div>
+            <div style={{ fontWeight: 600, fontSize: 15 }}>Admin</div>
+            <div style={{ fontSize: 12, opacity: 0.6, marginTop: 2 }}>Super Administrator</div>
+        </div>
+    </div>
+    <button onClick={() => navigate('/')} style={{ width: '100%', padding: '12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.15)', background: 'transparent', color: 'rgba(255,255,255,0.8)', cursor: 'pointer', fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: '0.2s' }}>
+        🚪 Log Out
+    </button>
+</div>
             </aside>
 
             <main style={{ flex: 1, padding: '40px 48px', overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
@@ -736,7 +760,8 @@ export default function AdminDashboard() {
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 24, marginBottom: 36 }}>
-                    {statCards.map(({ label, value, icon, trend }) => (
+                    {/* ✅ UPDATED: The onClick handler is now added to the "View all..." text */}
+                    {statCards.map(({ label, value, icon, trend, navTarget }) => (
                         <div key={label} style={{ background: 'white', borderRadius: 16, border: '1px solid #e2e8f0', padding: '24px', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -746,14 +771,18 @@ export default function AdminDashboard() {
                                 <span style={{ fontSize: 13, fontWeight: 700, color: '#10b981', background: '#ecfdf5', borderRadius: 20, padding: '4px 10px' }}>↑ {trend}</span>
                             </div>
                             <div style={{ fontSize: 40, fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>{value}</div>
-                            <div style={{ marginTop: 14, fontSize: 14, fontWeight: 500, color: '#0284c7', cursor: 'pointer' }}>View all {label.toLowerCase().replace("today's ", "")} ›</div>
+                            <div 
+                                onClick={() => setActiveNav(navTarget)} 
+                                style={{ marginTop: 14, fontSize: 14, fontWeight: 500, color: '#0284c7', cursor: 'pointer' }}
+                            >
+                                View all {label.toLowerCase().replace("today's ", "")} ›
+                            </div>
                         </div>
                     ))}
                 </div>
 
                 {renderMainContent()}
 
-                {/* UPDATED: System Overview bar now uses dynamic stats from your DB */}
                 <div style={{ marginTop: 'auto', background: '#0d1f2d', borderRadius: 20, padding: '30px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', flexWrap: 'wrap', gap: '24px', boxShadow: '0 10px 25px rgba(13,31,45,0.15)' }}>
                     <div>
                         <div style={{ fontWeight: 800, fontSize: 18 }}>System Overview</div>
