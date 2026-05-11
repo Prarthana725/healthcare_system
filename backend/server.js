@@ -34,61 +34,69 @@ app.use('/api/prescriptions', prescriptionRoutes);
 app.use('/api/bills', billRoutes);
 app.use('/api/views', viewRoutes);
 
-// --- FULLY ACTIVATED HOSPITAL STATS ROUTE ---
+// --- THE MASTER STATS ROUTE ---
 app.get('/api/hospital-stats', async (req, res) => {
     try {
         const pool = await getConnection(); 
 
-        // 1. Fetch Main Counts
+        // Get standard counts
         const patients = await pool.request().query('SELECT COUNT(*) AS total FROM patients');
         const doctors = await pool.request().query('SELECT COUNT(*) AS total FROM doctors');
         const medicines = await pool.request().query('SELECT COUNT(*) AS total FROM medicines');
         const appointments = await pool.request().query('SELECT COUNT(*) AS total FROM appointments');
         const totalUsers = await pool.request().query('SELECT COUNT(*) AS total FROM users');
         
-        let activeUsersValue = 0;
-        let loginsTodayValue = 0;
-        let totalActivitiesValue = 0;
+        // Get specific counts for percentages
+        const inStockMeds = await pool.request().query('SELECT COUNT(*) AS total FROM medicines WHERE quantity > 0');
+        const compAppts = await pool.request().query("SELECT COUNT(*) AS total FROM appointments WHERE status = 'Completed'");
 
-        // 2. Fetch Supplemental Stats (System Overview)
+        // Extract numbers
+        const pCount = patients.recordset[0].total;
+        const dCount = doctors.recordset[0].total;
+        const mCount = medicines.recordset[0].total;
+        const aCount = appointments.recordset[0].total;
+        const uCount = totalUsers.recordset[0].total;
+        const stockCount = inStockMeds.recordset[0].total;
+        const cApptCount = compAppts.recordset[0].total;
+
+        // 🧮 CALCULATE TRUE PERCENTAGES
+        const doctorPct = uCount > 0 ? Math.round((dCount / uCount) * 100) : 0;
+        const patientPct = uCount > 0 ? Math.round((pCount / uCount) * 100) : 0;
+        const medicinePct = mCount > 0 ? Math.round((stockCount / mCount) * 100) : 0;
+        const apptPct = aCount > 0 ? Math.round((cApptCount / aCount) * 100) : 0;
+
+        // Get activity counts (Bottom bar)
+        let activeUsersValue = 0, loginsTodayValue = 0, totalActivitiesValue = 0;
         try {
-            // Note: Ensure you ran the 'ALTER TABLE users ADD status...' command in SSMS first!
             const activeRes = await pool.request().query("SELECT COUNT(*) AS total FROM users WHERE status = 'Active'");
             activeUsersValue = activeRes.recordset[0].total;
-            
             const loginsRes = await pool.request().query("SELECT COUNT(*) AS total FROM user_logins WHERE CAST(login_time AS DATE) = CAST(GETDATE() AS DATE)");
             loginsTodayValue = loginsRes.recordset[0].total;
-
             const activityRes = await pool.request().query("SELECT COUNT(*) AS total FROM activity_logs");
             totalActivitiesValue = activityRes.recordset[0].total;
-        } catch (e) {
-            console.log("Supplemental tables not found, using defaults.");
-        }
+        } catch (e) { console.log("Stats tracking starting..."); }
 
-        // 3. Send Response (Includes naming for BOTH Dashboard and Landing Page)
         res.json({
-            // For Admin Dashboard
-            patients: patients.recordset[0].total,
-            doctors: doctors.recordset[0].total,
-            medicines: medicines.recordset[0].total,
-            appointments: appointments.recordset[0].total,
-            totalUsers: totalUsers.recordset[0].total,
-            activeUsers: activeUsersValue,
+            patients: pCount,
+            doctors: dCount,
+            medicines: mCount,
+            appointments: aCount,
+            totalUsers: uCount,
+            activeUsers: activeUsersValue || uCount,
             loginsToday: loginsTodayValue,
             totalActivities: totalActivitiesValue,
-
-            // For Landing Page (Home)
-            patientsAttended: patients.recordset[0].total,
-            doctorsAvailable: doctors.recordset[0].total,
-            appointmentsToday: appointments.recordset[0].total,
-            pharmacyStatus: medicines.recordset[0].total > 0 ? "In Stock" : "Out of Stock"
+            
+            // ✅ SEND THE CALCULATED PERCENTAGES
+            doctorTrend: doctorPct,
+            patientTrend: patientPct,
+            medicineTrend: medicinePct,
+            appointmentTrend: apptPct
         });
     } catch (err) {
-        console.error("Database error in stats:", err);
+        console.error("Stats Error:", err);
         res.status(500).json({ error: "Server Error" });
     }
 });
-
 // Root test route
 app.get('/', (req, res) => {
     res.send('Healthcare & Inventory Management System Backend is Running');
