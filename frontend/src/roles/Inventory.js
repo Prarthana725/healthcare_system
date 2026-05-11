@@ -5,6 +5,20 @@ const API_URL = 'http://localhost:5000/api';
 export default function PharmacistDashboard() {
 
     const [medicines, setMedicines] = useState([]);
+    const [usageData, setUsageData] = useState([]);
+    const [issueHistory, setIssueHistory] = useState([]);
+    const [search, setSearch] = useState('');
+
+    const filteredMedicines =
+        usageData.filter(med =>
+
+            med.name
+                .toLowerCase()
+                .includes(
+                    search.toLowerCase()
+                )
+
+        );
 
     const [prescriptions,
         setPrescriptions] =
@@ -13,22 +27,27 @@ export default function PharmacistDashboard() {
     const [form, setForm] = useState({
 
         name: '',
-
         quantity: '',
-
         price: ''
+    });
+
+    const [issueForm, setIssueForm] = useState({
+        medicine_id: '',
+        quantity: ''
     });
 
     const [message, setMessage] =
         useState('');
 
+    //---------------------------------------------
     // LOAD DATA
+    //---------------------------------------------
+
     useEffect(() => {
 
         loadMedicines();
-
-        loadPrescriptions();
-
+        loadUsage();
+        loadIssueHistory();
     }, []);
 
     async function loadMedicines() {
@@ -36,9 +55,7 @@ export default function PharmacistDashboard() {
         try {
 
             const response =
-                await fetch(
-                    `${API_URL}/medicines`
-                );
+                await fetch(`${API_URL}/medicines`);
 
             const data =
                 await response.json();
@@ -52,23 +69,77 @@ export default function PharmacistDashboard() {
         } catch (error) {
 
             console.error(error);
+
         }
     }
 
-    // LOAD PRESCRIPTIONS
-    async function loadPrescriptions() {
+
+    //---------------------------------------------
+    // DELETE MEDICINE
+    //---------------------------------------------
+
+    async function deleteMedicine(id) {
+
+        const confirmDelete =
+            window.confirm(
+                'Delete this medicine?'
+            );
+
+        if (!confirmDelete) return;
 
         try {
 
             const response =
                 await fetch(
-                    `${API_URL}/prescriptions`
+                    `${API_URL}/medicines/${id}`,
+                    {
+                        method: 'DELETE'
+                    }
+                );
+
+            if (response.ok) {
+
+                setMessage(
+                    'Medicine deleted successfully ✅'
+                );
+
+                loadMedicines();
+                loadUsage();
+
+            } else {
+
+                setMessage(
+                    'Failed to delete medicine ❌'
+                );
+
+            }
+
+        } catch (error) {
+
+            setMessage(
+                'Server error ❌'
+            );
+
+        }
+    }
+
+    //---------------------------------------------
+    // LOAD ISSUE HISTORY
+    //---------------------------------------------
+
+    async function loadIssueHistory() {
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API_URL}/medicines/issue-history`
                 );
 
             const data =
                 await response.json();
 
-            setPrescriptions(
+            setIssueHistory(
                 Array.isArray(data)
                     ? data
                     : []
@@ -77,10 +148,42 @@ export default function PharmacistDashboard() {
         } catch (error) {
 
             console.error(error);
+
+        }
+    }
+    //---------------------------------------------
+    // LOAD ANALYTICS
+    //---------------------------------------------
+
+    async function loadUsage() {
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API_URL}/medicines/with-usage`
+                );
+
+            const data =
+                await response.json();
+
+            setUsageData(
+                Array.isArray(data)
+                    ? data
+                    : []
+            );
+
+        } catch (error) {
+
+            console.error(error);
+
         }
     }
 
+    //---------------------------------------------
     // ADD MEDICINE
+    //---------------------------------------------
+
     async function handleSubmit(e) {
 
         e.preventDefault();
@@ -89,27 +192,21 @@ export default function PharmacistDashboard() {
 
             const response =
                 await fetch(
-
                     `${API_URL}/medicines`,
-
                     {
                         method: 'POST',
-
                         headers: {
                             'Content-Type':
                                 'application/json'
                         },
-
                         body: JSON.stringify({
-
-                            name:
-                                form.name,
-
-                            quantity:
-                                Number(form.quantity),
-
-                            price:
-                                Number(form.price)
+                            name: form.name,
+                            quantity: Number(
+                                form.quantity
+                            ),
+                            price: Number(
+                                form.price
+                            )
                         })
                     }
                 );
@@ -123,9 +220,7 @@ export default function PharmacistDashboard() {
                 setForm({
 
                     name: '',
-
                     quantity: '',
-
                     price: ''
                 });
 
@@ -136,6 +231,7 @@ export default function PharmacistDashboard() {
                 setMessage(
                     'Failed to add medicine ❌'
                 );
+
             }
 
         } catch (error) {
@@ -143,10 +239,14 @@ export default function PharmacistDashboard() {
             setMessage(
                 'Server error ❌'
             );
+
         }
     }
 
+    //---------------------------------------------
     // UPDATE STOCK
+    //---------------------------------------------
+
     async function updateStock(
         id,
         currentQty
@@ -154,7 +254,7 @@ export default function PharmacistDashboard() {
 
         const newQty =
             prompt(
-                'Enter new stock quantity:',
+                'Enter new quantity:',
                 currentQty
             );
 
@@ -165,32 +265,23 @@ export default function PharmacistDashboard() {
 
             const medicine =
                 medicines.find(
-
                     m =>
                         m.medicine_id === id
                 );
 
             const response =
                 await fetch(
-
                     `${API_URL}/medicines/${id}`,
-
                     {
                         method: 'PUT',
-
                         headers: {
                             'Content-Type':
                                 'application/json'
                         },
-
                         body: JSON.stringify({
-
-                            name:
-                                medicine.name,
-
+                            name: medicine.name,
                             quantity:
                                 Number(newQty),
-
                             price:
                                 medicine.price
                         })
@@ -210,6 +301,7 @@ export default function PharmacistDashboard() {
                 setMessage(
                     'Failed to update stock ❌'
                 );
+
             }
 
         } catch (error) {
@@ -217,63 +309,95 @@ export default function PharmacistDashboard() {
             setMessage(
                 'Server error ❌'
             );
+
         }
     }
 
+    //---------------------------------------------
     // ISSUE MEDICINE
-    async function issueMedicine(
-        prescriptionId
-    ) {
+    //---------------------------------------------
+
+    async function issueMedicine(e) {
+
+        e.preventDefault();
 
         try {
 
-            //--------------------------------------------------
-            // REMOVE PRESCRIPTION FROM UI
-            //--------------------------------------------------
+            const response =
+                await fetch(
+                    `${API_URL}/medicines/reduce-stock`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type':
+                                'application/json'
+                        },
+                        body: JSON.stringify({
+                            medicine_id:
+                                issueForm.medicine_id,
+                            quantity:
+                                Number(
+                                    issueForm.quantity
+                                )
+                        })
+                    }
+                );
 
-            setPrescriptions(
+            const data =
+                await response.json();
 
-                prescriptions.filter(
+            if (response.ok) {
 
-                    p =>
+                setMessage(
+                    'Medicine issued successfully ✅'
+                );
 
-                        p.prescription_id !==
-                        prescriptionId
-                )
-            );
+                setIssueForm({
+                    medicine_id: '',
+                    quantity: ''
+                });
 
-            //--------------------------------------------------
-            // RELOAD MEDICINES
-            //--------------------------------------------------
+                loadMedicines();
 
-            await loadMedicines();
+            } else {
 
-            //--------------------------------------------------
-            // SUCCESS MESSAGE
-            //--------------------------------------------------
+                setMessage(
+                    data.error ||
+                    'Failed ❌'
+                );
 
-            setMessage(
-
-                `Prescription #${prescriptionId}
-                 issued successfully ✅`
-            );
+            }
 
         } catch (error) {
 
-            console.error(error);
-
             setMessage(
-                'Failed to issue medicine ❌'
+                'Server error ❌'
             );
+
         }
     }
 
+    //---------------------------------------------
     // LOW STOCK
+    //---------------------------------------------
+
     const lowStockMedicines =
         medicines.filter(
-
             med =>
                 Number(med.quantity) < 10
+        );
+
+    //---------------------------------------------
+    // TOTAL STOCK VALUE
+    //---------------------------------------------
+
+    const totalValue =
+        medicines.reduce(
+            (sum, med) =>
+                sum +
+                Number(med.quantity) *
+                Number(med.price || 0),
+            0
         );
 
     return (
@@ -300,11 +424,7 @@ export default function PharmacistDashboard() {
                     padding: '35px',
 
                     color: 'white',
-
-                    marginBottom: '30px',
-
-                    boxShadow:
-                        '0 10px 30px rgba(0,0,0,0.1)'
+                    marginBottom: '30px'
                 }}
             >
 
@@ -320,11 +440,10 @@ export default function PharmacistDashboard() {
                 <p
                     style={{
                         marginTop: '10px',
-                        opacity: 0.9,
-                        fontSize: '16px'
+                        opacity: 0.9
                     }}
                 >
-                    Pharmacy inventory & billing workflow
+                    Inventory & Medicine Control
                 </p>
 
             </div>
@@ -335,13 +454,12 @@ export default function PharmacistDashboard() {
 
                 <div
                     style={{
-                        background: '#ecfeff',
-                        color: '#0f766e',
+                        background: '#dcfce7',
+                        color: '#166534',
                         padding: '14px',
                         borderRadius: '12px',
-                        marginBottom: '25px',
-                        fontWeight: '600',
-                        textAlign: 'center'
+                        marginBottom: '20px',
+                        fontWeight: '600'
                     }}
                 >
                     {message}
@@ -349,15 +467,14 @@ export default function PharmacistDashboard() {
 
             )}
 
-            {/* DASHBOARD */}
+            {/* STATS */}
 
             <div
                 style={{
                     display: 'grid',
 
                     gridTemplateColumns:
-                        'repeat(auto-fit, minmax(240px, 1fr))',
-
+                        'repeat(auto-fit, minmax(220px, 1fr))',
                     gap: '20px',
 
                     marginBottom: '30px'
@@ -367,7 +484,7 @@ export default function PharmacistDashboard() {
                 <div style={cardStyle}>
 
                     <div style={cardTitle}>
-                        📦 Total Medicines
+                        📦 Medicines
                     </div>
 
                     <div style={cardValue}>
@@ -379,17 +496,13 @@ export default function PharmacistDashboard() {
                 <div style={cardStyle}>
 
                     <div style={cardTitle}>
-                        ⚠️ Low Stock Alerts
+                        ⚠️ Low Stock
                     </div>
 
                     <div
                         style={{
                             ...cardValue,
-
-                            color:
-                                lowStockMedicines.length > 0
-                                    ? '#dc2626'
-                                    : '#16a34a'
+                            color: '#dc2626'
                         }}
                     >
                         {lowStockMedicines.length}
@@ -409,24 +522,32 @@ export default function PharmacistDashboard() {
 
                 </div>
 
+                <div style={cardStyle}>
+                    <div style={cardTitle}>
+                        💰 Inventory Value
+                    </div>
+
+                    <div style={cardValue}>
+                        Rs. {totalValue}
+                    </div>
+                </div>
+
             </div>
 
-            {/* MAIN GRID */}
+            {/* FORMS */}
 
             <div
                 style={{
                     display: 'grid',
-
                     gridTemplateColumns:
-                        '1fr 1.6fr',
-
+                        '1fr 1fr',
                     gap: '25px',
 
                     marginBottom: '30px'
                 }}
             >
 
-                {/* ADD MEDICINE */}
+                {/* ADD */}
 
                 <div style={panelStyle}>
 
@@ -436,18 +557,11 @@ export default function PharmacistDashboard() {
 
                     <form
                         onSubmit={handleSubmit}
-
-                        style={{
-                            display: 'flex',
-                            flexDirection:
-                                'column',
-                            gap: '18px'
-                        }}
+                        style={formStyle}
                     >
 
                         <input
-                            type="text"
-                            placeholder="Medicine Name"
+                            placeholder='Medicine Name'
                             value={form.name}
 
                             onChange={(e) =>
@@ -455,7 +569,6 @@ export default function PharmacistDashboard() {
                                 setForm({
 
                                     ...form,
-
                                     name:
                                         e.target.value
                                 })
@@ -468,8 +581,8 @@ export default function PharmacistDashboard() {
                         />
 
                         <input
-                            type="number"
-                            placeholder="Quantity"
+                            type='number'
+                            placeholder='Quantity'
                             value={form.quantity}
 
                             onChange={(e) =>
@@ -477,8 +590,22 @@ export default function PharmacistDashboard() {
                                 setForm({
 
                                     ...form,
-
                                     quantity:
+                                        e.target.value
+                                })
+                            }
+                            required
+                            style={inputStyle}
+                        />
+
+                        <input
+                            type='number'
+                            placeholder='Price'
+                            value={form.price}
+                            onChange={(e) =>
+                                setForm({
+                                    ...form,
+                                    price:
                                         e.target.value
                                 })
 
@@ -512,7 +639,7 @@ export default function PharmacistDashboard() {
                         />
 
                         <button
-                            type="submit"
+                            type='submit'
                             style={buttonStyle}
                         >
                             Add Medicine
@@ -522,212 +649,117 @@ export default function PharmacistDashboard() {
 
                 </div>
 
-                {/* LOW STOCK */}
+                {/* ISSUE */}
 
                 <div style={panelStyle}>
 
                     <h2 style={sectionTitle}>
-                        ⚠️ Low Stock Alerts
+                        💊 Issue Medicine
                     </h2>
 
-                    <table style={tableStyle}>
+                    <form
+                        onSubmit={issueMedicine}
+                        style={formStyle}
+                    >
 
-                        <thead>
+                        <select
+                            value={
+                                issueForm.medicine_id
+                            }
+                            onChange={(e) =>
+                                setIssueForm({
+                                    ...issueForm,
+                                    medicine_id:
+                                        e.target.value
+                                })
+                            }
+                            required
+                            style={inputStyle}
+                        >
 
-                            <tr style={tableHeaderRow}>
+                            <option value=''>
+                                Select Medicine
+                            </option>
 
-                                <th style={tableHead}>
-                                    Medicine
-                                </th>
+                            {medicines.map(med => (
 
-                                <th style={tableHead}>
-                                    Quantity
-                                </th>
+                                <option
+                                    key={
+                                        med.medicine_id
+                                    }
+                                    value={
+                                        med.medicine_id
+                                    }
+                                >
+                                    {med.name}
+                                </option>
 
-                            </tr>
+                            ))}
 
-                        </thead>
+                        </select>
 
-                        <tbody>
+                        <input
+                            type='number'
+                            placeholder='Quantity'
+                            value={
+                                issueForm.quantity
+                            }
+                            onChange={(e) =>
+                                setIssueForm({
+                                    ...issueForm,
+                                    quantity:
+                                        e.target.value
+                                })
+                            }
+                            required
+                            style={inputStyle}
+                        />
 
-                            {lowStockMedicines.length > 0 ? (
+                        <button
+                            type='submit'
+                            style={buttonStyle}
+                        >
+                            Issue Medicine
+                        </button>
 
-                                lowStockMedicines.map((med) => (
-
-                                    <tr
-                                        key={
-                                            med.medicine_id
-                                        }
-                                    >
-
-                                        <td style={tableData}>
-                                            {med.name}
-                                        </td>
-
-                                        <td
-                                            style={{
-                                                ...tableData,
-                                                color:
-                                                    '#dc2626',
-                                                fontWeight:
-                                                    '700'
-                                            }}
-                                        >
-                                            {med.quantity}
-                                        </td>
-
-                                    </tr>
-
-                                ))
-
-                            ) : (
-
-                                <tr>
-
-                                    <td
-                                        colSpan="2"
-                                        style={emptyStyle}
-                                    >
-                                        No low stock medicines ✅
-                                    </td>
-
-                                </tr>
-
-                            )}
-
-                        </tbody>
-
-                    </table>
+                    </form>
 
                 </div>
 
             </div>
 
-            {/* PRESCRIPTIONS */}
+            {/* LOW STOCK */}
 
-            <div style={panelStyle}>
+            <div
+                style={{
+                    display: 'grid',
+                    gridTemplateColumns:
+                        'repeat(auto-fit, minmax(250px, 1fr))',
+                    gap: '20px',
+                    marginBottom: '30px'
+                }}
+            >
 
-                <h2 style={sectionTitle}>
-                    💊 Pending Prescriptions
-                </h2>
+                {lowStockMedicines.map(med => (
 
-                <div style={{ overflowX: 'auto' }}>
+                    <div
+                        key={med.medicine_id}
+                        style={{
+                            background: '#fee2e2',
+                            padding: '20px',
+                            borderRadius: '18px'
+                        }}
+                    >
 
-                    <table style={tableStyle}>
+                        <h3>{med.name}</h3>
 
-                        <thead>
-
-                            <tr style={tableHeaderRow}>
-
-                                <th style={tableHead}>
-                                    Patient
-                                </th>
-
-                                <th style={tableHead}>
-                                    Doctor
-                                </th>
-
-                                <th style={tableHead}>
-                                    Medicines
-                                </th>
-
-                                <th style={tableHead}>
-                                    Total
-                                </th>
-
-                                <th style={tableHead}>
-                                    Action
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-                        <tbody>
-
-                            {prescriptions.map((p) => {
-
-                                let total = 0;
-
-                                p.details?.forEach(d => {
-
-                                    const med =
-                                        medicines.find(
-
-                                            m =>
-                                                m.medicine_id ===
-                                                d.medicine_id
-                                        );
-
-                                    if (med) {
-
-                                        total +=
-
-                                            (
-                                                med.price *
-                                                d.quantity
-                                            );
-                                    }
-                                });
-
-                                return (
-
-                                    <tr
-                                        key={
-                                            p.prescription_id
-                                        }
-                                    >
-
-                                        <td style={tableData}>
-                                            {
-                                                p.patient_name
-                                            }
-                                        </td>
-
-                                        <td style={tableData}>
-                                            {
-                                                p.doctor_name
-                                            }
-                                        </td>
-
-                                        <td style={tableData}>
-
-                                            {
-                                                p.details
-                                                    ?.map(d =>
-
-                                                        `${d.medicine_name}
-                                                         (${d.quantity})`
-                                                    )
-
-                                                    .join(', ')
-                                            }
-
-                                        </td>
-
-                                        <td
-                                            style={{
-                                                ...tableData,
-
-                                                fontWeight:
-                                                    '700',
-
-                                                color:
-                                                    '#0284c7'
-                                            }}
-                                        >
-                                            Rs. {total}
-                                        </td>
-
-                                        <td style={tableData}>
-
-                                            <button
-
-                                                onClick={() =>
-
-                                                    issueMedicine(
-                                                        p.prescription_id
-                                                    )
+                        <p>
+                            Remaining:
+                            <strong>
+                                {' '}
+                                {med.quantity}
+                            </strong>
+                        </p>
 
                                                 }
 
@@ -747,142 +779,240 @@ export default function PharmacistDashboard() {
 
                     </table>
 
-                </div>
+                ))}
 
             </div>
+            <input
+                placeholder='Search medicine...'
+                value={search}
+                onChange={(e) =>
+                    setSearch(e.target.value)
+                }
+                style={{
+                    ...inputStyle,
+                    marginBottom: '20px',
+                    width: '300px'
+                }}
+            />
 
-            {/* INVENTORY */}
+            {/* INVENTORY TABLE */}
 
             <div style={panelStyle}>
 
                 <h2 style={sectionTitle}>
-                    📦 Medicine Inventory
+                    📦 Inventory Table
                 </h2>
 
-                <div style={{ overflowX: 'auto' }}>
+                <table style={tableStyle}>
 
-                    <table style={tableStyle}>
+                    <thead>
 
-                        <thead>
+                        <tr style={tableHeaderRow}>
+                            <th style={tableHead}>
+                                ID
+                            </th>
 
-                            <tr style={tableHeaderRow}>
+                            <th style={tableHead}>
+                                Medicine
+                            </th>
 
-                                <th style={tableHead}>
-                                    ID
-                                </th>
+                            <th style={tableHead}>
+                                Quantity
+                            </th>
 
-                                <th style={tableHead}>
-                                    Medicine
-                                </th>
+                            <th style={tableHead}>
+                                Price
+                            </th>
 
-                                <th style={tableHead}>
-                                    Quantity
-                                </th>
+                            <th style={tableHead}>
+                                Used
+                            </th>
 
-                                <th style={tableHead}>
-                                    Price
-                                </th>
+                            <th style={tableHead}>
+                                Action
+                            </th>
+                        </tr>
 
-                                <th style={tableHead}>
-                                    Status
-                                </th>
+                    </thead>
 
-                                <th style={tableHead}>
-                                    Action
-                                </th>
+                    <tbody>
+
+                        {filteredMedicines.map(med => (
+
+                            <tr
+                                key={med.medicine_id}
+                            >
+
+                                <td style={tableData}>
+                                    {med.medicine_id}
+                                </td>
+
+                                <td style={tableData}>
+                                    {med.name}
+                                </td>
+
+                                <td style={tableData}>
+
+                                    <span
+                                        style={{
+                                            padding: '6px 12px',
+                                            borderRadius: '30px',
+                                            background:
+
+                                                med.quantity < 10
+                                                    ? '#fee2e2'
+                                                    : '#dcfce7',
+
+                                            color:
+
+                                                med.quantity < 10
+                                                    ? '#dc2626'
+                                                    : '#166534',
+
+                                            fontWeight: '600'
+                                        }}
+                                    >
+                                        {med.quantity}
+                                    </span>
+
+                                </td>
+
+                                <td style={tableData}>
+                                    Rs.
+                                    {med.price}
+                                </td>
+
+                                <td style={tableData}>
+                                    {
+                                        med.total_used
+                                    }
+                                </td>
+
+                                <td style={tableData}>
+
+                                    <button
+                                        onClick={() =>
+                                            updateStock(
+                                                med.medicine_id,
+                                                med.quantity
+                                            )
+                                        }
+                                        style={{
+                                            padding:
+                                                '10px 14px',
+                                            border:
+                                                'none',
+                                            borderRadius:
+                                                '10px',
+                                            background:
+                                                '#0284c7',
+                                            color:
+                                                'white',
+                                            cursor:
+                                                'pointer'
+                                        }}
+                                    >
+                                        Update
+                                    </button>
+
+                                    <button
+                                        onClick={() =>
+                                            deleteMedicine(
+                                                med.medicine_id
+                                            )
+                                        }
+                                        style={{
+                                            padding: '10px 14px',
+                                            border: 'none',
+                                            borderRadius: '10px',
+                                            background: '#dc2626',
+                                            color: 'white',
+                                            cursor: 'pointer',
+                                            marginLeft: '10px'
+                                        }}
+                                    >
+                                        Delete
+                                    </button>
+
+                                </td>
 
                             </tr>
 
-                        </thead>
+                        ))}
 
-                        <tbody>
+                    </tbody>
 
-                            {medicines.map((med) => {
+                </table>
 
-                                const lowStock =
-                                    Number(med.quantity) < 10;
+            </div>
 
-                                return (
+            {/* ISSUE HISTORY */}
 
-                                    <tr
-                                        key={
-                                            med.medicine_id
-                                        }
-                                    >
+            <div
+                style={{
+                    ...panelStyle,
+                    marginTop: '30px'
+                }}
+            >
 
-                                        <td style={tableData}>
-                                            {
-                                                med.medicine_id
-                                            }
-                                        </td>
+                <h2 style={sectionTitle}>
+                    📜 Medicine Issue History
+                </h2>
 
-                                        <td style={tableData}>
-                                            {med.name}
-                                        </td>
+                <table style={tableStyle}>
 
-                                        <td
-                                            style={{
-                                                ...tableData,
+                    <thead>
 
-                                                color:
-                                                    lowStock
-                                                        ? '#dc2626'
-                                                        : '#16a34a',
+                        <tr style={tableHeaderRow}>
 
-                                                fontWeight:
-                                                    '700'
-                                            }}
-                                        >
-                                            {med.quantity}
-                                        </td>
+                            <th style={tableHead}>
+                                Medicine
+                            </th>
 
-                                        <td style={tableData}>
-                                            Rs. {med.price}
-                                        </td>
+                            <th style={tableHead}>
+                                Quantity
+                            </th>
 
-                                        <td style={tableData}>
+                            <th style={tableHead}>
+                                Issued Date
+                            </th>
 
-                                            {lowStock
-                                                ? '⚠️ Low Stock'
-                                                : '✅ Available'}
+                        </tr>
 
-                                        </td>
+                    </thead>
 
-                                        <td style={tableData}>
+                    <tbody>
 
-                                            <button
-                                                onClick={() =>
+                        {issueHistory.map(issue => (
 
-                                                    updateStock(
+                            <tr key={issue.issue_id}>
 
-                                                        med.medicine_id,
+                                <td style={tableData}>
+                                    {issue.name}
+                                </td>
 
-                                                        med.quantity
-                                                    )
+                                <td style={tableData}>
+                                    {issue.quantity}
+                                </td>
 
-                                                }
+                                <td style={tableData}>
+                                    {new Date(
+                                        issue.issued_date
+                                    ).toLocaleDateString()}
+                                </td>
 
-                                                style={updateBtnStyle}
-                                            >
-                                                Update Stock
-                                            </button>
+                            </tr>
 
-                                        </td>
+                        ))}
 
-                                    </tr>
+                    </tbody>
 
-                                );
-                            })}
-
-                        </tbody>
-
-                    </table>
-
-                </div>
+                </table>
 
             </div>
 
         </div>
+
     );
 }
 
@@ -893,29 +1023,18 @@ const cardStyle = {
     background: 'white',
 
     borderRadius: '20px',
-
-    padding: '25px',
-
-    boxShadow:
-        '0 5px 20px rgba(0,0,0,0.06)'
+    padding: '25px'
 };
 
 const cardTitle = {
 
     color: '#64748b',
-
-    fontSize: '16px',
-
     marginBottom: '15px'
 };
 
 const cardValue = {
-
-    fontSize: '42px',
-
-    fontWeight: '700',
-
-    color: '#0f172a'
+    fontSize: '38px',
+    fontWeight: '700'
 };
 
 const panelStyle = {
@@ -923,44 +1042,29 @@ const panelStyle = {
     background: 'white',
 
     borderRadius: '20px',
-
-    padding: '30px',
-
-    boxShadow:
-        '0 5px 20px rgba(0,0,0,0.06)'
+    padding: '30px'
 };
 
 const sectionTitle = {
+    marginBottom: '25px'
+};
 
-    marginBottom: '25px',
-
-    color: '#0f172a'
+const formStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '18px'
 };
 
 const inputStyle = {
-
-    width: '100%',
-
     padding: '14px',
 
     borderRadius: '12px',
-
-    border:
-        '1px solid #cbd5e1',
-
-    background: '#f8fafc',
-
-    fontSize: '15px',
-
-    outline: 'none',
-
-    boxSizing: 'border-box'
+    border: '1px solid #cbd5e1',
+    background: '#f8fafc'
 };
 
 const buttonStyle = {
-
-    padding: '15px',
-
+    padding: '14px',
     border: 'none',
 
     borderRadius: '12px',
@@ -969,9 +1073,6 @@ const buttonStyle = {
         'linear-gradient(to right, #0f766e, #0284c7)',
 
     color: 'white',
-
-    fontSize: '15px',
-
     fontWeight: '700',
 
     cursor: 'pointer'
@@ -1040,29 +1141,11 @@ const tableHeaderRow = {
 const tableHead = {
 
     padding: '16px',
-
-    textAlign: 'left',
-
-    color: '#334155',
-
-    fontSize: '15px'
+    textAlign: 'left'
 };
 
 const tableData = {
 
     padding: '16px',
-
-    borderBottom:
-        '1px solid #e2e8f0',
-
-    color: '#0f172a'
-};
-
-const emptyStyle = {
-
-    padding: '20px',
-
-    textAlign: 'center',
-
-    color: '#64748b'
+    borderBottom: '1px solid #e2e8f0'
 };

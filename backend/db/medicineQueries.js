@@ -129,7 +129,9 @@ class MedicineQueries {
     async createMedicine(
         name,
         quantity,
-        price
+        price,
+        category,
+        expiry_date
     ) {
 
         const pool =
@@ -156,33 +158,45 @@ class MedicineQueries {
                     price || 0
                 )
 
+                .input(
+                    "category",
+                    sql.VarChar,
+                    category || null
+                )
+
+                .input(
+                    "expiry_date",
+                    sql.Date,
+                    expiry_date || null
+                )
+
                 .query(`
 
-                    INSERT INTO medicines (
+    INSERT INTO medicines (
 
-                        name,
+        name,
+        quantity,
+        price,
+        category,
+        expiry_date
 
-                        quantity,
+    )
 
-                        price
+    VALUES (
 
-                    )
+        @name,
+        @quantity,
+        @price,
+        @category,
+        @expiry_date
 
-                    VALUES (
+    );
 
-                        @name,
+    SELECT
+        SCOPE_IDENTITY()
+        AS id;
 
-                        @quantity,
-
-                        @price
-
-                    );
-
-                    SELECT
-                        SCOPE_IDENTITY()
-                        AS id;
-
-                `);
+`);
 
         return result.recordset[0];
     }
@@ -316,6 +330,144 @@ class MedicineQueries {
         return await this.getMedicineById(
             medicineId
         );
+    }
+
+    // ISSUE MEDICINE
+    async issueMedicine(
+        medicineId,
+        quantity
+    ) {
+
+        const pool =
+            await getConnection();
+
+        //--------------------------------
+        // CHECK STOCK
+        //--------------------------------
+
+        const medicine =
+            await this.getMedicineById(
+                medicineId
+            );
+
+        if (!medicine) {
+
+            throw new Error(
+                'Medicine not found'
+            );
+        }
+
+        if (
+            medicine.quantity < quantity
+        ) {
+
+            throw new Error(
+                'Not enough stock'
+            );
+        }
+
+        //--------------------------------
+        // REDUCE STOCK
+        //--------------------------------
+
+        await pool.request()
+
+            .input(
+                'id',
+                sql.Int,
+                medicineId
+            )
+
+            .input(
+                'quantity',
+                sql.Int,
+                quantity
+            )
+
+            .query(`
+
+            UPDATE medicines
+
+            SET quantity =
+                quantity - @quantity
+
+            WHERE medicine_id =
+                @id
+
+        `);
+
+        //--------------------------------
+        // SAVE ISSUE HISTORY
+        //--------------------------------
+
+        await pool.request()
+
+            .input(
+                'medicine_id',
+                sql.Int,
+                medicineId
+            )
+
+            .input(
+                'quantity',
+                sql.Int,
+                quantity
+            )
+
+            .query(`
+
+            INSERT INTO medicine_issues (
+
+                medicine_id,
+                quantity
+
+            )
+
+            VALUES (
+
+                @medicine_id,
+                @quantity
+
+            )
+
+        `);
+
+        return {
+            success: true
+        };
+    }
+
+    // GET ISSUE HISTORY
+    async getIssueHistory() {
+
+        const pool =
+            await getConnection();
+
+        const result =
+            await pool.request()
+
+                .query(`
+
+                SELECT
+
+                    mi.issue_id,
+                    m.name,
+                    mi.quantity,
+                    mi.issued_date
+
+                FROM medicine_issues mi
+
+                JOIN medicines m
+
+                ON mi.medicine_id =
+                    m.medicine_id
+
+                ORDER BY
+                    mi.issue_id DESC
+
+            `);
+
+        return result.recordset;
     }
 
     // DELETE MEDICINE

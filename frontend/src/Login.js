@@ -202,7 +202,7 @@ function Login() {
                                     </svg>
                                 </div>
                                 <div style={styles.brandTextWrap}>
-                                    <div style={styles.brandName}>Integrated Hospital</div>
+                                    <div style={styles.brandName}>Medicare Hospital</div>
                                     <div style={styles.brandSub}>Management System</div>
                                 </div>
                             </div>
