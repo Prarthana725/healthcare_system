@@ -407,6 +407,31 @@ class AppointmentQueries {
 
         return result.rowsAffected;
     }
+    // GET CONSULTATION FEE
+async getDoctorConsultationFee(doctorId) {
+
+    const pool = await getConnection();
+
+    const result = await pool.request()
+
+        .input('doctorId', sql.Int, doctorId)
+
+        .query(`
+
+            SELECT consultation_fee
+
+            FROM doctors
+
+            WHERE doctor_id = @doctorId
+
+        `);
+
+    if (!result.recordset.length) {
+        return 1500;
+    }
+
+    return result.recordset[0].consultation_fee || 1500;
+}
 }
 
 module.exports =

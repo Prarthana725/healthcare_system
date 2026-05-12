@@ -492,6 +492,72 @@ class BillController {
             });
         }
     }
+    // MAKE PAYMENT
+async makePayment(req, res) {
+
+    try {
+
+        const { id } = req.params;
+
+        const {
+            amount,
+            payment_method
+        } = req.body;
+
+        //--------------------------------------------------
+        // VALIDATION
+        //--------------------------------------------------
+
+        if (!amount || Number(amount) <= 0) {
+
+            return res.status(400).json({
+
+                error: 'Valid payment amount required'
+
+            });
+        }
+
+        //--------------------------------------------------
+        // PROCESS PAYMENT
+        //--------------------------------------------------
+
+        const result =
+            await billQueries.makePayment(
+
+                id,
+
+                amount,
+
+                payment_method || 'Cash'
+
+            );
+
+        //--------------------------------------------------
+        // SUCCESS RESPONSE
+        //--------------------------------------------------
+
+        res.json({
+
+            message: 'Payment successful',
+
+            payment: result
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            'Payment Error:',
+            error.message
+        );
+
+        res.status(500).json({
+
+            error: error.message
+
+        });
+    }
+}
 }
 
 module.exports =

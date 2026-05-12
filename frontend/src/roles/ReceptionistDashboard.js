@@ -27,6 +27,7 @@ export default function ReceptionistDashboard() {
     const [doctors, setDoctors] = useState([]);
     const [bills, setBills] = useState([]);
     const [paymentMethods, setPaymentMethods] = useState({});
+    const [paymentAmounts, setPaymentAmounts] = useState({});
     
     // Search states for full pages
     const [searchPatient, setSearchPatient] = useState('');
@@ -166,22 +167,80 @@ export default function ReceptionistDashboard() {
     }
 
     async function markAsPaid(billId) {
-        try {
-            await fetch(`${API_URL}/bills/${billId}/status`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    status: 'paid',
-                    payment_method: paymentMethods[billId] || 'Cash'
-                })
-            });
-            setMessage('Payment completed ✅');
-            loadAllData();
-        } catch {
-            setMessage('Payment failed ❌');
+
+    try {
+
+        const amount =
+            paymentAmounts[billId];
+
+        if (!amount || Number(amount) <= 0) {
+
+            alert('Enter valid amount');
+
+            return;
         }
-        setTimeout(() => setMessage(''), 5000);
+
+        const res = await fetch(
+
+            `${API_URL}/bills/${billId}/pay`,
+
+            {
+
+                method: 'POST',
+
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+
+                body: JSON.stringify({
+
+                    amount,
+
+                    payment_method:
+                        paymentMethods[billId]
+                        || 'Cash'
+
+                })
+            }
+        );
+
+        const data =
+            await res.json();
+
+        if (res.ok) {
+
+            setMessage(
+                'Payment successful ✅'
+            );
+
+            setPaymentAmounts({
+                ...paymentAmounts,
+                [billId]: ''
+            });
+
+            loadAllData();
+
+        } else {
+
+            alert(
+                data.error || 'Payment failed'
+            );
+        }
+
+    } catch (err) {
+
+        console.error(err);
+
+        setMessage(
+            'Payment failed ❌'
+        );
     }
+
+    setTimeout(() =>
+        setMessage(''),
+        5000
+    );
+}
 
     function logout() {
         localStorage.clear();
@@ -359,7 +418,7 @@ export default function ReceptionistDashboard() {
                                     </div>
                                     <div style={inputWrapper}>
                                         <Calendar size={20} color="#94a3b8" style={inputIcon} />
-                                        <input type="date" value={appointmentForm.date} onChange={e => setAppointmentForm({...appointmentForm, date: e.target.value})} style={iconInput} required />
+                            <input type="date" value={appointmentForm.date} onChange={e => setAppointmentForm({...appointmentForm, date: e.target.value})} style={iconInput} required />
                                     </div>
                                     <button type="submit" style={tealBtn}>Book Appointment</button>
                                 </form>
@@ -436,24 +495,126 @@ export default function ReceptionistDashboard() {
                                                             <span style={isPaid ? statusGreenText : statusOrangeText}>{(b.status || 'Pending')}</span>
                                                         </td>
                                                         <td style={tableData}>
-                                                            {isPaid ? (
-                                                                <span style={paidBadge}>Paid</span>
-                                                            ) : (
-                                                                <div style={{ display: 'flex', gap: '8px' }}>
-                                                                    <div style={{ position: 'relative' }}>
-                                                                        <select 
-                                                                            value={paymentMethods[b.bill_id || b.id] || 'Cash'}
-                                                                            onChange={e => setPaymentMethods({...paymentMethods, [b.bill_id || b.id]: e.target.value})}
-                                                                            style={smallSelect}
-                                                                        >
-                                                                            <option value="Cash">Cash</option>
-                                                                            <option value="Card">Card</option>
-                                                                        </select>
-                                                                    </div>
-                                                                    <button onClick={() => markAsPaid(b.bill_id || b.id)} style={markPaidBtn}>Mark Paid</button>
-                                                                </div>
-                                                            )}
-                                                        </td>
+
+    {(
+        b.status || ''
+    ).toLowerCase() === 'paid' ? (
+
+        <span style={paidBadge}>
+            Paid
+        </span>
+
+    ) : (
+
+        <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px'
+        }}>
+
+            <input
+
+                type="number"
+
+                placeholder="Amount"
+
+                value={
+                    paymentAmounts[
+                        b.bill_id || b.id
+                    ] || ''
+                }
+
+                onChange={(e) =>
+                    setPaymentAmounts({
+
+                        ...paymentAmounts,
+
+                        [b.bill_id || b.id]:
+                            e.target.value
+                    })
+                }
+
+                style={amountInput}
+            />
+
+            <select
+
+                value={
+                    paymentMethods[
+                        b.bill_id || b.id
+                    ] || 'Cash'
+                }
+
+                onChange={(e) =>
+                    setPaymentMethods({
+
+                        ...paymentMethods,
+
+                        [b.bill_id || b.id]:
+                            e.target.value
+                    })
+                }
+
+                style={smallSelect}
+            >
+
+                <option value="Cash">
+                    Cash
+                </option>
+
+                <option value="Card">
+                    Card
+                </option>
+
+                <option value="Insurance">
+                    Insurance
+                </option>
+
+                <option value="Online">
+                    Online
+                </option>
+
+            </select>
+
+            <button
+
+                onClick={() =>
+                    markAsPaid(
+                        b.bill_id || b.id
+                    )
+                }
+
+                style={markPaidBtn}
+
+            >
+                Pay Now
+            </button>
+
+            <div style={{
+                fontSize: '13px',
+                color: '#16a34a',
+                fontWeight: 'bold'
+            }}>
+                Paid:
+                Rs. {b.paid_amount || 0}
+            </div>
+
+            <div style={{
+                fontSize: '13px',
+                color: '#dc2626',
+                fontWeight: 'bold'
+            }}>
+                Balance:
+                Rs. {
+                    b.balance_amount
+                    || b.total_amount
+                }
+            </div>
+
+        </div>
+    )}
+
+</td>
                                                     </tr>
                                                 );
                                             })}
@@ -668,22 +829,126 @@ export default function ReceptionistDashboard() {
                                                     <span style={isPaid ? statusGreenText : statusOrangeText}>{(b.status || 'Pending')}</span>
                                                 </td>
                                                 <td style={tableData}>
-                                                    {isPaid ? (
-                                                        <span style={paidBadge}>Paid</span>
-                                                    ) : (
-                                                        <div style={{ display: 'flex', gap: '8px' }}>
-                                                            <select 
-                                                                value={paymentMethods[b.bill_id || b.id] || 'Cash'}
-                                                                onChange={e => setPaymentMethods({...paymentMethods, [b.bill_id || b.id]: e.target.value})}
-                                                                style={smallSelect}
-                                                            >
-                                                                <option value="Cash">Cash</option>
-                                                                <option value="Card">Card</option>
-                                                            </select>
-                                                            <button onClick={() => markAsPaid(b.bill_id || b.id)} style={markPaidBtn}>Mark Paid</button>
-                                                        </div>
-                                                    )}
-                                                </td>
+
+    {(
+        b.status || ''
+    ).toLowerCase() === 'paid' ? (
+
+        <span style={paidBadge}>
+            Paid
+        </span>
+
+    ) : (
+
+        <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px'
+        }}>
+
+            <input
+
+                type="number"
+
+                placeholder="Amount"
+
+                value={
+                    paymentAmounts[
+                        b.bill_id || b.id
+                    ] || ''
+                }
+
+                onChange={(e) =>
+                    setPaymentAmounts({
+
+                        ...paymentAmounts,
+
+                        [b.bill_id || b.id]:
+                            e.target.value
+                    })
+                }
+
+                style={amountInput}
+            />
+
+            <select
+
+                value={
+                    paymentMethods[
+                        b.bill_id || b.id
+                    ] || 'Cash'
+                }
+
+                onChange={(e) =>
+                    setPaymentMethods({
+
+                        ...paymentMethods,
+
+                        [b.bill_id || b.id]:
+                            e.target.value
+                    })
+                }
+
+                style={smallSelect}
+            >
+
+                <option value="Cash">
+                    Cash
+                </option>
+
+                <option value="Card">
+                    Card
+                </option>
+
+                <option value="Insurance">
+                    Insurance
+                </option>
+
+                <option value="Online">
+                    Online
+                </option>
+
+            </select>
+
+            <button
+
+                onClick={() =>
+                    markAsPaid(
+                        b.bill_id || b.id
+                    )
+                }
+
+                style={markPaidBtn}
+
+            >
+                Pay Now
+            </button>
+
+            <div style={{
+                fontSize: '13px',
+                color: '#16a34a',
+                fontWeight: 'bold'
+            }}>
+                Paid:
+                Rs. {b.paid_amount || 0}
+            </div>
+
+            <div style={{
+                fontSize: '13px',
+                color: '#dc2626',
+                fontWeight: 'bold'
+            }}>
+                Balance:
+                Rs. {
+                    b.balance_amount
+                    || b.total_amount
+                }
+            </div>
+
+        </div>
+    )}
+
+</td>
                                             </tr>
                                         );
                                     })}
@@ -778,6 +1043,7 @@ const statusGreenText = { color: '#16a34a', fontSize: '15px', fontWeight: 'bold'
 
 const paidBadge = { border: '2px solid #16a34a', color: '#16a34a', padding: '8px 24px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', display: 'inline-block', textAlign: 'center' };
 const smallSelect = { padding: '8px 30px 8px 12px', borderRadius: '8px', border: '2px solid #cbd5e1', outline: 'none', fontSize: '14px', background: 'white', fontWeight: '600' };
+const amountInput = {padding: '10px',borderRadius: '8px',border:'2px solid #cbd5e1',outline: 'none',fontSize: '14px', width: '130px',fontWeight: '600'};
 const markPaidBtn = { padding: '8px 16px', border: 'none', borderRadius: '8px', background: '#16a34a', color: 'white', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' };
 const cancelBtnStyle = { padding: '10px 16px', background: '#fee2e2', color: '#991b1b', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', transition: '0.2s' };
 

@@ -1,8 +1,8 @@
 const appointmentQueries = require('../db/appointmentQueries');
+const billQueries = require('../db/billQueries');
 
 class AppointmentController {
 
-    // GET ALL
     async getAll(req, res) {
         try {
             const data = await appointmentQueries.getAllAppointments();
@@ -12,18 +12,21 @@ class AppointmentController {
         }
     }
 
-    // GET BY ID
     async getById(req, res) {
         try {
             const data = await appointmentQueries.getAppointmentById(req.params.id);
-            if (!data.length) return res.status(404).json({ error: "Not found" });
+
+            if (!data.length) {
+                return res.status(404).json({ error: 'Not found' });
+            }
+
             res.json(data[0]);
+
         } catch (err) {
             res.status(500).json({ error: err.message });
         }
     }
 
-    // GET BY PATIENT
     async getByPatient(req, res) {
         try {
             const data = await appointmentQueries.getAppointmentsByPatient(req.params.patientId);
@@ -33,7 +36,6 @@ class AppointmentController {
         }
     }
 
-    // GET BY DOCTOR
     async getByDoctor(req, res) {
         try {
             const data = await appointmentQueries.getAppointmentsByDoctor(req.params.doctorId);
@@ -43,30 +45,83 @@ class AppointmentController {
         }
     }
 
-    // CREATE
+    // CREATE APPOINTMENT + AUTO CONSULTATION BILL
     async create(req, res) {
+
         try {
-            const { patient_id, doctor_id, date } = req.body;
 
-            if (!patient_id || !doctor_id || !date) {
-                return res.status(400).json({ error: "Missing fields" });
-            }
-
-            const result = await appointmentQueries.createAppointment(
+            const {
                 patient_id,
                 doctor_id,
                 date
-            );
+            } = req.body;
 
-            res.status(201).json(result);
+            if (!patient_id || !doctor_id || !date) {
+                return res.status(400).json({
+                    error: 'Missing fields'
+                });
+            }
+
+            //--------------------------------------------------
+            // CREATE APPOINTMENT
+            //--------------------------------------------------
+
+            const appointment =
+                await appointmentQueries.createAppointment(
+                    patient_id,
+                    doctor_id,
+                    date
+                );
+
+            //--------------------------------------------------
+            // GET CONSULTATION FEE
+            //--------------------------------------------------
+
+            const consultationFee =
+                await appointmentQueries.getDoctorConsultationFee(
+                    doctor_id
+                );
+
+            const fee = consultationFee || 1500;
+
+            //--------------------------------------------------
+            // CREATE BILL
+            //--------------------------------------------------
+
+            const bill =
+                await billQueries.createConsultationBill(
+                    appointment.appointment_id,
+                    patient_id,
+                    doctor_id,
+                    fee
+                );
+
+            res.status(201).json({
+
+                message: 'Appointment booked successfully',
+
+                appointment,
+
+                consultation_fee: fee,
+
+                bill
+            });
+
         } catch (err) {
-            res.status(500).json({ error: err.message });
+            console.error(
+        'Appointment Create Error:',
+        err
+    );
+
+    res.status(500).json({
+        error: err.message
+    });
         }
     }
 
-    // UPDATE
     async update(req, res) {
         try {
+
             await appointmentQueries.updateAppointment(
                 req.params.id,
                 req.body.patient_id,
@@ -74,31 +129,43 @@ class AppointmentController {
                 req.body.date
             );
 
-            res.json({ message: "Updated successfully" });
+            res.json({
+                message: 'Updated successfully'
+            });
+
         } catch (err) {
             res.status(500).json({ error: err.message });
         }
     }
 
-    // UPDATE STATUS
     async updateStatus(req, res) {
+
         try {
+
             await appointmentQueries.updateAppointmentStatus(
                 req.params.id,
                 req.body.status
             );
 
-            res.json({ message: "Status updated" });
+            res.json({
+                message: 'Status updated'
+            });
+
         } catch (err) {
             res.status(500).json({ error: err.message });
         }
     }
 
-    // DELETE
     async delete(req, res) {
+
         try {
+
             await appointmentQueries.deleteAppointment(req.params.id);
-            res.json({ message: "Deleted successfully" });
+
+            res.json({
+                message: 'Deleted successfully'
+            });
+
         } catch (err) {
             res.status(500).json({ error: err.message });
         }
