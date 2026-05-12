@@ -566,6 +566,474 @@ class BillQueries {
 
         return result.recordset[0];
     }
+    // CREATE CONSULTATION BILL
+async createConsultationBill(
+    appointmentId,
+    patientId,
+    doctorId,
+    consultationFee
+) {
+
+    const pool = await getConnection();
+
+    //--------------------------------------------------
+    // TAX
+    //--------------------------------------------------
+
+    const tax = consultationFee * 0.05;
+
+    const grandTotal =
+        consultationFee + tax;
+
+    //--------------------------------------------------
+    // CREATE BILL
+    //--------------------------------------------------
+
+    const billResult =
+        await pool.request()
+
+            .input('appointment_id', sql.Int, appointmentId)
+            .input('patient_id', sql.Int, patientId)
+            .input('doctor_id', sql.Int, doctorId)
+            .input('subtotal', sql.Decimal(10,2), consultationFee)
+            .input('tax', sql.Decimal(10,2), tax)
+            .input('total_amount', sql.Decimal(10,2), grandTotal)
+
+            .query(`
+
+                INSERT INTO bills (
+
+                    appointment_id,
+                    patient_id,
+                    doctor_id,
+                    subtotal,
+                    tax,
+                    total_amount,
+                    paid_amount,
+                    balance_amount,
+                    payment_status,
+                    payment_method,
+                    status,
+                    bill_date
+
+                )
+
+                OUTPUT INSERTED.bill_id
+
+                VALUES (
+
+                    @appointment_id,
+                    @patient_id,
+                    @doctor_id,
+                    @subtotal,
+                    @tax,
+                    @total_amount,
+                    0,
+                    @total_amount,
+                    'pending',
+                    'Pending',
+                    'pending',
+                    GETDATE()
+
+                )
+
+            `);
+
+    const billId =
+        billResult.recordset[0].bill_id;
+
+    //--------------------------------------------------
+    // BILL ITEM
+    //--------------------------------------------------
+
+    await pool.request()
+
+        .input('bill_id', sql.Int, billId)
+        .input('item_name', sql.VarChar, 'Doctor Consultation Fee')
+        .input('quantity', sql.Int, 1)
+        .input('unit_price', sql.Decimal(10,2), consultationFee)
+        .input('total_price', sql.Decimal(10,2), consultationFee)
+
+        .query(`
+
+            INSERT INTO bill_items (
+
+                bill_id,
+                item_name,
+                quantity,
+                unit_price,
+                total_price
+
+            )
+
+            VALUES (
+
+                @bill_id,
+                @item_name,
+                @quantity,
+                @unit_price,
+                @total_price
+
+            )
+
+        `);
+
+    return {
+        bill_id: billId,
+        total_amount: grandTotal
+    };
+}
+
+//--------------------------------------------------
+// PARTIAL PAYMENT
+//--------------------------------------------------
+
+async makePayment(
+    billId,
+    amount,
+    paymentMethod
+) {
+
+    const pool = await getConnection();
+
+    //--------------------------------------------------
+    // GET BILL
+    //--------------------------------------------------
+
+    const billResult =
+        await pool.request()
+
+            .input('bill_id', sql.Int, billId)
+
+            .query(`
+
+                SELECT *
+                FROM bills
+                WHERE bill_id = @bill_id
+
+            `);
+
+    if (!billResult.recordset.length) {
+        throw new Error('Bill not found');
+    }
+
+    const bill = billResult.recordset[0];
+
+    const newPaid =
+        Number(bill.paid_amount || 0)
+        + Number(amount);
+
+    const balance =
+        Number(bill.total_amount)
+        - Number(newPaid);
+
+    let paymentStatus = 'partial';
+
+    if (balance <= 0) {
+        paymentStatus = 'paid';
+    }
+
+    //--------------------------------------------------
+    // UPDATE BILL
+    //--------------------------------------------------
+
+    await pool.request()
+
+        .input('bill_id', sql.Int, billId)
+        .input('paid_amount', sql.Decimal(10,2), newPaid)
+        .input('balance_amount', sql.Decimal(10,2), balance)
+        .input('payment_status', sql.VarChar, paymentStatus)
+        .input('payment_method', sql.VarChar, paymentMethod)
+
+        .query(`
+
+            UPDATE bills
+
+            SET
+
+                paid_amount = @paid_amount,
+                balance_amount = @balance_amount,
+                payment_status = @payment_status,
+                payment_method = @payment_method,
+                status = @payment_status
+
+            WHERE bill_id = @bill_id
+
+        `);
+
+    //--------------------------------------------------
+    // PAYMENT HISTORY
+    //--------------------------------------------------
+
+    await pool.request()
+
+        .input('bill_id', sql.Int, billId)
+        .input('amount', sql.Decimal(10,2), amount)
+        .input('payment_method', sql.VarChar, paymentMethod)
+
+        .query(`
+
+            INSERT INTO payments (
+
+                bill_id,
+                amount,
+                payment_method,
+                payment_date
+
+            )
+
+            VALUES (
+
+                @bill_id,
+                @amount,
+                @payment_method,
+                GETDATE()
+
+            )
+
+        `);
+
+    return {
+        success: true,
+        paid_amount: newPaid,
+        balance_amount: balance,
+        payment_status: paymentStatus
+    };
+}
+// CREATE CONSULTATION BILL
+async createConsultationBill(
+    appointmentId,
+    patientId,
+    doctorId,
+    consultationFee
+) {
+
+    const pool = await getConnection();
+
+    //--------------------------------------------------
+    // TAX
+    //--------------------------------------------------
+
+    const tax = consultationFee * 0.05;
+
+    const grandTotal =
+        consultationFee + tax;
+
+    //--------------------------------------------------
+    // CREATE BILL
+    //--------------------------------------------------
+
+    const billResult =
+        await pool.request()
+
+            .input('appointment_id', sql.Int, appointmentId)
+            .input('patient_id', sql.Int, patientId)
+            .input('doctor_id', sql.Int, doctorId)
+            .input('subtotal', sql.Decimal(10,2), consultationFee)
+            .input('tax', sql.Decimal(10,2), tax)
+            .input('total_amount', sql.Decimal(10,2), grandTotal)
+
+            .query(`
+
+                INSERT INTO bills (
+
+                    appointment_id,
+                    patient_id,
+                    doctor_id,
+                    subtotal,
+                    tax,
+                    total_amount,
+                    paid_amount,
+                    balance_amount,
+                    payment_status,
+                    payment_method,
+                    status,
+                    bill_date
+
+                )
+
+                OUTPUT INSERTED.bill_id
+
+                VALUES (
+
+                    @appointment_id,
+                    @patient_id,
+                    @doctor_id,
+                    @subtotal,
+                    @tax,
+                    @total_amount,
+                    0,
+                    @total_amount,
+                    'pending',
+                    'Pending',
+                    'pending',
+                    GETDATE()
+
+                )
+
+            `);
+
+    const billId =
+        billResult.recordset[0].bill_id;
+
+    //--------------------------------------------------
+    // BILL ITEM
+    //--------------------------------------------------
+
+    await pool.request()
+
+        .input('bill_id', sql.Int, billId)
+        .input('item_name', sql.VarChar, 'Doctor Consultation Fee')
+        .input('quantity', sql.Int, 1)
+        .input('unit_price', sql.Decimal(10,2), consultationFee)
+        .input('total_price', sql.Decimal(10,2), consultationFee)
+
+        .query(`
+
+            INSERT INTO bill_items (
+
+                bill_id,
+                item_name,
+                quantity,
+                unit_price,
+                total_price
+
+            )
+
+            VALUES (
+
+                @bill_id,
+                @item_name,
+                @quantity,
+                @unit_price,
+                @total_price
+
+            )
+
+        `);
+
+    return {
+        bill_id: billId,
+        total_amount: grandTotal
+    };
+}
+
+//--------------------------------------------------
+// PARTIAL PAYMENT
+//--------------------------------------------------
+
+async makePayment(
+    billId,
+    amount,
+    paymentMethod
+) {
+
+    const pool = await getConnection();
+
+    //--------------------------------------------------
+    // GET BILL
+    //--------------------------------------------------
+
+    const billResult =
+        await pool.request()
+
+            .input('bill_id', sql.Int, billId)
+
+            .query(`
+
+                SELECT *
+                FROM bills
+                WHERE bill_id = @bill_id
+
+            `);
+
+    if (!billResult.recordset.length) {
+        throw new Error('Bill not found');
+    }
+
+    const bill = billResult.recordset[0];
+
+    const newPaid =
+        Number(bill.paid_amount || 0)
+        + Number(amount);
+
+    const balance =
+        Number(bill.total_amount)
+        - Number(newPaid);
+
+    let paymentStatus = 'partial';
+
+    if (balance <= 0) {
+        paymentStatus = 'paid';
+    }
+
+    //--------------------------------------------------
+    // UPDATE BILL
+    //--------------------------------------------------
+
+    await pool.request()
+
+        .input('bill_id', sql.Int, billId)
+        .input('paid_amount', sql.Decimal(10,2), newPaid)
+        .input('balance_amount', sql.Decimal(10,2), balance)
+        .input('payment_status', sql.VarChar, paymentStatus)
+        .input('payment_method', sql.VarChar, paymentMethod)
+
+        .query(`
+
+            UPDATE bills
+
+            SET
+
+                paid_amount = @paid_amount,
+                balance_amount = @balance_amount,
+                payment_status = @payment_status,
+                payment_method = @payment_method,
+                status = @payment_status
+
+            WHERE bill_id = @bill_id
+
+        `);
+
+    //--------------------------------------------------
+    // PAYMENT HISTORY
+    //--------------------------------------------------
+
+    await pool.request()
+
+        .input('bill_id', sql.Int, billId)
+        .input('amount', sql.Decimal(10,2), amount)
+        .input('payment_method', sql.VarChar, paymentMethod)
+
+        .query(`
+
+            INSERT INTO payments (
+
+                bill_id,
+                amount,
+                payment_method,
+                payment_date
+
+            )
+
+            VALUES (
+
+                @bill_id,
+                @amount,
+                @payment_method,
+                GETDATE()
+
+            )
+
+        `);
+
+    return {
+        success: true,
+        paid_amount: newPaid,
+        balance_amount: balance,
+        payment_status: paymentStatus
+    };
+}
 }
 
 module.exports =
