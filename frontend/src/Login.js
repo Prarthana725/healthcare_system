@@ -11,7 +11,7 @@ function Login() {
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [rememberMe, setRememberMe] = useState(false);
-    
+
     // --- 2. NEW Password Reset States ---
     const [view, setView] = useState('login'); // 'login', 'forgot', 'verify', 'reset'
     const [resetEmail, setResetEmail] = useState('');
@@ -36,12 +36,12 @@ function Login() {
             if (!res.ok) { setError(data.error || 'Login failed'); setLoading(false); return; }
             localStorage.setItem('user', JSON.stringify(data.user));
             switch (data.user.role) {
-                case 'Admin':         navigate('/admin-dashboard'); break;
-                case 'Doctor':        navigate('/doctor-panel'); break;
-                case 'Pharmacist':    navigate('/inventory'); break;
-                case 'Receptionist':  navigate('/receptionist-dashboard'); break;
-                case 'Patient':       navigate('/patient-dashboard'); break;
-                default:              navigate('/');
+                case 'Admin': navigate('/admin-dashboard'); break;
+                case 'Doctor': navigate('/doctor-panel'); break;
+                case 'Pharmacist': navigate('/inventory'); break;
+                case 'Receptionist': navigate('/receptionist-dashboard'); break;
+                case 'Patient': navigate('/patient-dashboard'); break;
+                default: navigate('/');
             }
         } catch (err) {
             setError('Server error. Please try again.');
@@ -69,7 +69,7 @@ function Login() {
 
             const data = await res.json();
             if (!res.ok) throw new Error(data.error);
-            
+
             setSuccess('OTP sent to your email!');
             setView('verify');
         } catch (err) {
@@ -92,7 +92,7 @@ function Login() {
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error);
-            
+
             setSuccess('OTP Verified!');
             setView('reset');
         } catch (err) {
@@ -115,7 +115,7 @@ function Login() {
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error);
-            
+
             setSuccess('Password updated! You can now sign in.');
             setTimeout(() => {
                 setView('login');
@@ -196,9 +196,9 @@ function Login() {
                                 <div style={styles.brandIcon}>
                                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                                         <path d="M12 2L2 7v10l10 5 10-5V7L12 2z"
-                                            fill="rgba(255,255,255,0.15)" stroke="white" strokeWidth="1.5"/>
+                                            fill="rgba(255,255,255,0.15)" stroke="white" strokeWidth="1.5" />
                                         <path d="M12 8v8M8 12h8"
-                                            stroke="white" strokeWidth="2" strokeLinecap="round"/>
+                                            stroke="white" strokeWidth="2" strokeLinecap="round" />
                                     </svg>
                                 </div>
                                 <div style={styles.brandTextWrap}>
@@ -225,24 +225,24 @@ function Login() {
                             <div style={styles.features}>
                                 {[
                                     {
-                                        icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="white" strokeWidth="2" strokeLinecap="round"/><circle cx="9" cy="7" r="4" stroke="white" strokeWidth="2"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg>,
+                                        icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="white" strokeWidth="2" strokeLinecap="round" /><circle cx="9" cy="7" r="4" stroke="white" strokeWidth="2" /><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="white" strokeWidth="2" strokeLinecap="round" /></svg>,
                                         title: 'Smart Patient Management',
-                                        desc:  'Efficient and seamless patient management'
+                                        desc: 'Efficient and seamless patient management'
                                     },
                                     {
-                                        icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2"/><path d="M12 8v4l3 3" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg>,
+                                        icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2" /><path d="M12 8v4l3 3" stroke="white" strokeWidth="2" strokeLinecap="round" /></svg>,
                                         title: 'Doctor Workflow System',
-                                        desc:  'Streamlined workflow for better care'
+                                        desc: 'Streamlined workflow for better care'
                                     },
                                     {
-                                        icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-4" stroke="white" strokeWidth="2" strokeLinecap="round"/><path d="M9 3a3 3 0 0 1 6 0v1H9V3z" stroke="white" strokeWidth="2"/><path d="M9 12h6M9 16h4" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg>,
+                                        icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-4" stroke="white" strokeWidth="2" strokeLinecap="round" /><path d="M9 3a3 3 0 0 1 6 0v1H9V3z" stroke="white" strokeWidth="2" /><path d="M9 12h6M9 16h4" stroke="white" strokeWidth="2" strokeLinecap="round" /></svg>,
                                         title: 'Pharmacy Automation',
-                                        desc:  'Automated pharmacy & inventory management'
+                                        desc: 'Automated pharmacy & inventory management'
                                     },
                                     {
-                                        icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><line x1="18" y1="20" x2="18" y2="10" stroke="white" strokeWidth="2" strokeLinecap="round"/><line x1="12" y1="20" x2="12" y2="4" stroke="white" strokeWidth="2" strokeLinecap="round"/><line x1="6" y1="20" x2="6" y2="14" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg>,
+                                        icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><line x1="18" y1="20" x2="18" y2="10" stroke="white" strokeWidth="2" strokeLinecap="round" /><line x1="12" y1="20" x2="12" y2="4" stroke="white" strokeWidth="2" strokeLinecap="round" /><line x1="6" y1="20" x2="6" y2="14" stroke="white" strokeWidth="2" strokeLinecap="round" /></svg>,
                                         title: 'Billing & Reports',
-                                        desc:  'Accurate billing with detailed reports'
+                                        desc: 'Accurate billing with detailed reports'
                                     }
                                 ].map((f, i) => (
                                     <div key={i} className="feature-card" style={styles.featureCard}>
@@ -265,9 +265,9 @@ function Login() {
                             <div style={styles.shieldWrap}>
                                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
                                     <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6l-8-4z"
-                                        fill="rgba(20,184,166,0.25)" stroke="#2dd4bf" strokeWidth="1.8"/>
+                                        fill="rgba(20,184,166,0.25)" stroke="#2dd4bf" strokeWidth="1.8" />
                                     <path d="M9 12l2 2 4-4" stroke="white" strokeWidth="2"
-                                        strokeLinecap="round" strokeLinejoin="round"/>
+                                        strokeLinecap="round" strokeLinejoin="round" />
                                 </svg>
                             </div>
 
@@ -291,8 +291,8 @@ function Login() {
                                     <div style={styles.inputWrap}>
                                         <span style={styles.inputIcon}>
                                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                                                <circle cx="12" cy="8" r="4" stroke="#2dd4bf" strokeWidth="2"/>
-                                                <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#2dd4bf" strokeWidth="2" strokeLinecap="round"/>
+                                                <circle cx="12" cy="8" r="4" stroke="#2dd4bf" strokeWidth="2" />
+                                                <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#2dd4bf" strokeWidth="2" strokeLinecap="round" />
                                             </svg>
                                         </span>
                                         <input
@@ -309,8 +309,8 @@ function Login() {
                                     <div style={styles.inputWrap}>
                                         <span style={styles.inputIcon}>
                                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                                                <rect x="3" y="11" width="18" height="11" rx="2" stroke="#2dd4bf" strokeWidth="2"/>
-                                                <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="#2dd4bf" strokeWidth="2" strokeLinecap="round"/>
+                                                <rect x="3" y="11" width="18" height="11" rx="2" stroke="#2dd4bf" strokeWidth="2" />
+                                                <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="#2dd4bf" strokeWidth="2" strokeLinecap="round" />
                                             </svg>
                                         </span>
                                         <input
@@ -327,14 +327,14 @@ function Login() {
                                             style={styles.eyeBtn}>
                                             {showPassword ? (
                                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                                                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                                                    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                                                    <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                                                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                                                    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                                                    <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                                                 </svg>
                                             ) : (
                                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" strokeWidth="2"/>
-                                                    <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2"/>
+                                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" strokeWidth="2" />
+                                                    <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
                                                 </svg>
                                             )}
                                         </button>
@@ -344,7 +344,7 @@ function Login() {
                                         <label style={styles.rememberLabel}>
                                             <input type="checkbox" checked={rememberMe}
                                                 onChange={(e) => setRememberMe(e.target.checked)}
-                                                style={styles.checkbox}/>
+                                                style={styles.checkbox} />
                                             <span style={{ color: '#cbd5e1', fontSize: '14px' }}>Remember me</span>
                                         </label>
 
@@ -359,8 +359,10 @@ function Login() {
                                     </div>
 
                                     <button type="submit" disabled={loading} className="signin-btn"
-                                        style={{ ...styles.button, opacity: loading ? 0.75 : 1,
-                                            cursor: loading ? 'not-allowed' : 'pointer' }}>
+                                        style={{
+                                            ...styles.button, opacity: loading ? 0.75 : 1,
+                                            cursor: loading ? 'not-allowed' : 'pointer'
+                                        }}>
                                         {loading ? 'Signing In...' : <>Sign In &nbsp;→</>}
                                     </button>
                                 </form>
@@ -372,8 +374,8 @@ function Login() {
                                     <div style={styles.inputWrap}>
                                         <span style={styles.inputIcon}>
                                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="#2dd4bf" strokeWidth="2"/>
-                                                <polyline points="22,6 12,13 2,6" stroke="#2dd4bf" strokeWidth="2"/>
+                                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="#2dd4bf" strokeWidth="2" />
+                                                <polyline points="22,6 12,13 2,6" stroke="#2dd4bf" strokeWidth="2" />
                                             </svg>
                                         </span>
                                         <input
@@ -403,7 +405,7 @@ function Login() {
                                     <div style={styles.inputWrap}>
                                         <span style={styles.inputIcon}>
                                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                                                <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" stroke="#2dd4bf" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                                <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" stroke="#2dd4bf" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                             </svg>
                                         </span>
                                         <input
@@ -433,8 +435,8 @@ function Login() {
                                     <div style={styles.inputWrap}>
                                         <span style={styles.inputIcon}>
                                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                                                <rect x="3" y="11" width="18" height="11" rx="2" stroke="#2dd4bf" strokeWidth="2"/>
-                                                <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="#2dd4bf" strokeWidth="2" strokeLinecap="round"/>
+                                                <rect x="3" y="11" width="18" height="11" rx="2" stroke="#2dd4bf" strokeWidth="2" />
+                                                <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="#2dd4bf" strokeWidth="2" strokeLinecap="round" />
                                             </svg>
                                         </span>
                                         <input
@@ -458,7 +460,7 @@ function Login() {
                             {success && <div style={styles.success}>{success}</div>}
 
                             <div style={styles.footer}>
-                                © 2026 Integrated Hospital Management System<br/>
+                                © 2026 Integrated Hospital Management System<br />
                                 <span style={{ opacity: 0.7 }}>All rights reserved.</span>
                             </div>
 
