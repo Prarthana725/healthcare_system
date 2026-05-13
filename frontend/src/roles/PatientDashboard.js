@@ -580,73 +580,479 @@ export default function PatientDashboard() {
 // --------------------------------------------------
 // UPGRADED STYLES 
 // --------------------------------------------------
-const pageLayout = { display: 'flex', minHeight: '100vh', background: '#f8fafc', fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" };
-const centerStyle = { minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#f8fafc', fontFamily: "'Segoe UI', sans-serif" };
+const pageLayout = {
+    display: 'flex',
+    minHeight: '100vh',
+    fontFamily: "'Segoe UI', sans-serif",
+    background: '#f8fafc'
+};
 
-const sidebarStyle = { width: '300px', background: '#0f172a', color: 'white', display: 'flex', flexDirection: 'column' };
-const sidebarHeader = { padding: '30px 25px', display: 'flex', alignItems: 'center', gap: '18px', borderBottom: '1px solid rgba(255,255,255,0.05)' };
-const sidebarLogo = { background: '#0ea5e9', width: '48px', height: '48px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' };
-const sidebarTitle = { fontSize: '18px', fontWeight: 'bold', letterSpacing: '0.5px' };
-const sidebarSub = { fontSize: '14px', color: '#94a3b8', marginTop: '4px' };
-const sidebarNav = { padding: '25px 20px', display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 };
-const navItem = { display: 'flex', alignItems: 'center', gap: '18px', padding: '16px 20px', borderRadius: '12px', color: '#cbd5e1', cursor: 'pointer', fontSize: '17px', transition: '0.2s', fontWeight: '600' };
-const activeNavItem = { ...navItem, background: 'linear-gradient(to right, #0ea5e9, #0284c7)', color: 'white', fontWeight: 'bold' };
-const sidebarProfileSection = { padding: '25px', borderTop: '1px solid rgba(255,255,255,0.05)' };
-const profileInfo = { display: 'flex', alignItems: 'center', gap: '18px', marginBottom: '25px' };
-const profileAvatar = { width: '55px', height: '55px', background: '#7e22ce', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', fontWeight: 'bold' };
-const profileName = { fontSize: '16px', fontWeight: 'bold' };
-const profileRole = { fontSize: '14px', color: '#94a3b8', marginTop: '4px' };
-const sidebarLogoutBtn = { width: '100%', padding: '14px', background: 'transparent', border: '2px solid rgba(255,255,255,0.1)', color: 'white', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold', transition: '0.2s' };
+const centerStyle = {
+    minHeight: '100vh',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    background: '#f8fafc'
+};
 
-const mainContentStyle = { flex: 1, padding: '50px', overflowY: 'auto' };
+// SIDEBAR
 
-const bannerStyle = { position: 'relative', background: 'linear-gradient(to right, #0f766e, #0284c7)', borderRadius: '20px', padding: '45px 50px', color: 'white', marginBottom: '40px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', overflow: 'hidden' };
-const bannerDecoration = { position: 'absolute', right: '60px', top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center' };
-const shieldShape = { width: '100px', height: '110px', background: 'white', borderRadius: '15px 15px 50px 50px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 15px 25px rgba(0,0,0,0.15)' };
-const heartShape = { position: 'absolute', bottom: '-10px', right: '-15px', fontSize: '38px', background: '#fecdd3', borderRadius: '50%', padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' };
+const sidebarStyle = {
+    width: 250,
+    background: '#0d1f2d',
+    color: 'white',
+    display: 'flex',
+    flexDirection: 'column',
+    padding: '28px 0',
+    flexShrink: 0,
+    position: 'sticky',
+    top: 0,
+    height: '100vh'
+};
 
-const statsGrid = { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '25px', marginBottom: '50px' };
-const statsCard = { background: 'white', padding: '30px', borderRadius: '20px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '25px', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' };
-const iconBox = { width: '64px', height: '64px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' };
-const statLabel = { fontSize: '14px', color: '#64748b', fontWeight: 'bold', letterSpacing: '1px' };
-const statValue = { fontSize: '48px', fontWeight: '900', color: '#0f172a', margin: '8px 0' };
-const statSub = { fontSize: '15px', color: '#94a3b8' };
+const sidebarHeader = {
+    padding: '0 24px 32px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 12
+};
 
-const sectionHeader = { display: 'flex', alignItems: 'flex-start', gap: '18px', marginBottom: '25px' };
-const sectionTitle = { margin: 0, fontSize: '24px', fontWeight: '900', color: '#0f172a' };
-const sectionSub = { margin: '8px 0 0 0', fontSize: '16px', color: '#64748b' };
+const sidebarLogo = {
+    width: 42,
+    height: 42,
+    borderRadius: 10,
+    background: 'linear-gradient(135deg, #0d9488, #0284c7)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+};
 
-const infoGrid = { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '25px' };
-const infoBox = { background: 'white', padding: '30px', borderRadius: '20px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' };
-const infoLabel = { color: '#64748b', fontSize: '14px', fontWeight: 'bold', letterSpacing: '1px', margin: '0 0 12px 0' };
-const infoValue = { fontSize: '22px', fontWeight: 'bold', color: '#0f172a', margin: 0 };
+const sidebarTitle = {
+    fontWeight: 700,
+    fontSize: 15,
+    lineHeight: 1.2
+};
 
-const quickActionsContainer = { display: 'flex', flexDirection: 'column', gap: '16px', background: 'white', padding: '30px', borderRadius: '20px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' };
-const actionRow = { display: 'flex', alignItems: 'center', gap: '25px', padding: '20px', borderRadius: '16px', cursor: 'pointer', transition: 'background 0.2s', border: '1px solid #f1f5f9' };
-const actionIcon = { width: '56px', height: '56px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' };
-const actionText = { flex: 1 };
-const actionTitle = { fontSize: '18px', fontWeight: 'bold', color: '#0f172a', marginBottom: '6px' };
-const actionSub = { fontSize: '15px', color: '#64748b' };
+const sidebarSub = {
+    fontSize: 12,
+    opacity: 0.6,
+    marginTop: 4
+};
 
-const contentCard = { background: 'white', padding: '45px', borderRadius: '20px', border: '1px solid #e2e8f0', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.05)' };
-const cardTitle = { margin: '0 0 35px 0', fontSize: '26px', fontWeight: '900', color: '#0f172a' };
-const emptyText = { color: '#64748b', fontSize: '16px' };
+const sidebarNav = {
+    flex: 1,
+    padding: '0 16px'
+};
 
-const tableStyle = { width: '100%', borderCollapse: 'collapse' };
-const tableHeaderRow = { borderBottom: '3px solid #e2e8f0' };
-const tableHead = { padding: '18px 12px', color: '#475569', fontSize: '15px', fontWeight: '800', textTransform: 'uppercase', textAlign: 'left', letterSpacing: '0.5px' };
-const tableData = { padding: '20px 12px', borderBottom: '1px solid #f1f5f9', color: '#1e293b', fontSize: '16px', fontWeight: '500' };
-const statusBadge = { background: '#dcfce7', color: '#166534', padding: '8px 16px', borderRadius: '30px', fontSize: '14px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' };
-const cancelBtnStyle = { padding: '10px 18px', background: '#fee2e2', color: '#991b1b', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', transition: '0.2s' };
-const payBtnStyle = { padding: '10px 20px', background: '#0f172a', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' };
+const navItem = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 12,
+    padding: '12px 16px',
+    borderRadius: 10,
+    color: 'rgba(255,255,255,0.7)',
+    cursor: 'pointer',
+    fontWeight: 500,
+    fontSize: 15,
+    marginBottom: 6,
+    transition: '0.2s'
+};
 
-const formContainer = { display: 'flex', flexDirection: 'column', gap: '25px', maxWidth: '600px' };
-const formLabel = { display: 'block', fontSize: '16px', fontWeight: 'bold', color: '#0f172a', marginBottom: '10px' };
+const activeNavItem = {
+    ...navItem,
+    background: 'linear-gradient(135deg, #0d9488, #0284c7)',
+    color: 'white'
+};
 
-const searchWrapper = { position: 'relative', display: 'flex', alignItems: 'center' };
-const searchIcon = { position: 'absolute', left: '16px' };
-const searchInputStyle = { width: '100%', padding: '16px 16px 16px 48px', borderRadius: '12px', border: '2px solid #e2e8f0', outline: 'none', background: '#f8fafc', fontSize: '16px', color: '#1e293b', boxSizing: 'border-box', fontWeight: '500' };
+const sidebarProfileSection = {
+    padding: '20px 24px',
+    borderTop: '1px solid rgba(255,255,255,0.08)'
+};
 
-const inputStyle = { width: '100%', padding: '16px', borderRadius: '12px', border: '2px solid #e2e8f0', outline: 'none', background: '#f8fafc', fontSize: '16px', color: '#1e293b', fontWeight: '500' };
-const buttonStyle = { padding: '16px 28px', border: 'none', borderRadius: '12px', background: '#0ea5e9', color: 'white', fontWeight: 'bold', fontSize: '18px', cursor: 'pointer', marginTop: '15px' };
-const messageStyle = { marginTop: '25px', padding: '18px', borderRadius: '12px', background: '#f0fdf4', color: '#166534', fontWeight: 'bold', border: '2px solid #bbf7d0', fontSize: '16px' };
+const profileInfo = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 18
+};
+
+const profileAvatar = {
+    width: 42,
+    height: 42,
+    borderRadius: '50%',
+    background: '#334155',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 18,
+    fontWeight: 700
+};
+
+const profileName = {
+    fontWeight: 600,
+    fontSize: 15
+};
+
+const profileRole = {
+    fontSize: 12,
+    opacity: 0.6,
+    marginTop: 2
+};
+
+const sidebarLogoutBtn = {
+    width: '100%',
+    padding: '12px',
+    borderRadius: 8,
+    border: '1px solid rgba(255,255,255,0.15)',
+    background: 'transparent',
+    color: 'rgba(255,255,255,0.8)',
+    cursor: 'pointer',
+    fontSize: 14,
+    fontWeight: 600,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8
+};
+
+// MAIN
+
+const mainContentStyle = {
+    flex: 1,
+    padding: '40px 48px',
+    overflow: 'auto'
+};
+
+// BANNER
+
+const bannerStyle = {
+    background: 'linear-gradient(135deg, #0d9488, #0284c7)',
+    borderRadius: 20,
+    padding: '40px',
+    color: 'white',
+    marginBottom: 36,
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    boxShadow: '0 10px 25px rgba(2,132,199,0.15)'
+};
+
+const bannerDecoration = {
+    position: 'relative'
+};
+
+const shieldShape = {
+    width: 90,
+    height: 90,
+    borderRadius: 20,
+    background: 'rgba(255,255,255,0.15)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backdropFilter: 'blur(10px)'
+};
+
+const heartShape = {
+    position: 'absolute',
+    bottom: -10,
+    right: -10,
+    fontSize: 28
+};
+
+// STATS
+
+const statsGrid = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+    gap: 24,
+    marginBottom: 36
+};
+
+const statsCard = {
+    background: 'white',
+    borderRadius: 16,
+    border: '1px solid #e2e8f0',
+    padding: '24px',
+    boxShadow: '0 4px 15px rgba(0,0,0,0.02)',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 18
+};
+
+const iconBox = {
+    width: 54,
+    height: 54,
+    borderRadius: 14,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+};
+
+const statLabel = {
+    fontSize: 14,
+    fontWeight: 600,
+    color: '#64748b'
+};
+
+const statValue = {
+    fontSize: 38,
+    fontWeight: 800,
+    color: '#0f172a',
+    lineHeight: 1
+};
+
+const statSub = {
+    fontSize: 13,
+    color: '#94a3b8',
+    marginTop: 8
+};
+
+// SECTIONS
+
+const sectionHeader = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 14,
+    marginBottom: 24
+};
+
+const sectionTitle = {
+    margin: 0,
+    fontWeight: 800,
+    fontSize: 22,
+    color: '#0f172a'
+};
+
+const sectionSub = {
+    marginTop: 4,
+    fontSize: 14,
+    color: '#64748b'
+};
+
+// INFO GRID
+
+const infoGrid = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+    gap: 24,
+    marginBottom: 36
+};
+
+const infoBox = {
+    background: 'white',
+    borderRadius: 16,
+    border: '1px solid #e2e8f0',
+    padding: '24px',
+    boxShadow: '0 4px 15px rgba(0,0,0,0.02)'
+};
+
+const infoLabel = {
+    fontSize: 13,
+    color: '#64748b',
+    marginBottom: 10,
+    fontWeight: 700
+};
+
+const infoValue = {
+    fontSize: 24,
+    fontWeight: 800,
+    color: '#0f172a',
+    margin: 0
+};
+
+// QUICK ACTIONS
+
+const quickActionsContainer = {
+    background: 'white',
+    borderRadius: 20,
+    border: '1px solid #e2e8f0',
+    padding: '28px',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.02)'
+};
+
+const actionRow = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 18,
+    padding: '18px',
+    borderRadius: 14,
+    border: '1px solid #f1f5f9',
+    marginBottom: 14,
+    cursor: 'pointer'
+};
+
+const actionIcon = {
+    width: 54,
+    height: 54,
+    borderRadius: 14,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+};
+
+const actionText = {
+    flex: 1
+};
+
+const actionTitle = {
+    fontWeight: 700,
+    color: '#0f172a',
+    fontSize: 16
+};
+
+const actionSub = {
+    fontSize: 14,
+    color: '#64748b',
+    marginTop: 4
+};
+
+// CONTENT CARD
+
+const contentCard = {
+    background: 'white',
+    borderRadius: 20,
+    border: '1px solid #e2e8f0',
+    padding: '32px',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.02)'
+};
+
+const cardTitle = {
+    marginBottom: 28,
+    fontWeight: 800,
+    fontSize: 24,
+    color: '#0f172a'
+};
+
+// TABLES
+
+const tableStyle = {
+    width: '100%',
+    borderCollapse: 'collapse'
+};
+
+const tableHeaderRow = {
+    borderBottom: '2px solid #f1f5f9'
+};
+
+const tableHead = {
+    padding: '14px 16px',
+    textAlign: 'left',
+    fontSize: 14,
+    color: '#475569',
+    fontWeight: 700
+};
+
+const tableData = {
+    padding: '16px',
+    fontSize: 15,
+    color: '#1e293b',
+    fontWeight: 500,
+    borderBottom: '1px solid #f8fafc'
+};
+
+const statusBadge = {
+    padding: '6px 14px',
+    borderRadius: 20,
+    fontSize: 13,
+    fontWeight: 700
+};
+
+const cancelBtnStyle = {
+    padding: '10px 16px',
+    borderRadius: 10,
+    border: 'none',
+    background: '#fee2e2',
+    color: '#991b1b',
+    cursor: 'pointer',
+    fontWeight: 700
+};
+
+const payBtnStyle = {
+    padding: '10px 18px',
+    borderRadius: 10,
+    border: 'none',
+    background: 'linear-gradient(to right, #0d9488, #0284c7)',
+    color: 'white',
+    cursor: 'pointer',
+    fontWeight: 700
+};
+
+// FORM
+
+const formContainer = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 20,
+    maxWidth: 600
+};
+
+const formLabel = {
+    display: 'block',
+    fontSize: 14,
+    color: '#334155',
+    marginBottom: 8,
+    fontWeight: 600
+};
+
+const searchWrapper = {
+    position: 'relative'
+};
+
+const searchIcon = {
+    position: 'absolute',
+    left: 16,
+    top: '50%',
+    transform: 'translateY(-50%)'
+};
+
+const searchInputStyle = {
+    width: '100%',
+    padding: '14px 18px 14px 48px',
+    borderRadius: 12,
+    border: '1px solid #cbd5e1',
+    background: '#f8fafc',
+    fontSize: 15,
+    outline: 'none',
+    boxSizing: 'border-box',
+    color: '#0f172a'
+};
+
+const inputStyle = {
+    width: '100%',
+    padding: '14px 18px',
+    borderRadius: 12,
+    border: '1px solid #cbd5e1',
+    background: '#f8fafc',
+    fontSize: 15,
+    outline: 'none',
+    boxSizing: 'border-box',
+    color: '#0f172a'
+};
+
+const buttonStyle = {
+    padding: '16px',
+    border: 'none',
+    borderRadius: 12,
+    background: 'linear-gradient(to right, #0d9488, #0284c7)',
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 700,
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    marginTop: 8,
+    boxShadow: '0 4px 12px rgba(2,132,199,0.2)'
+};
+
+const messageStyle = {
+    marginTop: 20,
+    padding: '14px',
+    borderRadius: 10,
+    textAlign: 'center',
+    background: '#ecfdf5',
+    color: '#065f46',
+    fontWeight: 700,
+    fontSize: 15
+};
