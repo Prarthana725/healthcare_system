@@ -14,6 +14,10 @@ import {
     Search
 } from 'lucide-react';
 
+// අලුතින් එකතු කළ පැකේජ දෙක (PDF Generation සඳහා)
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+
 const API_URL = 'http://localhost:5000/api';
 
 export default function PatientDashboard() {
@@ -184,6 +188,41 @@ export default function PatientDashboard() {
         alert(`Redirecting to secure payment gateway for Invoice #${billId}...\n\n(This is a placeholder for your future payment integration!)`);
     }
 
+    // ==========================================
+    // PDF GENERATION FUNCTION 
+    // ==========================================
+    const handleDownloadPdf = async (billId) => {
+        const invoiceElement = document.getElementById(`invoice-${billId}`);
+        
+        if (!invoiceElement) {
+            alert("Could not find invoice document.");
+            return;
+        }
+
+        try {
+            // Create a canvas from the HTML element
+            const canvas = await html2canvas(invoiceElement, { 
+                scale: 2, 
+                useCORS: true,
+                backgroundColor: '#ffffff'
+            });
+            
+            const imgData = canvas.toDataURL('image/png');
+            
+            // Generate PDF
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+            
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            pdf.save(`MediCare_Invoice_INV-${billId}.pdf`);
+            
+        } catch (error) {
+            console.error("PDF Generation Error:", error);
+            alert("Failed to generate PDF. Please try again.");
+        }
+    };
+
     function logout() {
         localStorage.clear();
         window.location.href = '/login';
@@ -212,6 +251,7 @@ export default function PatientDashboard() {
     }
 
     const initial = data?.patient?.name ? data.patient.name.charAt(0).toUpperCase() : 'U';
+    const patientName = data?.patient?.name || 'Patient';
 
     return (
         <div style={pageLayout}>
@@ -529,11 +569,13 @@ export default function PatientDashboard() {
                                         </thead>
                                         <tbody>
                                             {data.bills.map((b, i) => {
+                                                const billId = b.bill_id || b.id || (i + 1000);
                                                 const isPaid = (b.status || '').toLowerCase() === 'paid';
+                                                
                                                 return (
-                                                    <tr key={b.bill_id || b.id || i}>
+                                                    <tr key={billId}>
                                                         <td style={{...tableData, fontWeight: 'bold', color: '#0284c7'}}>
-                                                            #INV-{b.bill_id || b.id || (i + 1000)}
+                                                            #INV-{billId}
                                                         </td>
                                                         <td style={tableData}>{new Date(b.bill_date || b.date).toLocaleDateString()}</td>
                                                         <td style={{...tableData, fontWeight: '900', fontSize: '18px'}}>Rs. {b.total_amount || b.amount}</td>
@@ -549,7 +591,7 @@ export default function PatientDashboard() {
                                                         <td style={tableData}>
                                                             {!isPaid ? (
                                                                 <button 
-                                                                    onClick={() => handlePaymentClick(b.bill_id || b.id || (i + 1000))} 
+                                                                    onClick={() => handlePaymentClick(billId)} 
                                                                     style={payBtnStyle}
                                                                 >
                                                                     Pay Now
@@ -557,6 +599,94 @@ export default function PatientDashboard() {
                                                             ) : (
                                                                 <span style={{ color: '#94a3b8', fontSize: '15px', fontWeight: 'bold' }}>Completed</span>
                                                             )}
+
+                                                            {/* PDF Download Button */}
+                                                            <button 
+                                                                onClick={() => handleDownloadPdf(billId)} 
+                                                                style={{...payBtnStyle, background: '#0f172a', marginLeft: '10px'}}
+                                                            >
+                                                                Download PDF
+                                                            </button>
+
+                                                            {/* HIDDEN INVOICE TEMPLATE (This will be converted to PDF) */}
+                                                            <div style={{ position: 'absolute', top: '-9999px', left: '-9999px' }}>
+                                                                <div id={`invoice-${billId}`} style={{ padding: '40px', width: '800px', background: 'white', color: 'black', fontFamily: 'Arial, sans-serif' }}>
+                                                                    
+                                                                    {/* Hospital Header */}
+                                                                    <div style={{ borderBottom: '3px solid #0d9488', paddingBottom: '20px', marginBottom: '30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                        <div>
+                                                                            <h1 style={{ color: '#0d9488', margin: 0, fontSize: '32px' }}>MediCare Hospital</h1>
+                                                                            <p style={{ margin: '5px 0 0 0', color: '#64748b' }}>123 Health Avenue, Colombo, Sri Lanka</p>
+                                                                            <p style={{ margin: '0', color: '#64748b' }}>Tel: +94 11 234 5678 | Web: www.medicare.lk</p>
+                                                                        </div>
+                                                                        <div style={{ textAlign: 'right' }}>
+                                                                            <h2 style={{ margin: 0, fontSize: '28px', color: '#0f172a' }}>INVOICE</h2>
+                                                                            <p style={{ margin: '5px 0 0 0', fontWeight: 'bold' }}>#INV-{billId}</p>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {/* Patient & Bill Info */}
+                                                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '40px' }}>
+                                                                        <div>
+                                                                            <h4 style={{ color: '#94a3b8', margin: '0 0 5px 0' }}>Billed To:</h4>
+                                                                            <h3 style={{ margin: 0, fontSize: '20px' }}>{patientName}</h3>
+                                                                            <p style={{ margin: '5px 0 0 0' }}>Patient ID: {data?.patient?.patient_id || data?.patient?.id || 'N/A'}</p>
+                                                                        </div>
+                                                                        <div style={{ textAlign: 'right' }}>
+                                                                            <p style={{ margin: '0 0 5px 0' }}><strong>Date Issued:</strong> {new Date(b.bill_date || b.date).toLocaleDateString()}</p>
+                                                                            <p style={{ margin: '0' }}>
+                                                                                <strong>Status:</strong> 
+                                                                                <span style={{ color: isPaid ? '#16a34a' : '#ea580c', marginLeft: '5px' }}>
+                                                                                    {b.status ? b.status.toUpperCase() : 'PENDING'}
+                                                                                </span>
+                                                                            </p>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {/* Bill Items Table (Placeholder/General) */}
+                                                                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '40px' }}>
+                                                                        <thead>
+                                                                            <tr style={{ background: '#f1f5f9' }}>
+                                                                                <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #cbd5e1' }}>Description</th>
+                                                                                <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #cbd5e1' }}>Amount</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            <tr>
+                                                                                <td style={{ padding: '15px 12px', borderBottom: '1px solid #e2e8f0' }}>Medical Services / Treatment Fees</td>
+                                                                                <td style={{ padding: '15px 12px', textAlign: 'right', borderBottom: '1px solid #e2e8f0' }}>Rs. {b.total_amount || b.amount}</td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td style={{ padding: '15px 12px', borderBottom: '1px solid #e2e8f0' }}>Hospital Admin Charges</td>
+                                                                                <td style={{ padding: '15px 12px', textAlign: 'right', borderBottom: '1px solid #e2e8f0' }}>Rs. 0.00</td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+
+                                                                    {/* Total Amount Box */}
+                                                                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                                                        <div style={{ background: '#f8fafc', padding: '20px 30px', borderRadius: '10px', minWidth: '250px', border: '1px solid #e2e8f0' }}>
+                                                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                                                                                <span>Subtotal:</span>
+                                                                                <span>Rs. {b.total_amount || b.amount}</span>
+                                                                            </div>
+                                                                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '22px', fontWeight: 'bold', borderTop: '2px solid #cbd5e1', paddingTop: '10px', marginTop: '10px' }}>
+                                                                                <span>Total:</span>
+                                                                                <span style={{ color: '#0f172a' }}>Rs. {b.total_amount || b.amount}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {/* Footer Note */}
+                                                                    <div style={{ marginTop: '60px', textAlign: 'center', color: '#64748b', fontSize: '14px', borderTop: '1px solid #e2e8f0', paddingTop: '20px' }}>
+                                                                        <p style={{ margin: 0 }}>Thank you for trusting MediCare Hospital.</p>
+                                                                        <p style={{ margin: '5px 0 0 0', fontSize: '12px' }}>This is a computer-generated document and requires no signature.</p>
+                                                                    </div>
+                                                                    
+                                                                </div>
+                                                            </div>
+                                                            {/* END OF HIDDEN INVOICE */}
+
                                                         </td>
                                                     </tr>
                                                 );

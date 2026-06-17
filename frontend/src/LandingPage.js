@@ -592,11 +592,11 @@ export default function LandingPage() {
                         }}
                     >
                         {[
-                            { icon: <FaStethoscope size={28} />, color: '#0d9488', bg: 'rgba(13,148,136,0.12)', title: 'OPD Services', desc: 'Consult our specialists for diagnosis and treatment.' },
-                            { icon: <FaBedPulse size={28} />, color: '#818cf8', bg: 'rgba(129,140,248,0.12)', title: 'Inpatient Care', desc: 'Comfortable rooms and 24/7 medical support.' },
-                            { icon: <FaFlask size={28} />, color: '#a78bfa', bg: 'rgba(167,139,250,0.12)', title: 'Laboratory', desc: 'Advanced lab tests with accurate results.' },
-                            { icon: <FaPills size={28} />, color: '#fb923c', bg: 'rgba(251,146,60,0.12)', title: 'Pharmacy', desc: 'Quality medicines available at our hospital pharmacy.' },
-                            { icon: <FaTruckMedical size={28} />, color: '#34d399', bg: 'rgba(52,211,153,0.12)', title: 'Emergency Care', desc: '24/7 emergency services for critical care.' }
+                            { icon: <FaStethoscope size={28} />, color: '#0d9488', bg: 'rgba(13,148,136,0.12)', title: 'OPD Services', desc: 'Consult our specialists for diagnosis and treatment.', link: '/login' },
+                            { icon: <FaBedPulse size={28} />, color: '#818cf8', bg: 'rgba(129,140,248,0.12)', title: 'Inpatient Care', desc: 'Comfortable rooms and 24/7 medical support.', link: '/login' },
+                            { icon: <FaFlask size={28} />, color: '#a78bfa', bg: 'rgba(167,139,250,0.12)', title: 'Laboratory', desc: 'Advanced lab tests with accurate results.', link: '/login' },
+                            { icon: <FaPills size={28} />, color: '#fb923c', bg: 'rgba(251,146,60,0.12)', title: 'Pharmacy', desc: 'Quality medicines available at our hospital pharmacy.', link: '/login' },
+                            { icon: <FaTruckMedical size={28} />, color: '#34d399', bg: 'rgba(52,211,153,0.12)', title: 'Emergency Care', desc: '24/7 emergency services for critical care.', link: '/login' }
                         ].map((item, i) => (
                             <div
                                 key={i}
@@ -643,7 +643,7 @@ export default function LandingPage() {
                                     {item.desc}
                                 </p>
                                 <a
-                                    href="#services"
+                                    href={item.link}
                                     style={{
                                         color: item.color,
                                         fontSize: '13px',
