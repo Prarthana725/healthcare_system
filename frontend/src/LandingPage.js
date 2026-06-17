@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import 'aos/dist/aos.css';
+import myBgImage from './mnmnmn.jpeg';
 
 import {
     FaUserDoctor,
@@ -26,6 +28,7 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 
 const HERO_IMAGES = [
+    myBgImage, 
     'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1920&q=80',
     'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=1920&q=80',
     'https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&w=1920&q=80',
