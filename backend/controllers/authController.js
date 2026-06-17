@@ -75,6 +75,43 @@ class AuthController {
             res.status(500).json({ error: 'Login failed' });
         }
     }
+
+  async updateUser(req, res) {
+    try {
+        const { id } = req.params;
+        const { username, password, role_name } = req.body;
+        const connection = await getConnection();
+
+        
+        await connection.request()
+            .input('id', id)
+            .input('username', username)
+            .input('password', password)
+            .query(`
+                UPDATE users 
+                SET username = @username, password = @password 
+                WHERE user_id = @id
+            `);
+
+        
+        if (role_name) {
+            await connection.request()
+                .input('id', id)
+                .input('role_name', role_name)
+                .query(`
+                    UPDATE user_roles
+                    SET role_id = (SELECT role_id FROM roles WHERE role_name = @role_name)
+                    WHERE user_id = @id
+                `);
+        }
+
+        res.json({ message: 'User updated successfully' });
+
+    } catch (error) {
+        console.error("Update User Error:", error);
+        res.status(500).json({ error: 'Failed to update user' });
+    }
+}
 }
 
 module.exports = new AuthController();
