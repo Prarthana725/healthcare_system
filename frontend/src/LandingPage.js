@@ -25,7 +25,6 @@ import {
 } from 'react-icons/fa6';
 
 import AOS from 'aos';
-import 'aos/dist/aos.css';
 
 const HERO_IMAGES = [
     myBgImage, 
@@ -1026,7 +1025,8 @@ export default function LandingPage() {
                                 bg: 'rgba(56,189,248,0.1)',
                                 border: 'rgba(56,189,248,0.2)',
                                 title: 'Hospital Administration',
-                                desc: 'Manages hospital operations, staff coordination, patient flow, reports and overall service management.'
+                                desc: 'Manages hospital operations, staff coordination, patient flow, reports and overall service management.',
+                                link: '/login'
                             },
                             {
                                 icon: <FaUserDoctor size={44} />,
@@ -1034,7 +1034,8 @@ export default function LandingPage() {
                                 bg: 'rgba(13,148,136,0.1)',
                                 border: 'rgba(13,148,136,0.2)',
                                 title: 'Medical Staff Portal',
-                                desc: 'Supports doctors and medical staff in handling consultations, patient care and treatment records.'
+                                desc: 'Supports doctors and medical staff in handling consultations, patient care and treatment records.',
+                                link: '/login'
                             },
                             {
                                 icon: <FaHospitalUser size={44} />,
@@ -1042,21 +1043,26 @@ export default function LandingPage() {
                                 bg: 'rgba(129,140,248,0.1)',
                                 border: 'rgba(129,140,248,0.2)',
                                 title: 'Patient Services Portal',
-                                desc: 'Allows patients to access appointments, medical information and hospital service updates.'
+                                desc: 'Allows patients to access appointments, medical information and hospital service updates.',
+                                link: '/login'
                             }
                         ].map((item, i) => (
-                            <div
+                            <a
                                 key={i}
+                                href={item.link}
                                 data-aos="zoom-in"
                                 data-aos-delay={i * 120}
                                 style={{
+                                    textDecoration: 'none',
+                                    display: 'block',
                                     background: 'rgba(255,255,255,0.03)',
                                     border: `1px solid ${item.border}`,
                                     padding: '40px',
                                     borderRadius: '28px',
                                     textAlign: 'center',
                                     backdropFilter: 'blur(16px)',
-                                    transition: '0.3s'
+                                    transition: '0.3s',
+                                    cursor: 'pointer'
                                 }}
                                 onMouseEnter={(e) => {
                                     e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
@@ -1084,7 +1090,7 @@ export default function LandingPage() {
                                 </div>
                                 <h3 style={{ margin: '0 0 14px', color: 'white', fontSize: '20px', fontWeight: '800' }}>{item.title}</h3>
                                 <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', lineHeight: '1.8', margin: 0 }}>{item.desc}</p>
-                            </div>
+                            </a>
                         ))}
                     </div>
 
@@ -1159,7 +1165,6 @@ export default function LandingPage() {
         </div>
     );
 }
-
 
 const animationStyles = `
 @keyframes floatUpDown {
@@ -1241,5 +1246,3 @@ const footerItem = {
     cursor: 'pointer',
     transition: '0.3s'
 };
-
-
