@@ -10,6 +10,7 @@ router.get('/:id/calculate', billController.calculateAmount);
 router.get('/:id/generate', billController.generateBill);
 
 router.put('/:id/status', billController.updateStatus);
+router.put('/bills/:id/status', billingController.updateBillStatus);
 
 // ADD THIS
 router.post('/:id/pay', billController.makePayment);

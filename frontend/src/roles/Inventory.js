@@ -185,7 +185,7 @@ export default function PharmacistDashboard() {
             {/* MAIN CONTENT */}
             <div style={mainContentStyle}>
                 
-                {/* BANNER WITH IMAGE */}
+                {/* BANNER WITH IMAGE (Always visible) */}
                 <div style={bannerStyle}>
                     <div style={bannerTextContainer}>
                         <h1 style={{ margin: 0, fontSize: '38px', fontWeight: '800' }}>
@@ -196,7 +196,6 @@ export default function PharmacistDashboard() {
                         </p>
                     </div>
                     <div style={bannerImageContainer}>
-                        {/* Make sure to place pharmacist-hero.png in your public folder */}
                         <img src="/pharmacist-hero.png" alt="Hero" style={bannerImage} 
                              onError={(e) => e.target.src = "https://img.freepik.com/free-vector/pharmacist-concept-illustration_114360-2649.jpg"} />
                     </div>
@@ -204,6 +203,7 @@ export default function PharmacistDashboard() {
 
                 {message && <div style={messageStyle}>{message}</div>}
 
+                {/* --- 1. DASHBOARD TAB --- */}
                 {activeTab === 'dashboard' && (
                     <>
                         {/* HIGHLIGHTED STATS */}
@@ -258,50 +258,90 @@ export default function PharmacistDashboard() {
                     </>
                 )}
 
-                {/* INVENTORY TABLE - LARGE FONT & SEARCH */}
-                <div style={{...panelCard, marginTop: '30px'}}>
-                    <div style={tableHeaderArea}>
-                        <h2 style={panelTitle}>📦 Inventory Management</h2>
-                        <div style={searchWrapper}>
-                            <Search size={22} color="#94a3b8" style={searchIcon} />
-                            <input placeholder='Search medicines...' value={search} onChange={e => setSearch(e.target.value)} style={searchInput} />
+                {/* --- 2. INVENTORY TAB --- */}
+                {activeTab === 'inventory' && (
+                    <div style={panelCard}>
+                        <div style={tableHeaderArea}>
+                            <h2 style={panelTitle}>📦 Inventory Management</h2>
+                            <div style={searchWrapper}>
+                                <Search size={22} color="#94a3b8" style={searchIcon} />
+                                <input placeholder='Search medicines...' value={search} onChange={e => setSearch(e.target.value)} style={searchInput} />
+                            </div>
                         </div>
-                    </div>
-                    <table style={tableStyle}>
-                        <thead>
-                            <tr style={tableHeaderRow}>
-                                <th style={tableHead}>Medicine Name</th>
-                                <th style={tableHead}>Quantity</th>
-                                <th style={tableHead}>Price (Rs.)</th>
-                                <th style={tableHead}>Status</th>
-                                <th style={tableHead}>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredMeds.map((med, i) => {
-                                const isLow = Number(med.quantity) < 10;
-                                return (
-                                    <tr key={i} style={tableRow}>
-                                        <td style={{...tableData, fontWeight: 'bold', fontSize: '18px'}}>{med.name}</td>
-                                        <td style={{...tableData, fontWeight: '900', color: isLow ? '#dc2626' : '#16a34a'}}>{med.quantity}</td>
-                                        <td style={tableData}>{Number(med.price || 0).toFixed(2)}</td>
-                                        <td style={tableData}>
-                                            <span style={isLow ? statusLowBadge : statusOkBadge}>
-                                                {isLow ? 'LOW STOCK' : 'IN STOCK'}
-                                            </span>
-                                        </td>
-                                        <td style={tableData}>
-                                            <div style={{display: 'flex', gap: '10px'}}>
-                                                <button onClick={() => updateStock(med.medicine_id || med.id, med.quantity)} style={updateBtn}><Edit size={16}/> Update</button>
-                                                <button onClick={() => deleteMedicine(med.medicine_id || med.id)} style={deleteBtn}><Trash2 size={16}/></button>
-                                            </div>
-                                        </td>
+                        <table style={tableStyle}>
+                            <thead>
+                                <tr style={tableHeaderRow}>
+                                    <th style={tableHead}>Medicine Name</th>
+                                    <th style={tableHead}>Quantity</th>
+                                    <th style={tableHead}>Price (Rs.)</th>
+                                    <th style={tableHead}>Status</th>
+                                    <th style={tableHead}>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredMeds.map((med, i) => {
+                                    const isLow = Number(med.quantity) < 10;
+                                    return (
+                                        <tr key={i} style={tableRow}>
+                                            <td style={{...tableData, fontWeight: 'bold', fontSize: '18px'}}>{med.name}</td>
+                                            <td style={{...tableData, fontWeight: '900', color: isLow ? '#dc2626' : '#16a34a'}}>{med.quantity}</td>
+                                            <td style={tableData}>{Number(med.price || 0).toFixed(2)}</td>
+                                            <td style={tableData}>
+                                                <span style={isLow ? statusLowBadge : statusOkBadge}>
+                                                    {isLow ? 'LOW STOCK' : 'IN STOCK'}
+                                                </span>
+                                            </td>
+                                            <td style={tableData}>
+                                                <div style={{display: 'flex', gap: '10px'}}>
+                                                    <button onClick={() => updateStock(med.medicine_id || med.id, med.quantity)} style={updateBtn}><Edit size={16}/> Update</button>
+                                                    <button onClick={() => deleteMedicine(med.medicine_id || med.id)} style={deleteBtn}><Trash2 size={16}/></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                                {filteredMeds.length === 0 && (
+                                    <tr>
+                                        <td colSpan="5" style={{ padding: '30px', textAlign: 'center', color: '#64748b' }}>No medicines found.</td>
                                     </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </div>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+
+                {/* --- 3. PRESCRIPTIONS TAB --- */}
+                {activeTab === 'prescriptions' && (
+                    <div style={panelCard}>
+                        <div style={tableHeaderArea}>
+                            <h2 style={panelTitle}>📋 Prescription / Issue History</h2>
+                        </div>
+                        <table style={tableStyle}>
+                            <thead>
+                                <tr style={tableHeaderRow}>
+                                    <th style={tableHead}>Issue Date</th>
+                                    <th style={tableHead}>Medicine Name</th>
+                                    <th style={tableHead}>Quantity Issued</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {issueHistory.length > 0 ? (
+                                    issueHistory.map((history, i) => (
+                                        <tr key={i} style={tableRow}>
+                                            <td style={tableData}>{new Date(history.issued_date).toLocaleDateString()}</td>
+                                            <td style={{...tableData, fontWeight: 'bold', color: '#0f766e'}}>{history.medicine_name || `Medicine ID: ${history.medicine_id}`}</td>
+                                            <td style={{...tableData, fontWeight: 'bold'}}>{history.quantity}</td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="3" style={{ padding: '30px', textAlign: 'center', color: '#64748b' }}>No issue history available.</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
 
             </div>
         </div>
