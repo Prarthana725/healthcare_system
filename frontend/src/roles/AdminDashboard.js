@@ -87,12 +87,22 @@ export default function AdminDashboard() {
         loadAppointments();
     }, []);
 
+    // 🚀 මෙතන තමයි අපි වෙනස් කළේ! (අලුත් API එකයි පරණ API එකයි දෙකම එකට Load කරනවා)
     async function loadStats() {
         try {
-            const res = await fetch(`${API_URL}/hospital-stats`);
-            if (res.ok) setStats(await res.json());
+            // 1. පරණ API එකෙන් උඩ තියෙන කාඩ් 4ට දත්ත ගන්නවා
+            const resTop = await fetch(`${API_URL}/hospital-stats`);
+            const topData = resTop.ok ? await resTop.json() : {};
+
+            // 2. අලුත් API එකෙන් යට තියෙන කළු පාට පැනල් එකට සැබෑ දත්ත ගන්නවා
+            const resBottom = await fetch(`${API_URL}/stats/overview`);
+            const bottomData = resBottom.ok ? await resBottom.json() : {};
+
+            // දත්ත දෙකම එකතු කරලා State එකට දානවා
+            setStats({ ...topData, ...bottomData });
         } catch (err) { console.error(err); }
     }
+
     async function loadUsers() {
         try {
             const res = await fetch(`${API_URL}/users`);
@@ -276,7 +286,7 @@ export default function AdminDashboard() {
     }
 
     const handleEditPharmacy = (med) => {
-        setPharmForm({ name: med.name, category: med.category, quantity: med.quantity, price: med.price });
+        setPharmForm({ name: med.category, category: med.category, quantity: med.quantity, price: med.price });
         setEditingPharmId(med.medicine_id || med.id);
         setActiveMenu(null);
     };
