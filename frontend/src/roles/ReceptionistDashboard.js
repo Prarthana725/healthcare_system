@@ -23,6 +23,7 @@ export default function ReceptionistDashboard() {
     // --- STATE ---
     const [activeTab, setActiveTab] = useState('dashboard');
     const [patients, setPatients] = useState([]);
+    const [inactivePatients, setInactivePatients] = useState([]);
     const [appointments, setAppointments] = useState([]);
     const [doctors, setDoctors] = useState([]);
     const [bills, setBills] = useState([]);
@@ -37,6 +38,7 @@ export default function ReceptionistDashboard() {
     const [form, setForm] = useState({ name: '', age: '', phone: '' });
     const [appointmentForm, setAppointmentForm] = useState({ patient_id: '', doctor_id: '', date: '' });
     const [message, setMessage] = useState('');
+    const [editingPatient, setEditingPatient] = useState(null);
 
     // --- INIT ---
     useEffect(() => {
@@ -44,14 +46,78 @@ export default function ReceptionistDashboard() {
     }, []);
 
     // --- FETCH DATA ---
+    async function loadInactivePatients() {
+
+    try {
+
+        const res = await fetch(
+            `${API_URL}/patients/inactive`
+        );
+
+        const data = await res.json();
+
+        setInactivePatients(data);
+
+    } catch (err) {
+
+        console.error(err);
+    }
+}
+async function restorePatient(id) {
+
+    try {
+
+        const res = await fetch(
+            `${API_URL}/patients/${id}/restore`,
+            {
+                method: 'PUT'
+            }
+        );
+
+        const data =
+            await res.json();
+
+        if (res.ok) {
+
+            setMessage(
+                'Patient restored successfully ✅'
+            );
+
+            loadAllData();
+
+        } else {
+
+            setMessage(
+                data.message ||
+                'Restore failed ❌'
+            );
+        }
+
+    } catch (err) {
+
+        console.error(err);
+
+        setMessage(
+            'Server Error ❌'
+        );
+    }
+
+    setTimeout(
+        () => setMessage(''),
+        5000
+    );
+}
     async function loadAllData() {
         try {
+            await loadInactivePatients();
             // Fetch everything at once for smooth cross-referencing
             const [pRes, aRes, dRes] = await Promise.all([
                 fetch(`${API_URL}/patients`),
                 fetch(`${API_URL}/appointments`),
                 fetch(`${API_URL}/doctors`)
+                
             ]);
+            loadInactivePatients();
             
             const pData = await pRes.json();
             const aData = await aRes.json();
@@ -240,13 +306,170 @@ export default function ReceptionistDashboard() {
         setMessage(''),
         5000
     );
+}   function editPatient(patient) {
+
+    const newName =
+        prompt(
+            "Patient Name",
+            patient.name
+        );
+
+    if (!newName) return;
+
+    const newAge =
+        prompt(
+            "Age",
+            patient.age
+        );
+
+    if (!newAge) return;
+
+    const newPhone =
+        prompt(
+            "Phone",
+            patient.phone
+        );
+
+    if (!newPhone) return;
+
+    updatePatient(
+        patient.patient_id,
+        newName,
+        newAge,
+        newPhone
+    );
 }
 
-    function logout() {
-        localStorage.clear();
-        window.location.href = '/login';
+async function updatePatient(
+    id,
+    name,
+    age,
+    phone
+) {
+
+    try {
+
+        const res = await fetch(
+            `${API_URL}/patients/${id}`,
+            {
+                method: 'PUT',
+                headers: {
+                    'Content-Type':
+                        'application/json'
+                },
+                body: JSON.stringify({
+                    name,
+                    age,
+                    phone
+                })
+            }
+        );
+
+        const data =
+            await res.json();
+
+        if (res.ok) {
+
+            setMessage(
+                'Patient updated successfully ✅'
+            );
+
+            loadAllData();
+
+        } else {
+
+            setMessage(
+                data.error ||
+                'Update failed ❌'
+            );
+        }
+
+    } catch (err) {
+
+        console.error(err);
+
+        setMessage(
+            'Server Error ❌'
+        );
     }
 
+    setTimeout(
+        () => setMessage(''),
+        5000
+    );
+}   
+
+    async function deactivatePatient(id) {
+
+    if (!window.confirm('Deactivate this patient?')) {
+        return;
+    }
+
+    try {
+
+        const res = await fetch(
+            `${API_URL}/patients/${id}/deactivate`,
+            {
+                method: 'PUT'
+            }
+        );
+
+        const data = await res.json();
+
+        if (res.ok) {
+
+            setMessage(
+                'Patient deactivated successfully ✅'
+            );
+
+            loadAllData();
+
+        } else {
+
+            setMessage(
+                data.error || 'Failed ❌'
+            );
+        }
+
+    } catch (err) {
+
+        console.error(err);
+        setMessage('Server Error ❌');
+    }
+}
+async function restorePatient(id) {
+
+    try {
+
+        const res = await fetch(
+            `${API_URL}/patients/${id}/restore`,
+            {
+                method: 'PUT'
+            }
+        );
+
+        if (res.ok) {
+
+            setMessage(
+                'Patient restored successfully ✅'
+            );
+
+            loadAllData();
+        }
+
+    } catch (err) {
+
+        console.error(err);
+    }
+}
+
+function logout() {
+
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+
+    window.location.href = '/';
+}
     // --- FILTERS & STATS ---
     const totalRevenue = bills.filter(b => b.status === 'paid').reduce((sum, b) => sum + Number(b.total_amount || b.amount || 0), 0);
     const pendingBills = bills.filter(b => b.status !== 'paid').length;
@@ -280,6 +503,9 @@ export default function ReceptionistDashboard() {
                     </div>
                     <div style={activeTab === 'history' ? activeNavItem : navItem} onClick={() => setActiveTab('history')}>
                         <History size={22} /> History
+                    </div>
+                    <div style={activeTab === 'inactivePatients'? activeNavItem: navItem}onClick={() =>setActiveTab('inactivePatients' ) }>
+                        <Users size={22} />Inactive Patients
                     </div>
                     <div style={activeTab === 'bills' ? activeNavItem : navItem} onClick={() => setActiveTab('bills')}>
                         <CreditCard size={22} /> Bills
@@ -742,51 +968,284 @@ export default function ReceptionistDashboard() {
                 )}
 
                 {/* =========================================
-                    HISTORY (PATIENT DIRECTORY) FULL TAB
-                ========================================= */}
-                {activeTab === 'history' && (
-                    <div style={contentCard}>
-                        <div style={tableHeaderArea}>
-                            <h2 style={cardTitle}>👥 Patient Directory</h2>
-                            <div style={searchWrapper}>
-                                <Search size={20} color="#94a3b8" style={searchIcon} />
-                                <input 
-                                    type="text" 
-                                    placeholder="Search by name or phone..." 
-                                    value={searchPatient}
-                                    onChange={(e) => setSearchPatient(e.target.value)}
-                                    style={searchInputStyle}
-                                />
-                            </div>
-                        </div>
-                        {filteredPatients.length > 0 ? (
-                            <table style={tableStyle}>
-                                <thead>
-                                    <tr style={tableHeaderRow}>
-                                        <th style={tableHead}>Patient ID</th>
-                                        <th style={tableHead}>Name</th>
-                                        <th style={tableHead}>Age</th>
-                                        <th style={tableHead}>Phone</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredPatients.map((p, i) => (
-                                        <tr key={i} style={tableRow}>
-                                            <td style={{...tableData, color: '#0284c7'}}>#{p.patient_id || p.id}</td>
-                                            <td style={{...tableData, fontWeight: 'bold'}}>{p.name}</td>
-                                            <td style={tableData}>{p.age} Yrs</td>
-                                            <td style={tableData}>{p.phone || 'N/A'}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        ) : <p style={emptyText}>No patients found matching your search.</p>}
-                    </div>
-                )}
+    HISTORY (PATIENT DIRECTORY) FULL TAB
+========================================= */}
+{activeTab === 'history' && (
+    <div style={contentCard}>
+        <div style={tableHeaderArea}>
+            <h2 style={cardTitle}>👥 Patient Directory</h2>
+
+            <div style={searchWrapper}>
+                <Search
+                    size={20}
+                    color="#94a3b8"
+                    style={searchIcon}
+                />
+
+                <input
+                    type="text"
+                    placeholder="Search by name or phone..."
+                    value={searchPatient}
+                    onChange={(e) =>
+                        setSearchPatient(e.target.value)
+                    }
+                    style={searchInputStyle}
+                />
+            </div>
+        </div>
+
+        {filteredPatients.length > 0 ? (
+
+            <table style={tableStyle}>
+
+                <thead>
+                    <tr style={tableHeaderRow}>
+                        <th style={tableHead}>
+                            Patient ID
+                        </th>
+
+                        <th style={tableHead}>
+                            Name
+                        </th>
+
+                        <th style={tableHead}>
+                            Age
+                        </th>
+
+                        <th style={tableHead}>
+                            Phone
+                        </th>
+
+                        <th style={tableHead}>
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {filteredPatients.map((p, i) => (
+
+                        <tr
+                            key={i}
+                            style={tableRow}
+                        >
+
+                            <td
+                                style={{
+                                    ...tableData,
+                                    color: '#0284c7'
+                                }}
+                            >
+                                #{p.patient_id || p.id}
+                            </td>
+
+                            <td
+                                style={{
+                                    ...tableData,
+                                    fontWeight: 'bold'
+                                }}
+                            >
+                                {p.name}
+                            </td>
+
+                            <td style={tableData}>
+                                {p.age} Yrs
+                            </td>
+
+                            <td style={tableData}>
+                                {p.phone || 'N/A'}
+                            </td>
+
+                            <td style={tableData}>
+
+                                <button
+                                    onClick={() =>
+                                        editPatient(p)
+                                    }
+                                    style={{
+                                        background: '#0284c7',
+                                        color: 'white',
+                                        border: 'none',
+                                        padding: '10px 16px',
+                                        borderRadius: '8px',
+                                        cursor: 'pointer',
+                                        fontWeight: 'bold',
+                                        marginRight: '10px'
+                                    }}
+                                >
+                                    Update
+                                </button>
+
+                                <button
+                                    onClick={() =>
+                                        deactivatePatient(
+                                            p.patient_id || p.id
+                                        )
+                                    }
+                                    style={{
+                                        background: '#dc2626',
+                                        color: 'white',
+                                        border: 'none',
+                                        padding: '10px 16px',
+                                        borderRadius: '8px',
+                                        cursor: 'pointer',
+                                        fontWeight: 'bold'
+                                    }}
+                                >
+                                    Deactivate
+                                </button>
+
+                            </td>
+
+                        </tr>
+
+                    ))}
+
+                </tbody>
+
+            </table>
+
+        ) : (
+
+            <p style={emptyText}>
+                No patients found matching your search.
+            </p>
+
+        )}
+    </div>
+)}
 
                 {/* =========================================
                     BILLS FULL TAB
                 ========================================= */}
+                {activeTab === 'inactivePatients' && (
+    <div style={contentCard}>
+
+        <div style={tableHeaderArea}>
+            <h2 style={cardTitle}>
+                👥 Inactive Patients
+            </h2>
+        </div>
+
+        {inactivePatients.length > 0 ? (
+
+            <table style={tableStyle}>
+
+                <thead>
+                    <tr style={tableHeaderRow}>
+
+                        <th style={tableHead}>
+                            Patient ID
+                        </th>
+
+                        <th style={tableHead}>
+                            Name
+                        </th>
+
+                        <th style={tableHead}>
+                            Age
+                        </th>
+
+                        <th style={tableHead}>
+                            Phone
+                        </th>
+
+                        <th style={tableHead}>
+                            Status
+                        </th>
+
+                        <th style={tableHead}>
+                            Action
+                        </th>
+
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {inactivePatients.map((p) => (
+
+                        <tr
+                            key={p.patient_id}
+                            style={tableRow}
+                        >
+
+                            <td style={tableData}>
+                                #{p.patient_id}
+                            </td>
+
+                            <td style={tableData}>
+                                {p.name}
+                            </td>
+
+                            <td style={tableData}>
+                                {p.age}
+                            </td>
+
+                            <td style={tableData}>
+                                {p.phone}
+                            </td>
+
+                            <td style={tableData}>
+                                <span
+                                    style={{
+                                        color: '#dc2626',
+                                        fontWeight: 'bold'
+                                    }}
+                                >
+                                    Inactive
+                                </span>
+                            </td>
+
+                            <td style={tableData}>
+
+                                <button
+                                    onClick={() =>
+                                        restorePatient(
+                                            p.patient_id
+                                        )
+                                    }
+                                    style={{
+                                        background:
+                                            '#16a34a',
+                                        color:
+                                            'white',
+                                        border:
+                                            'none',
+                                        padding:
+                                            '10px 16px',
+                                        borderRadius:
+                                            '8px',
+                                        cursor:
+                                            'pointer',
+                                        fontWeight:
+                                            'bold'
+                                    }}
+                                >
+                                    Restore
+                                </button>
+
+                            </td>
+
+                        </tr>
+
+                    ))}
+
+                </tbody>
+
+            </table>
+
+        ) : (
+
+            <p style={emptyText}>
+                No inactive patients found.
+            </p>
+
+        )}
+
+    </div>
+)}
                 {activeTab === 'bills' && (
                     <div style={contentCard}>
                         <div style={tableHeaderArea}>
