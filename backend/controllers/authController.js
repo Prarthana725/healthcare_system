@@ -31,21 +31,19 @@ class AuthController {
             //--------------------------------------------------
             // INVALID LOGIN CHECK
             //--------------------------------------------------
-            
-            // 1. If username doesn't exist at all
-            if (!user) {
-                return res.status(401).json({ error: 'Invalid credentials' });
-            }
 
-            // 2. Hybrid Password Matcher
+            // 1. If username doesn't exist at all
+            // CLEAN INPUTS
+            const cleanUsername = username.trim();
+            const cleanPassword = password.trim();
+
             let isMatch = false;
-            
-            // If the database password starts with $2a$ or $2b$, it is an encrypted bcrypt hash
-            if (user.password && (user.password.startsWith('$2a$') || user.password.startsWith('$2b$'))) {
-                isMatch = await bcrypt.compare(password, user.password);
+
+            // ALWAYS SAFE CHECK
+            if (user.password.startsWith('$2a$') || user.password.startsWith('$2b$')) {
+                isMatch = await bcrypt.compare(cleanPassword, user.password);
             } else {
-                // Otherwise, it is an old plain-text password (like '12345')
-                isMatch = (user.password === password);
+                isMatch = (user.password.trim() === cleanPassword);
             }
 
             // If the passwords do not match
@@ -70,6 +68,13 @@ class AuthController {
                 // වෙලාව සේව් කරන්න බැරි වුණත් ලොග් වෙන එක නතර කරන්නේ නැහැ
             }
 
+
+            // ROLE LINK VALIDATION (ONLY FOR DOCTOR)
+            if (user.role_name === 'Doctor' && !user.doctor_id) {
+                return res.status(403).json({
+                    error: "Your login is not linked to any Doctor profile. Please contact admin."
+                });
+            }
             res.json({
                 message: 'Login successful',
                 user: {
@@ -90,10 +95,10 @@ class AuthController {
     async updateUser(req, res) {
         try {
             const { id } = req.params;
-            
+
             // දැන් Frontend එකෙන් එන role_id එකත් අපි මෙතනින් අල්ලගන්නවා
-            const { username, password, role_name, role, role_id } = req.body; 
-            const incomingRoleName = role_name || role; 
+            const { username, password, role_name, role, role_id } = req.body;
+            const incomingRoleName = role_name || role;
 
             const connection = await getConnection();
 

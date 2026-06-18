@@ -6,9 +6,9 @@ const API_URL = 'http://localhost:5000/api';
 const roles = [
     { role_id: 1, role_name: 'Admin' },
     { role_id: 2, role_name: 'Doctor' },
-    { role_id: 3, role_name: 'Pharmacist' },
-    { role_id: 4, role_name: 'Receptionist' },
-    { role_id: 5, role_name: 'Patient' }
+    { role_id: 3, role_name: 'Patient' },
+    { role_id: 4, role_name: 'Pharmacist' },
+    { role_id: 5, role_name: 'Receptionist' }
 ];
 
 const specializations = [
