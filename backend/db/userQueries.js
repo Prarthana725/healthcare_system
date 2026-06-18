@@ -20,23 +20,16 @@ async function getAllUsers() {
 async function createUser(username, password, role_id) {
     const connection = await getConnection();
 
-    //--------------------------------------------------
+  
     // INSERT USER
-    //--------------------------------------------------
-    const userResult = await connection.request()
-        .input('username', sql.VarChar, username)
-        .input('password', sql.VarChar, password)
-        .query(`
-            INSERT INTO users (username, password)
-            OUTPUT INSERTED.user_id
-            VALUES (@username, @password)
-        `);
+   
 
     const user_id = userResult.recordset[0].user_id;
 
-    //--------------------------------------------------
+   
     // INSERT ROLE
-    //--------------------------------------------------
+   
+
     await connection.request()
         .input('user_id', sql.Int, user_id)
         .input('role_id', sql.Int, role_id)
@@ -45,9 +38,10 @@ async function createUser(username, password, role_id) {
             VALUES (@user_id, @role_id)
         `);
 
-    //--------------------------------------------------
+    
     // AUTO CREATE DOCTOR
-    //--------------------------------------------------
+   
+
     if (role_id == 2) {
         const doctorResult = await connection.request()
             .input('name', sql.VarChar, username)
@@ -70,9 +64,10 @@ async function createUser(username, password, role_id) {
             `);
     }
 
-    //--------------------------------------------------
+   
     // AUTO CREATE PATIENT
-    //--------------------------------------------------
+    
+
     if (role_id == 5) {
         const patientResult = await connection.request()
             .input('name', sql.VarChar, username)
@@ -103,7 +98,57 @@ async function createUser(username, password, role_id) {
     };
 }
 
+// DELETE USER
+async function deleteUser(user_id) {
+
+    const connection =
+        await getConnection();
+
+   
+    // DELETE USER ROLE
+    
+
+    await connection.request()
+
+        .input(
+            'user_id',
+            sql.Int,
+            user_id
+        )
+
+        .query(`
+
+            DELETE FROM user_roles
+
+            WHERE user_id = @user_id
+
+        `);
+
+
+    // DELETE USER
+   
+
+    await connection.request()
+
+        .input(
+            'user_id',
+            sql.Int,
+            user_id
+        )
+
+        .query(`
+
+            DELETE FROM users
+
+            WHERE user_id = @user_id
+
+        `);
+
+    return true;
+}
+
 module.exports = {
     getAllUsers,
-    createUser
+    createUser,
+    deleteUser
 };

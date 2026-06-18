@@ -14,7 +14,7 @@ import {
     Search
 } from 'lucide-react';
 
-// අලුතින් එකතු කළ පැකේජ දෙක (PDF Generation සඳහා)
+
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -188,9 +188,9 @@ export default function PatientDashboard() {
         alert(`Redirecting to secure payment gateway for Invoice #${billId}...\n\n(This is a placeholder for your future payment integration!)`);
     }
 
-    // ==========================================
+    
     // PDF GENERATION FUNCTION 
-    // ==========================================
+
     const handleDownloadPdf = async (billId) => {
         const invoiceElement = document.getElementById(`invoice-${billId}`);
         
@@ -707,9 +707,9 @@ export default function PatientDashboard() {
     );
 }
 
-// --------------------------------------------------
-// UPGRADED STYLES 
-// --------------------------------------------------
+
+// css 
+
 const pageLayout = {
     display: 'flex',
     minHeight: '100vh',
