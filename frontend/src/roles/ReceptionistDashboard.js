@@ -39,6 +39,8 @@ export default function ReceptionistDashboard() {
     const [appointmentForm, setAppointmentForm] = useState({ patient_id: '', doctor_id: '', date: '' });
     const [message, setMessage] = useState('');
     const [editingPatient, setEditingPatient] = useState(null);
+    const [selectedBill, setSelectedBill] = useState(null);
+    const [showInvoice, setShowInvoice] = useState(false);
 
     // --- INIT ---
     useEffect(() => {
@@ -117,7 +119,6 @@ async function restorePatient(id) {
                 fetch(`${API_URL}/doctors`)
                 
             ]);
-            loadInactivePatients();
             
             const pData = await pRes.json();
             const aData = await aRes.json();
@@ -437,31 +438,6 @@ async function updatePatient(
         setMessage('Server Error ❌');
     }
 }
-async function restorePatient(id) {
-
-    try {
-
-        const res = await fetch(
-            `${API_URL}/patients/${id}/restore`,
-            {
-                method: 'PUT'
-            }
-        );
-
-        if (res.ok) {
-
-            setMessage(
-                'Patient restored successfully ✅'
-            );
-
-            loadAllData();
-        }
-
-    } catch (err) {
-
-        console.error(err);
-    }
-}
 
 function logout() {
 
@@ -718,8 +694,30 @@ function logout() {
                                                         <td style={tableData}>{new Date(b.bill_date || b.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
                                                         <td style={{...tableData, fontWeight: 'bold'}}>Rs. {b.total_amount || b.amount}</td>
                                                         <td style={tableData}>
-                                                            <span style={isPaid ? statusGreenText : statusOrangeText}>{(b.status || 'Pending')}</span>
-                                                        </td>
+
+    <span style={{
+        background:
+            isPaid
+                ? '#dcfce7'
+                : '#fef3c7',
+
+        color:
+            isPaid
+                ? '#16a34a'
+                : '#d97706',
+
+        padding: '6px 12px',
+
+        borderRadius: '999px',
+
+        fontWeight: 'bold',
+
+        fontSize: '12px'
+    }}>
+        {isPaid ? 'Paid' : 'Pending'}
+    </span>
+
+</td>
                                                         <td style={tableData}>
 
     {(
@@ -733,109 +731,29 @@ function logout() {
     ) : (
 
         <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '10px'
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+    minWidth: '220px'
         }}>
 
-            <input
-
-                type="number"
-
-                placeholder="Amount"
-
-                value={
-                    paymentAmounts[
-                        b.bill_id || b.id
-                    ] || ''
-                }
-
-                onChange={(e) =>
-                    setPaymentAmounts({
-
-                        ...paymentAmounts,
-
-                        [b.bill_id || b.id]:
-                            e.target.value
-                    })
-                }
-
-                style={amountInput}
-            />
-
-            <select
-
-                value={
-                    paymentMethods[
-                        b.bill_id || b.id
-                    ] || 'Cash'
-                }
-
-                onChange={(e) =>
-                    setPaymentMethods({
-
-                        ...paymentMethods,
-
-                        [b.bill_id || b.id]:
-                            e.target.value
-                    })
-                }
-
-                style={smallSelect}
-            >
-
-                <option value="Cash">
-                    Cash
-                </option>
-
-                <option value="Card">
-                    Card
-                </option>
-
-                <option value="Insurance">
-                    Insurance
-                </option>
-
-                <option value="Online">
-                    Online
-                </option>
-
-            </select>
-
-            <button
-
-                onClick={() =>
-                    markAsPaid(
-                        b.bill_id || b.id
-                    )
-                }
-
-                style={markPaidBtn}
-
-            >
-                Pay Now
-            </button>
-
-            <div style={{
-                fontSize: '13px',
-                color: '#16a34a',
-                fontWeight: 'bold'
-            }}>
-                Paid:
-                Rs. {b.paid_amount || 0}
-            </div>
-
-            <div style={{
-                fontSize: '13px',
-                color: '#dc2626',
-                fontWeight: 'bold'
-            }}>
-                Balance:
-                Rs. {
-                    b.balance_amount
-                    || b.total_amount
-                }
-            </div>
+<button
+    onClick={() => {
+        setSelectedBill(b);
+        setShowInvoice(true);
+    }}
+    style={{
+        background: '#2563eb',
+        color: '#fff',
+        border: 'none',
+        padding: '10px 16px',
+        borderRadius: '10px',
+        cursor: 'pointer',
+        fontWeight: '600'
+    }}
+>
+    👁 View Invoice
+</button>
 
         </div>
     )}
@@ -1368,7 +1286,24 @@ function logout() {
                 </option>
 
             </select>
-
+            <button
+    onClick={() => {
+        setSelectedBill(b);
+        setShowInvoice(true);
+    }}
+    style={{
+        background: '#2563eb',
+        color: 'white',
+        border: 'none',
+        padding: '8px 14px',
+        borderRadius: '8px',
+        cursor: 'pointer',
+        marginBottom: '8px',
+        fontWeight: 'bold'
+    }}
+>
+    View Invoice
+</button>
             <button
 
                 onClick={() =>
@@ -1416,6 +1351,289 @@ function logout() {
                         ) : <p style={emptyText}>No billing history found.</p>}
                     </div>
                 )}
+                {showInvoice && selectedBill && (
+  <div
+    style={{
+      position: "fixed",
+      top: 0,
+      right: 0,
+      width: "450px",
+      height: "100vh",
+      background: "#f8fafc",
+      boxShadow: "-10px 0 30px rgba(0,0,0,0.12)",
+      zIndex: 9999,
+      overflowY: "auto",
+      padding: "25px",
+      borderLeft: "1px solid #e2e8f0",
+    }}
+  >
+    {/* Header */}
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: "25px",
+      }}
+    >
+      <h2
+        style={{
+          margin: 0,
+          color: "#0f172a",
+          fontWeight: "800",
+        }}
+      >
+        💳 Payment Details
+      </h2>
+
+      <button
+        onClick={() => setShowInvoice(false)}
+        style={{
+          border: "none",
+          background: "transparent",
+          fontSize: "24px",
+          cursor: "pointer",
+          color: "#64748b",
+        }}
+      >
+        ✕
+      </button>
+    </div>
+
+    {/* Status Badge */}
+    <div style={{ marginBottom: "20px" }}>
+      <span
+        style={{
+          background:
+            (selectedBill.status || "").toLowerCase() === "paid"
+              ? "#dcfce7"
+              : "#fef3c7",
+          color:
+            (selectedBill.status || "").toLowerCase() === "paid"
+              ? "#16a34a"
+              : "#d97706",
+          padding: "8px 14px",
+          borderRadius: "999px",
+          fontWeight: "bold",
+          fontSize: "13px",
+        }}
+      >
+        {(selectedBill.status || "").toLowerCase() === "paid"
+          ? "Paid"
+          : "Pending Payment"}
+      </span>
+    </div>
+
+    {/* Invoice Info */}
+    <div
+      style={{
+        background: "#ffffff",
+        padding: "22px",
+        borderRadius: "16px",
+        border: "1px solid #e2e8f0",
+        boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+        marginBottom: "20px",
+      }}
+    >
+      <p><strong>Invoice ID:</strong> INV-{selectedBill.bill_id}</p>
+
+      <p><strong>Patient:</strong> {selectedBill.patient_name}</p>
+
+      <p><strong>Doctor:</strong> {selectedBill.doctor_name}</p>
+
+      <p>
+        <strong>Date:</strong>{" "}
+        {new Date(selectedBill.bill_date).toLocaleDateString()}
+      </p>
+    </div>
+
+    {/* Amount Card */}
+    <div
+      style={{
+        background:
+          "linear-gradient(135deg,#eff6ff,#dbeafe)",
+        padding: "25px",
+        borderRadius: "16px",
+        border: "1px solid #bfdbfe",
+        marginBottom: "20px",
+      }}
+    >
+      <h1
+        style={{
+          margin: 0,
+          color: "#2563eb",
+          fontSize: "42px",
+          fontWeight: "900",
+        }}
+      >
+        Rs. {selectedBill.total_amount}
+      </h1>
+
+      <small
+        style={{
+          color: "#475569",
+          fontWeight: "600",
+        }}
+      >
+        Total Amount
+      </small>
+    </div>
+
+    {/* Payment Method */}
+    <label
+      style={{
+        fontWeight: "600",
+        color: "#334155",
+      }}
+    >
+      Payment Method
+    </label>
+
+    <select
+      value={
+        paymentMethods[selectedBill.bill_id] ||
+        "Cash"
+      }
+      onChange={(e) =>
+        setPaymentMethods({
+          ...paymentMethods,
+          [selectedBill.bill_id]:
+            e.target.value,
+        })
+      }
+      style={{
+        width: "100%",
+        padding: "12px",
+        marginTop: "8px",
+        marginBottom: "15px",
+        borderRadius: "12px",
+        border: "1px solid #cbd5e1",
+        background: "#fff",
+      }}
+    >
+      <option>Cash</option>
+      <option>Card</option>
+      <option>Insurance</option>
+      <option>Online</option>
+    </select>
+
+    {/* Amount Received */}
+    <label
+      style={{
+        fontWeight: "600",
+        color: "#334155",
+      }}
+    >
+      Amount Received
+    </label>
+
+    <input
+      type="number"
+      placeholder="Enter amount"
+      value={
+        paymentAmounts[selectedBill.bill_id] ||
+        ""
+      }
+      onChange={(e) =>
+        setPaymentAmounts({
+          ...paymentAmounts,
+          [selectedBill.bill_id]:
+            e.target.value,
+        })
+      }
+      style={{
+        width: "100%",
+        padding: "12px",
+        marginTop: "8px",
+        borderRadius: "12px",
+        border: "1px solid #cbd5e1",
+        background: "#fff",
+      }}
+    />
+
+    {/* Payment Summary */}
+    <div
+      style={{
+        marginTop: "20px",
+        padding: "20px",
+        background: "#ffffff",
+        borderRadius: "16px",
+        border: "1px solid #e2e8f0",
+        boxShadow:
+          "0 2px 10px rgba(0,0,0,0.05)",
+      }}
+    >
+      <p>
+        <strong>Consultation Fee:</strong>
+        Rs. {selectedBill.subtotal || 0}
+      </p>
+
+      <p>
+        <strong>Tax:</strong>
+        Rs. {selectedBill.tax || 0}
+      </p>
+
+      <hr />
+
+      <p>
+        <strong>Paid:</strong>
+        Rs. {selectedBill.paid_amount || 0}
+      </p>
+
+      <p>
+        <strong>Balance:</strong>
+        Rs.{" "}
+        {selectedBill.balance_amount ||
+          selectedBill.total_amount}
+      </p>
+
+      <p>
+        <strong>Status:</strong>{" "}
+        <span
+          style={{
+            color:
+              (selectedBill.status || "")
+                .toLowerCase() === "paid"
+                ? "#16a34a"
+                : "#ea580c",
+            fontWeight: "bold",
+          }}
+        >
+          {selectedBill.status}
+        </span>
+      </p>
+    </div>
+
+    {(selectedBill.status || "")
+      .toLowerCase() !== "paid" && (
+      <button
+        onClick={() =>
+          markAsPaid(
+            selectedBill.bill_id
+          )
+        }
+        style={{
+          width: "100%",
+          marginTop: "25px",
+          padding: "16px",
+          background:
+            "linear-gradient(to right,#16a34a,#22c55e)",
+          color: "#fff",
+          border: "none",
+          borderRadius: "14px",
+          fontWeight: "bold",
+          fontSize: "16px",
+          cursor: "pointer",
+          boxShadow:
+            "0 6px 15px rgba(34,197,94,0.25)",
+        }}
+      >
+        ✓ Confirm Payment
+      </button>
+    )}
+  </div>
+)}
+
             </div>
         </div>
     );
@@ -1491,7 +1709,8 @@ const tableHeaderRow = { borderBottom: '3px solid #e2e8f0' };
 const tableHead = { padding: '16px 12px', color: '#475569', fontSize: '14px', fontWeight: '800', textTransform: 'uppercase', textAlign: 'left', letterSpacing: '0.5px' };
 const tableRow = { borderBottom: '1px solid #f1f5f9', transition: 'background 0.2s' };
 const tableData = { padding: '20px 12px', color: '#1e293b', fontSize: '16px', fontWeight: '500' };
-
+const summaryCard = {background: '#fff',borderRadius: '16px',padding: '20px',boxShadow:'0 2px 10px rgba(0,0,0,0.06)',border:'1px solid #e2e8f0'
+};
 /* STATUS BADGES & INLINE ACTIONS */
 const statusOrange = { background: '#ffedd5', color: '#ea580c', padding: '8px 16px', borderRadius: '30px', fontSize: '13px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' };
 const statusRed = { background: '#fee2e2', color: '#e11d48', padding: '8px 16px', borderRadius: '30px', fontSize: '13px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px' };
