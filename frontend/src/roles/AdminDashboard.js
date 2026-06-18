@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import { Eye, EyeOff } from 'lucide-react';
 const API_URL = 'http://localhost:5000/api';
 
 const roles = [
@@ -420,7 +420,7 @@ export default function AdminDashboard() {
                                 <div style={{ position: 'relative' }}>
                                     <input type={showPass ? 'text' : 'password'} placeholder="Enter password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} required={!editingUserId} style={{ ...inputSt, paddingRight: 46 }} />
                                     <button type="button" onClick={() => setShowPass(s => !s)} style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: '#64748b' }}>
-                                        {showPass ? '🙈' : '👁'}
+                                        {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
                                     </button>
                                 </div>
                             </div>
