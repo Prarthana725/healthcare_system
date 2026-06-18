@@ -54,8 +54,22 @@ class AuthController {
             }
 
             //--------------------------------------------------
-            // SUCCESS LOGIN
+            // SUCCESS LOGIN - UPDATE LAST LOGIN TIME
             //--------------------------------------------------
+            // මෙතන තමයි අපි අලුතින් එකතු කළේ. ලොග් වුණ වෙලාව සටහන් කරනවා.
+            try {
+                await connection.request()
+                    .input('userId', user.user_id)
+                    .query(`
+                        UPDATE users 
+                        SET last_login = GETDATE() 
+                        WHERE user_id = @userId
+                    `);
+            } catch (updateErr) {
+                console.error("Failed to update last login time:", updateErr);
+                // වෙලාව සේව් කරන්න බැරි වුණත් ලොග් වෙන එක නතර කරන්නේ නැහැ
+            }
+
             res.json({
                 message: 'Login successful',
                 user: {
