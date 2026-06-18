@@ -38,9 +38,9 @@ async function createUser(
     const connection =
         await getConnection();
 
-    //--------------------------------------------------
+  
     // INSERT USER
-    //--------------------------------------------------
+   
 
     const userResult =
         await connection.request()
@@ -78,9 +78,9 @@ async function createUser(
     const user_id =
         userResult.recordset[0].user_id;
 
-    //--------------------------------------------------
+   
     // INSERT ROLE
-    //--------------------------------------------------
+   
 
     await connection.request()
 
@@ -112,9 +112,9 @@ async function createUser(
 
         `);
 
-    //--------------------------------------------------
+    
     // AUTO CREATE DOCTOR
-    //--------------------------------------------------
+   
 
     if (role_id == 2) {
 
@@ -179,9 +179,9 @@ async function createUser(
             `);
     }
 
-    //--------------------------------------------------
+   
     // AUTO CREATE PATIENT
-    //--------------------------------------------------
+    
 
     if (role_id == 5) {
 
@@ -261,7 +261,57 @@ async function createUser(
     };
 }
 
+// DELETE USER
+async function deleteUser(user_id) {
+
+    const connection =
+        await getConnection();
+
+   
+    // DELETE USER ROLE
+    
+
+    await connection.request()
+
+        .input(
+            'user_id',
+            sql.Int,
+            user_id
+        )
+
+        .query(`
+
+            DELETE FROM user_roles
+
+            WHERE user_id = @user_id
+
+        `);
+
+
+    // DELETE USER
+   
+
+    await connection.request()
+
+        .input(
+            'user_id',
+            sql.Int,
+            user_id
+        )
+
+        .query(`
+
+            DELETE FROM users
+
+            WHERE user_id = @user_id
+
+        `);
+
+    return true;
+}
+
 module.exports = {
     getAllUsers,
-    createUser
+    createUser,
+    deleteUser
 };
