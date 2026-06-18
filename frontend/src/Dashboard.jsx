@@ -4,6 +4,7 @@ const API_URL = 'http://localhost:5000/api';
 
 function Dashboard() {
   const [totals, setTotals] = useState({ patients: 0, doctors: 0, medicines: 0 });
+  const [lastUpdated, setLastUpdated] = useState('');
   
   const [overviewStats, setOverviewStats] = useState({
       totalUsers: 0,
@@ -37,6 +38,8 @@ function Dashboard() {
             setOverviewStats(stats);
         }
 
+        setLastUpdated(new Date().toLocaleTimeString());
+
       } catch (error) {
         console.error("Dashboard data load error:", error);
         setTotals({ patients: 0, doctors: 0, medicines: 0 });
@@ -49,6 +52,12 @@ function Dashboard() {
   return (
     <div className="page-content">
       <h2>Dashboard</h2>
+
+      {lastUpdated && (
+        <p style={{ color: '#6b7280', fontSize: '0.85rem', marginTop: '5px' }}>
+          Last updated: {lastUpdated}
+        </p>
+      )}
       
       <div className="card-grid">
         <div className="card">
@@ -80,7 +89,7 @@ function Dashboard() {
             {/* Total Users */}
             <div className="stat-item" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                 <div style={{ background: '#3b0764', padding: '12px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <span style={{ fontSize: '1.2rem' }}>👥</span> {/* ඔයාගේ මුල් Icon එක මෙතැනට දාගන්න */}
+                    <span style={{ fontSize: '1.2rem' }}>👥</span>
                 </div>
                 <div>
                     <h3 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 'bold' }}>{overviewStats.totalUsers}</h3>
