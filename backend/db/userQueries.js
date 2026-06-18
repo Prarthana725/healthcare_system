@@ -1,17 +1,16 @@
 const { getConnection, sql } = require('./sqlConnection');
 
-// userQueries.js
 async function getAllUsers() {
     const connection = await getConnection();
     const result = await connection.request().query(`
         SELECT
             u.user_id,
             u.username,
-            r.role_name,
+            ISNULL(r.role_name, 'No Role') AS role_name,
             u.last_login
         FROM users u
-        JOIN user_roles ur ON u.user_id = ur.user_id
-        JOIN roles r ON ur.role_id = r.role_id
+        LEFT JOIN user_roles ur ON u.user_id = ur.user_id
+        LEFT JOIN roles r ON ur.role_id = r.role_id
         ORDER BY u.user_id DESC
     `);
     return result.recordset;
@@ -20,7 +19,7 @@ async function getAllUsers() {
 async function createUser(username, password, role_id) {
     const connection = await getConnection();
 
-    // INSERT USER - (මෙන්න මේ කොටස තමයි ඔයාගේ කේතයෙන් මැකිලා තිබුණේ)
+    
     const userResult = await connection.request()
         .input('username', sql.VarChar, username)
         .input('password', sql.VarChar, password)
