@@ -20,11 +20,11 @@ const medCategories = [
 ];
 
 const roleBadgeStyle = {
-    Admin:        { background: '#fee2e2', color: '#991b1b' },
-    Doctor:       { background: '#dbeafe', color: '#1e40af' },
-    Pharmacist:   { background: '#fef3c7', color: '#92400e' },
+    Admin: { background: '#fee2e2', color: '#991b1b' },
+    Doctor: { background: '#dbeafe', color: '#1e40af' },
+    Pharmacist: { background: '#fef3c7', color: '#92400e' },
     Receptionist: { background: '#ede9fe', color: '#5b21b6' },
-    Patient:      { background: '#dcfce7', color: '#166534' },
+    Patient: { background: '#dcfce7', color: '#166534' },
 };
 
 const navItems = [
@@ -37,13 +37,13 @@ const navItems = [
 
 export default function AdminDashboard() {
     const navigate = useNavigate();
-    
+
     // UPDATED: Stats state now includes the System Overview fields
-    const [stats, setStats] = useState({ 
+    const [stats, setStats] = useState({
         patients: 0, doctors: 0, medicines: 0, appointments: 0,
-        totalUsers: 0, activeUsers: 0, loginsToday: 0, totalActivities: 0 
+        totalUsers: 0, activeUsers: 0, loginsToday: 0, totalActivities: 0
     });
-    
+
     // UI State
     const [activeNav, setActiveNav] = useState('Dashboard');
     const [showPass, setShowPass] = useState(false);
@@ -84,10 +84,10 @@ export default function AdminDashboard() {
             const res = await fetch(`${API_URL}/hospital-stats`);
             if (res.ok) {
                 const data = await res.json();
-                setStats(data); 
+                setStats(data);
             }
-        } catch (err) { 
-            console.error("Failed to load stats:", err); 
+        } catch (err) {
+            console.error("Failed to load stats:", err);
         }
     }
 
@@ -142,8 +142,8 @@ export default function AdminDashboard() {
             if (res.ok) {
                 setMessage('success');
                 setForm({ username: '', password: '', role_id: '' });
-                loadUsers(); 
-                loadStats(); 
+                loadUsers();
+                loadStats();
             } else { setMessage('error'); }
         } catch { setMessage('error'); }
         setTimeout(() => setMessage(''), 3000);
@@ -223,27 +223,27 @@ export default function AdminDashboard() {
 
     const today = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-   // ✅ UPDATED: The 'trend' values are now dynamically pulled from the database stats!
+    // ✅ UPDATED: The 'trend' values are now dynamically pulled from the database stats!
     const statCards = [
-        { 
-            label: 'Total Doctors', value: stats.doctors, icon: '🩺', 
-            trend: stats.doctorTrend ? `${stats.doctorTrend}%` : '0%', 
-            navTarget: 'Doctors' 
+        {
+            label: 'Total Doctors', value: stats.doctors, icon: '🩺',
+            trend: stats.doctorTrend ? `${stats.doctorTrend}%` : '0%',
+            navTarget: 'Doctors'
         },
-        { 
-            label: 'Total Patients', value: stats.patients, icon: '🧑', 
-            trend: stats.patientTrend ? `${stats.patientTrend}%` : '0%', 
-            navTarget: 'Patients' 
+        {
+            label: 'Total Patients', value: stats.patients, icon: '🧑',
+            trend: stats.patientTrend ? `${stats.patientTrend}%` : '0%',
+            navTarget: 'Patients'
         },
-        { 
-            label: 'Total Medicines', value: stats.medicines, icon: '💊', 
-            trend: stats.medicineTrend ? `${stats.medicineTrend}%` : '0%', 
-            navTarget: 'Pharmacy' 
+        {
+            label: 'Total Medicines', value: stats.medicines, icon: '💊',
+            trend: stats.medicineTrend ? `${stats.medicineTrend}%` : '0%',
+            navTarget: 'Pharmacy'
         },
-        { 
-            label: "Total Appointments", value: stats.appointments, icon: '📅', 
-            trend: stats.appointmentTrend ? `${stats.appointmentTrend}%` : '0%', 
-            navTarget: 'Appointments' 
+        {
+            label: "Total Appointments", value: stats.appointments, icon: '📅',
+            trend: stats.appointmentTrend ? `${stats.appointmentTrend}%` : '0%',
+            navTarget: 'Appointments'
         },
     ];
     // --- DYNAMIC CONTENT RENDERER ---
@@ -360,7 +360,7 @@ export default function AdminDashboard() {
                                     ))}
                                 </select>
                             </div>
-                            <button type="submit" style={{...btnStyle, background: 'linear-gradient(to right, #2563eb, #3b82f6)'}}>🩺 Add Doctor</button>
+                            <button type="submit" style={{ ...btnStyle, background: 'linear-gradient(to right, #2563eb, #3b82f6)' }}>🩺 Add Doctor</button>
                         </form>
                         {docMessage && (
                             <div style={docMessage === 'success' ? msgSuccess : msgError}>
@@ -389,7 +389,7 @@ export default function AdminDashboard() {
                                 <tbody>
                                     {doctorsList.map((d, i) => (
                                         <tr key={i} style={{ borderBottom: '1px solid #f8fafc' }}>
-                                            <td style={{...tdSt, fontWeight: 700}}>{d.name}</td>
+                                            <td style={{ ...tdSt, fontWeight: 700 }}>{d.name}</td>
                                             <td style={tdSt}>
                                                 <span style={{ padding: '5px 12px', borderRadius: 8, fontSize: 13, fontWeight: 600, background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0' }}>
                                                     {d.specialization}
@@ -443,7 +443,7 @@ export default function AdminDashboard() {
                                     ))}
                                 </select>
                             </div>
-                            <button type="submit" style={{...btnStyle, background: 'linear-gradient(to right, #a21caf, #d946ef)'}}>🧑 Add Patient</button>
+                            <button type="submit" style={{ ...btnStyle, background: 'linear-gradient(to right, #a21caf, #d946ef)' }}>🧑 Add Patient</button>
                         </form>
                         {patMessage && (
                             <div style={patMessage === 'success' ? msgSuccess : msgError}>
@@ -472,7 +472,7 @@ export default function AdminDashboard() {
                                 <tbody>
                                     {patientsList.map((p, i) => (
                                         <tr key={i} style={{ borderBottom: '1px solid #f8fafc' }}>
-                                            <td style={{...tdSt, fontWeight: 700}}>{p.name}</td>
+                                            <td style={{ ...tdSt, fontWeight: 700 }}>{p.name}</td>
                                             <td style={tdSt}>
                                                 <span style={{ padding: '4px 10px', borderRadius: 6, fontSize: 13, fontWeight: 600, background: '#f1f5f9', color: '#64748b' }}>
                                                     {p.age} yrs
@@ -524,7 +524,7 @@ export default function AdminDashboard() {
                                     <input type="number" step="0.01" placeholder="0.00" value={pharmForm.price} onChange={e => setPharmForm({ ...pharmForm, price: e.target.value })} required style={inputSt} />
                                 </div>
                             </div>
-                            <button type="submit" style={{...btnStyle, background: 'linear-gradient(to right, #ea580c, #f97316)'}}>💊 Add Medicine</button>
+                            <button type="submit" style={{ ...btnStyle, background: 'linear-gradient(to right, #ea580c, #f97316)' }}>💊 Add Medicine</button>
                         </form>
                         {pharmMessage && (
                             <div style={pharmMessage === 'success' ? msgSuccess : msgError}>
@@ -553,7 +553,7 @@ export default function AdminDashboard() {
                                 <tbody>
                                     {pharmacyList.map((m, i) => {
                                         const qty = parseInt(m.quantity);
-                                        let statBadge = statusActive; 
+                                        let statBadge = statusActive;
                                         let statText = "In Stock";
                                         if (qty === 0) {
                                             statBadge = statusDanger;
@@ -565,7 +565,7 @@ export default function AdminDashboard() {
 
                                         return (
                                             <tr key={i} style={{ borderBottom: '1px solid #f8fafc' }}>
-                                                <td style={{...tdSt, fontWeight: 700}}>{m.name}</td>
+                                                <td style={{ ...tdSt, fontWeight: 700 }}>{m.name}</td>
                                                 <td style={tdSt}>
                                                     <span style={{ padding: '4px 10px', borderRadius: 6, fontSize: 13, fontWeight: 600, background: '#f1f5f9', color: '#64748b' }}>
                                                         {m.category}
@@ -630,7 +630,7 @@ export default function AdminDashboard() {
                                     <input type="time" value={apptForm.time} onChange={e => setApptForm({ ...apptForm, time: e.target.value })} required style={inputSt} />
                                 </div>
                             </div>
-                            <button type="submit" style={{...btnStyle, background: 'linear-gradient(to right, #7c3aed, #a855f7)'}}>📅 Schedule Appointment</button>
+                            <button type="submit" style={{ ...btnStyle, background: 'linear-gradient(to right, #7c3aed, #a855f7)' }}>📅 Schedule Appointment</button>
                         </form>
                         {apptMessage && (
                             <div style={apptMessage === 'success' ? msgSuccess : msgError}>
@@ -666,7 +666,7 @@ export default function AdminDashboard() {
 
                                         return (
                                             <tr key={i} style={{ borderBottom: '1px solid #f8fafc' }}>
-                                                <td style={{...tdSt, fontWeight: 700}}>{a.patient_id}</td>
+                                                <td style={{ ...tdSt, fontWeight: 700 }}>{a.patient_id}</td>
                                                 <td style={tdSt}>
                                                     <span style={{ padding: '4px 10px', borderRadius: 6, fontSize: 13, fontWeight: 600, background: '#f1f5f9', color: '#64748b' }}>
                                                         {a.doctor_id}
@@ -719,33 +719,33 @@ export default function AdminDashboard() {
                 </nav>
 
                 <div style={{ padding: '20px 24px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
-        
-        {/* THIS IS THE LOGO YOU ARE ASKING ABOUT */}
-        <div style={{ 
-            width: 42, 
-            height: 42, 
-            borderRadius: '50%', 
-            background: '#334155', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            fontSize: 20, 
-            flexShrink: 0 
-        }}>
-            👤
-        </div>
-        {/* --------------------------------------- */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
 
-        <div>
-            <div style={{ fontWeight: 600, fontSize: 15 }}>Admin</div>
-            <div style={{ fontSize: 12, opacity: 0.6, marginTop: 2 }}>Shashi</div>
-        </div>
-    </div>
-    <button onClick={() => navigate('/')} style={{ width: '100%', padding: '12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.15)', background: 'transparent', color: 'rgba(255,255,255,0.8)', cursor: 'pointer', fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: '0.2s' }}>
-        🚪 Log Out
-    </button>
-</div>
+                        {/* THIS IS THE LOGO YOU ARE ASKING ABOUT */}
+                        <div style={{
+                            width: 42,
+                            height: 42,
+                            borderRadius: '50%',
+                            background: '#334155',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: 20,
+                            flexShrink: 0
+                        }}>
+                            👤
+                        </div>
+                        {/* --------------------------------------- */}
+
+                        <div>
+                            <div style={{ fontWeight: 600, fontSize: 15 }}>Admin</div>
+                            <div style={{ fontSize: 12, opacity: 0.6, marginTop: 2 }}>Shashi</div>
+                        </div>
+                    </div>
+                    <button onClick={() => navigate('/')} style={{ width: '100%', padding: '12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.15)', background: 'transparent', color: 'rgba(255,255,255,0.8)', cursor: 'pointer', fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: '0.2s' }}>
+                        🚪 Log Out
+                    </button>
+                </div>
             </aside>
 
             <main style={{ flex: 1, padding: '40px 48px', overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
@@ -771,8 +771,8 @@ export default function AdminDashboard() {
                                 <span style={{ fontSize: 13, fontWeight: 700, color: '#10b981', background: '#ecfdf5', borderRadius: 20, padding: '4px 10px' }}>↑ {trend}</span>
                             </div>
                             <div style={{ fontSize: 40, fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>{value}</div>
-                            <div 
-                                onClick={() => setActiveNav(navTarget)} 
+                            <div
+                                onClick={() => setActiveNav(navTarget)}
                                 style={{ marginTop: 14, fontSize: 14, fontWeight: 500, color: '#0284c7', cursor: 'pointer' }}
                             >
                                 View all {label.toLowerCase().replace("today's ", "")} ›
@@ -789,11 +789,11 @@ export default function AdminDashboard() {
                         <div style={{ fontSize: 14, opacity: 0.6, marginTop: 6 }}>Quick overview of system statistics</div>
                     </div>
                     <div style={{ display: 'flex', gap: '48px', flexWrap: 'wrap' }}>
-                        {[ 
-                            { icon: '👥', value: stats.totalUsers, label: 'Total Users' }, 
-                            { icon: '🛡', value: stats.activeUsers, label: 'Active Users' }, 
-                            { icon: '🕐', value: stats.loginsToday, label: 'Total Logins Today' }, 
-                            { icon: '📋', value: stats.totalActivities, label: 'Total Activities' } 
+                        {[
+                            { icon: '👥', value: stats.totalUsers, label: 'Total Users' },
+                            { icon: '🛡', value: stats.activeUsers, label: 'Active Users' },
+                            { icon: '🕐', value: stats.loginsToday, label: 'Total Logins Today' },
+                            { icon: '📋', value: stats.totalActivities, label: 'Total Activities' }
                         ].map(({ icon, value, label }) => (
                             <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                                 <div style={{ width: 52, height: 52, borderRadius: 14, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>{icon}</div>
