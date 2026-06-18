@@ -108,22 +108,17 @@ export default function LandingPage() {
                     }}
                 >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                        <div
+                        <img
+                            src="/medicare-logo.png"
+                            alt="Medicare Hospital Logo"
                             style={{
                                 width: '54px',
                                 height: '54px',
+                                objectFit: 'cover',
                                 borderRadius: '16px',
-                                background: 'linear-gradient(135deg,#0f766e,#0284c7)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: '22px',
-                                color: 'white',
                                 boxShadow: '0 12px 28px rgba(2,132,199,0.25)'
                             }}
-                        >
-                            🏥
-                        </div>
+                        />
                         <div>
                             <h2 style={{ margin: 0, fontSize: '22px', fontWeight: '900', letterSpacing: '-0.6px', color: '#ffffff' }}>
                                 MediCare<span style={{ color: '#0f766e' }}> Hospital</span>
@@ -1123,11 +1118,18 @@ export default function LandingPage() {
                 <div style={{ maxWidth: '1300px', margin: '0 auto', display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '40px' }}>
                     <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <div style={{ width: '50px', height: '50px', borderRadius: '14px', background: 'linear-gradient(135deg,#0f766e,#0284c7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px' }}>
-                                🏥
-                            </div>
+                            <img
+                                src="/medicare-logo.png"
+                                alt="Medicare Hospital Logo"
+                                style={{
+                                    width: '50px',
+                                    height: '50px',
+                                    objectFit: 'cover',
+                                    borderRadius: '14px'
+                                }}
+                            />
                             <div>
-                                <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '800' }}>MediCore Hospital System</h2>
+                                <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '800' }}>MediCare Hospital System</h2>
                                 <p style={{ margin: 0, fontSize: '12px', color: 'rgba(255,255,255,0.6)' }}>Integrated Healthcare Management Platform</p>
                             </div>
                         </div>
@@ -1158,7 +1160,7 @@ export default function LandingPage() {
                 </div>
 
                 <div style={{ maxWidth: '1300px', margin: '50px auto 0', paddingTop: '25px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '20px', color: 'rgba(255,255,255,0.6)', fontSize: '13px' }}>
-                    <p>© 2026 MediCore Hospital System • All Medical Operations Secured</p>
+                    <p>© 2026 MediCare Hospital System • All Medical Operations Secured</p>
                     <p>Emergency Support: 24/7 • System Monitoring Active</p>
                 </div>
             </footer>

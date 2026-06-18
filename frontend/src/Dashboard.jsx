@@ -35,7 +35,7 @@ function Dashboard() {
         });
 
         if (stats && !stats.error) {
-            setOverviewStats(stats);
+          setOverviewStats(stats);
         }
 
         setLastUpdated(new Date().toLocaleTimeString());
@@ -51,7 +51,19 @@ function Dashboard() {
 
   return (
     <div className="page-content">
-      <h2>Dashboard</h2>
+      <div className="dashboard-header">
+        <div className="dashboard-brand">
+          <img
+            src="/medicare-logo.png"
+            alt="Medicare Hospital Logo"
+            className="dashboard-logo"
+          />
+          <div>
+            <h2>Medicare Hospital</h2>
+            <p>Hospital Management Dashboard</p>
+          </div>
+        </div>
+      </div>
 
       {lastUpdated && (
         <p style={{ color: '#6b7280', fontSize: '0.85rem', marginTop: '5px' }}>
@@ -76,7 +88,6 @@ function Dashboard() {
 
       <br />
 
-      {/* System Overview Banner with Real Data & Layout */}
       <div className="system-overview-banner" style={{ background: '#111827', color: 'white', padding: '20px 30px', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px' }}>
         
         <div className="overview-title">
@@ -86,49 +97,45 @@ function Dashboard() {
 
         <div style={{ display: 'flex', gap: '30px', alignItems: 'center' }}>
             
-            {/* Total Users */}
-            <div className="stat-item" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                <div style={{ background: '#3b0764', padding: '12px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <span style={{ fontSize: '1.2rem' }}>👥</span>
-                </div>
-                <div>
-                    <h3 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 'bold' }}>{overviewStats.totalUsers}</h3>
-                    <p style={{ margin: 0, fontSize: '0.8rem', color: '#9ca3af' }}>Total Users</p>
-                </div>
+          <div className="stat-item" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <div style={{ background: '#3b0764', padding: '12px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontSize: '1.2rem' }}>👥</span>
             </div>
+            <div>
+              <h3 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 'bold' }}>{overviewStats.totalUsers}</h3>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: '#9ca3af' }}>Total Users</p>
+            </div>
+          </div>
 
-            {/* Active Users */}
-            <div className="stat-item" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                <div style={{ background: '#1f2937', padding: '12px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <span style={{ fontSize: '1.2rem' }}>🛡️</span>
-                </div>
-                <div>
-                    <h3 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 'bold' }}>{overviewStats.activeUsers}</h3>
-                    <p style={{ margin: 0, fontSize: '0.8rem', color: '#9ca3af' }}>Active Users</p>
-                </div>
+          <div className="stat-item" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <div style={{ background: '#1f2937', padding: '12px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontSize: '1.2rem' }}>🛡️</span>
             </div>
+            <div>
+              <h3 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 'bold' }}>{overviewStats.activeUsers}</h3>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: '#9ca3af' }}>Active Users</p>
+            </div>
+          </div>
 
-            {/* Total Logins Today */}
-            <div className="stat-item" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                <div style={{ background: '#1f2937', padding: '12px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <span style={{ fontSize: '1.2rem' }}>⏱️</span>
-                </div>
-                <div>
-                    <h3 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 'bold' }}>{overviewStats.loginsToday}</h3>
-                    <p style={{ margin: 0, fontSize: '0.8rem', color: '#9ca3af' }}>Total Logins Today</p>
-                </div>
+          <div className="stat-item" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <div style={{ background: '#1f2937', padding: '12px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontSize: '1.2rem' }}>⏱️</span>
             </div>
+            <div>
+              <h3 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 'bold' }}>{overviewStats.loginsToday}</h3>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: '#9ca3af' }}>Total Logins Today</p>
+            </div>
+          </div>
 
-            {/* Total Activities */}
-            <div className="stat-item" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                <div style={{ background: '#1f2937', padding: '12px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <span style={{ fontSize: '1.2rem' }}>📋</span>
-                </div>
-                <div>
-                    <h3 className="stat-value">{overviewStats.totalActivities}</h3>
-                    <p style={{ margin: 0, fontSize: '0.8rem', color: '#9ca3af' }}>Total Activities</p>
-                </div>
+          <div className="stat-item" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <div style={{ background: '#1f2937', padding: '12px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontSize: '1.2rem' }}>📋</span>
             </div>
+            <div>
+              <h3 className="stat-value">{overviewStats.totalActivities}</h3>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: '#9ca3af' }}>Total Activities</p>
+            </div>
+          </div>
 
         </div>
       </div>
