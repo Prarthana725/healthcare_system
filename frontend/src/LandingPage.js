@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import 'aos/dist/aos.css';
+import myBgImage from './mnmnmn.jpeg';
 
 import {
     FaUserDoctor,
@@ -15,7 +17,6 @@ import {
     FaShieldHalved,
     FaUserGroup,
     FaClock,
-    // New icons for the redesigned hero
     FaStethoscope,
     FaFlask,
     FaTruckMedical,
@@ -24,9 +25,9 @@ import {
 } from 'react-icons/fa6';
 
 import AOS from 'aos';
-import 'aos/dist/aos.css';
 
 const HERO_IMAGES = [
+    myBgImage, 
     'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1920&q=80',
     'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=1920&q=80',
     'https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&w=1920&q=80',
@@ -44,9 +45,8 @@ export default function LandingPage() {
     });
 
     useEffect(() => {
-        AOS.init({ duration: 900, once: true });
+        AOS.init({ duration: 900, once: true, offset: 80, easing: 'ease-out-cubic' });
 
-        // Auto-cycle background images every 5 seconds
         const bgInterval = setInterval(() => {
             setCurrentBg(prev => (prev + 1) % HERO_IMAGES.length);
         }, 5000);
@@ -76,13 +76,14 @@ export default function LandingPage() {
     return (
         <div
             style={{
-                background: '#f4f8fb',
+                background: '#07111f',
                 minHeight: '100vh',
                 fontFamily: "'Inter', sans-serif",
-                color: '#0f172a',
+                color: '#ffffff',
                 overflowX: 'hidden'
             }}
         >
+            <style>{animationStyles}</style>
 
             {/* NAVBAR */}
             <nav
@@ -106,7 +107,6 @@ export default function LandingPage() {
                         justifyContent: 'space-between'
                     }}
                 >
-                    {/* LEFT - HOSPITAL BRAND */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                         <div
                             style={{
@@ -134,7 +134,6 @@ export default function LandingPage() {
                         </div>
                     </div>
 
-                    {/* CENTER NAV */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
                         {[
                             { label: 'Home', link: '#' },
@@ -163,7 +162,6 @@ export default function LandingPage() {
                         ))}
                     </div>
 
-                    {/* RIGHT SIDE */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <div
                             style={{
@@ -184,7 +182,8 @@ export default function LandingPage() {
                                     height: '8px',
                                     borderRadius: '50%',
                                     background: '#22c55e',
-                                    boxShadow: '0 0 10px #22c55e'
+                                    boxShadow: '0 0 10px #22c55e',
+                                    animation: 'pulseGlow 1.8s ease-in-out infinite'
                                 }}
                             ></span>
                         </div>
@@ -211,7 +210,7 @@ export default function LandingPage() {
                 </div>
             </nav>
 
-            {/* ===================== NEW HERO SECTION ===================== */}
+            {/* ===================== HERO SECTION ===================== */}
             <section
                 style={{
                     position: 'relative',
@@ -222,7 +221,6 @@ export default function LandingPage() {
                     flexDirection: 'column'
                 }}
             >
-                {/* CROSSFADE BACKGROUND SLIDESHOW */}
                 {HERO_IMAGES.map((img, i) => (
                     <div
                         key={i}
@@ -234,12 +232,12 @@ export default function LandingPage() {
                             backgroundPosition: 'center 30%',
                             backgroundRepeat: 'no-repeat',
                             opacity: currentBg === i ? 0.48 : 0,
-                            transition: 'opacity 1.4s ease-in-out'
+                            transition: 'opacity 1.4s ease-in-out',
+                            animation: currentBg === i ? 'softZoom 8s ease-in-out infinite' : 'none'
                         }}
                     />
                 ))}
 
-                {/* SLIDE DOT INDICATORS */}
                 <div
                     style={{
                         position: 'absolute',
@@ -268,7 +266,6 @@ export default function LandingPage() {
                     ))}
                 </div>
 
-                {/* GRADIENT OVERLAYS */}
                 <div
                     style={{
                         position: 'absolute',
@@ -286,7 +283,6 @@ export default function LandingPage() {
                         background: 'linear-gradient(to top, #07111f 0%, transparent 100%)'
                     }}
                 />
-                {/* Teal glow bottom right */}
                 <div
                     style={{
                         position: 'absolute',
@@ -300,7 +296,6 @@ export default function LandingPage() {
                     }}
                 />
 
-                {/* MAIN HERO CONTENT */}
                 <div
                     style={{
                         position: 'relative',
@@ -316,9 +311,7 @@ export default function LandingPage() {
                         boxSizing: 'border-box'
                     }}
                 >
-                    {/* LEFT: HERO TEXT */}
                     <div data-aos="fade-right">
-                        {/* BADGE */}
                         <div
                             style={{
                                 display: 'inline-flex',
@@ -342,13 +335,13 @@ export default function LandingPage() {
                                     borderRadius: '50%',
                                     background: '#4ade80',
                                     boxShadow: '0 0 12px #4ade80',
+                                    animation: 'pulseGlow 1.8s ease-in-out infinite',
                                     flexShrink: 0
                                 }}
                             />
                             Welcome to Our Hospital Care System
                         </div>
 
-                        {/* HEADLINE */}
                         <h1
                             style={{
                                 fontSize: '76px',
@@ -368,12 +361,12 @@ export default function LandingPage() {
                                     color: '#38bdf8',
                                     fontSize: '56px',
                                     verticalAlign: 'middle',
-                                    marginLeft: '6px'
+                                    marginLeft: '6px',
+                                    animation: 'heartBeat 2s ease-in-out infinite'
                                 }}
                             />
                         </h1>
 
-                        {/* DESCRIPTION */}
                         <p
                             style={{
                                 color: 'rgba(255,255,255,0.72)',
@@ -389,7 +382,6 @@ export default function LandingPage() {
                             ensure care, comfort and trust at every step of treatment.
                         </p>
 
-                        {/* BUTTONS */}
                         <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
                             <a
                                 href="/login"
@@ -428,7 +420,6 @@ export default function LandingPage() {
                         </div>
                     </div>
 
-                    {/* RIGHT: STATS PANEL */}
                     <div
                         data-aos="fade-left"
                         style={{
@@ -437,10 +428,10 @@ export default function LandingPage() {
                             borderRadius: '28px',
                             padding: '28px',
                             backdropFilter: 'blur(28px)',
-                            boxShadow: '0 32px 64px rgba(0,0,0,0.4)'
+                            boxShadow: '0 32px 64px rgba(0,0,0,0.4)',
+                            animation: 'floatUpDown 4s ease-in-out infinite'
                         }}
                     >
-                        {/* PANEL HEADER */}
                         <div style={{ marginBottom: '22px' }}>
                             <h3 style={{ color: 'white', margin: '0 0 6px', fontSize: '20px', fontWeight: '800' }}>
                                 Hospital Daily Overview
@@ -450,28 +441,11 @@ export default function LandingPage() {
                             </p>
                         </div>
 
-                        {/* STATS ROWS */}
                         {[
-                            {
-                                label: 'Patients Attended',
-                                value: stats.patientsAttended,
-                                icon: '👥'
-                            },
-                            {
-                                label: 'Doctors Available',
-                                value: stats.doctorsAvailable,
-                                icon: '🩺'
-                            },
-                            {
-                                label: 'Appointments Today',
-                                value: stats.appointmentsToday,
-                                icon: '📅'
-                            },
-                            {
-                                label: 'Pharmacy Status',
-                                value: stats.pharmacyStatus,
-                                icon: '💊'
-                            }
+                            { label: 'Patients Attended', value: stats.patientsAttended, icon: '👥' },
+                            { label: 'Doctors Available', value: stats.doctorsAvailable, icon: '🩺' },
+                            { label: 'Appointments Today', value: stats.appointmentsToday, icon: '📅' },
+                            { label: 'Pharmacy Status', value: stats.pharmacyStatus, icon: '💊' }
                         ].map((item, i) => (
                             <div
                                 key={i}
@@ -498,7 +472,6 @@ export default function LandingPage() {
                             </div>
                         ))}
 
-                        {/* EMERGENCY NOTE */}
                         <div
                             style={{
                                 marginTop: '14px',
@@ -520,7 +493,6 @@ export default function LandingPage() {
                     </div>
                 </div>
 
-                {/* BOTTOM FEATURE STRIP */}
                 <div
                     style={{
                         position: 'relative',
@@ -545,26 +517,10 @@ export default function LandingPage() {
                         }}
                     >
                         {[
-                            {
-                                icon: <FaShieldHalved size={22} style={{ color: '#0d9488' }} />,
-                                title: 'Trusted Care',
-                                desc: 'Patient safety is our priority'
-                            },
-                            {
-                                icon: <FaUserGroup size={22} style={{ color: '#818cf8' }} />,
-                                title: 'Expert Doctors',
-                                desc: 'Experienced & compassionate'
-                            },
-                            {
-                                icon: <FaClock size={22} style={{ color: '#f59e0b' }} />,
-                                title: '24/7 Support',
-                                desc: 'Always here for you'
-                            },
-                            {
-                                icon: <FaHeartPulse size={22} style={{ color: '#f43f5e' }} />,
-                                title: 'Modern Facilities',
-                                desc: 'Advanced tech for better care'
-                            }
+                            { icon: <FaShieldHalved size={22} style={{ color: '#0d9488' }} />, title: 'Trusted Care', desc: 'Patient safety is our priority' },
+                            { icon: <FaUserGroup size={22} style={{ color: '#818cf8' }} />, title: 'Expert Doctors', desc: 'Experienced & compassionate' },
+                            { icon: <FaClock size={22} style={{ color: '#f59e0b' }} />, title: '24/7 Support', desc: 'Always here for you' },
+                            { icon: <FaHeartPulse size={22} style={{ color: '#f43f5e' }} />, title: 'Modern Facilities', desc: 'Advanced tech for better care' }
                         ].map((item, i) => (
                             <div
                                 key={i}
@@ -601,29 +557,17 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* ===================== NEW SERVICES SECTION (below hero) ===================== */}
+            {/* ===================== SERVICES SECTION (dark) ===================== */}
             <section
                 style={{
                     background: '#07111f',
-                    padding: '80px 28px'
+                    padding: '80px 28px',
+                    borderTop: '1px solid rgba(255,255,255,0.05)'
                 }}
             >
                 <div style={{ maxWidth: '1350px', margin: '0 auto' }}>
-                    {/* HEADER */}
                     <div style={{ textAlign: 'center', marginBottom: '50px' }}>
-                        <span
-                            style={{
-                                background: 'rgba(255,255,255,0.06)',
-                                color: '#7dd3fc',
-                                padding: '8px 18px',
-                                borderRadius: '999px',
-                                fontWeight: '700',
-                                fontSize: '13px',
-                                border: '1px solid rgba(255,255,255,0.08)'
-                            }}
-                        >
-                            We Are Here For You
-                        </span>
+                        <span style={darkTag}>We Are Here For You</span>
                         <h2
                             style={{
                                 color: 'white',
@@ -640,7 +584,6 @@ export default function LandingPage() {
                         </p>
                     </div>
 
-                    {/* SERVICE CARDS GRID */}
                     <div
                         style={{
                             display: 'grid',
@@ -649,44 +592,16 @@ export default function LandingPage() {
                         }}
                     >
                         {[
-                            {
-                                icon: <FaStethoscope size={28} />,
-                                color: '#0d9488',
-                                bg: 'rgba(13,148,136,0.12)',
-                                title: 'OPD Services',
-                                desc: 'Consult our specialists for diagnosis and treatment.'
-                            },
-                            {
-                                icon: <FaBedPulse size={28} />,
-                                color: '#818cf8',
-                                bg: 'rgba(129,140,248,0.12)',
-                                title: 'Inpatient Care',
-                                desc: 'Comfortable rooms and 24/7 medical support.'
-                            },
-                            {
-                                icon: <FaFlask size={28} />,
-                                color: '#a78bfa',
-                                bg: 'rgba(167,139,250,0.12)',
-                                title: 'Laboratory',
-                                desc: 'Advanced lab tests with accurate results.'
-                            },
-                            {
-                                icon: <FaPills size={28} />,
-                                color: '#fb923c',
-                                bg: 'rgba(251,146,60,0.12)',
-                                title: 'Pharmacy',
-                                desc: 'Quality medicines available at our hospital pharmacy.'
-                            },
-                            {
-                                icon: <FaTruckMedical size={28} />,
-                                color: '#34d399',
-                                bg: 'rgba(52,211,153,0.12)',
-                                title: 'Emergency Care',
-                                desc: '24/7 emergency services for critical care.'
-                            }
+                            { icon: <FaStethoscope size={28} />, color: '#0d9488', bg: 'rgba(13,148,136,0.12)', title: 'OPD Services', desc: 'Consult our specialists for diagnosis and treatment.', link: '/login' },
+                            { icon: <FaBedPulse size={28} />, color: '#818cf8', bg: 'rgba(129,140,248,0.12)', title: 'Inpatient Care', desc: 'Comfortable rooms and 24/7 medical support.', link: '/login' },
+                            { icon: <FaFlask size={28} />, color: '#a78bfa', bg: 'rgba(167,139,250,0.12)', title: 'Laboratory', desc: 'Advanced lab tests with accurate results.', link: '/login' },
+                            { icon: <FaPills size={28} />, color: '#fb923c', bg: 'rgba(251,146,60,0.12)', title: 'Pharmacy', desc: 'Quality medicines available at our hospital pharmacy.', link: '/login' },
+                            { icon: <FaTruckMedical size={28} />, color: '#34d399', bg: 'rgba(52,211,153,0.12)', title: 'Emergency Care', desc: '24/7 emergency services for critical care.', link: '/login' }
                         ].map((item, i) => (
                             <div
                                 key={i}
+                                data-aos="fade-up"
+                                data-aos-delay={i * 120}
                                 style={{
                                     background: 'rgba(255,255,255,0.03)',
                                     border: '1px solid rgba(255,255,255,0.07)',
@@ -721,28 +636,14 @@ export default function LandingPage() {
                                 >
                                     {item.icon}
                                 </div>
-                                <h3
-                                    style={{
-                                        color: 'white',
-                                        fontSize: '16px',
-                                        fontWeight: '800',
-                                        margin: '0 0 10px'
-                                    }}
-                                >
+                                <h3 style={{ color: 'white', fontSize: '16px', fontWeight: '800', margin: '0 0 10px' }}>
                                     {item.title}
                                 </h3>
-                                <p
-                                    style={{
-                                        color: 'rgba(255,255,255,0.5)',
-                                        fontSize: '13px',
-                                        lineHeight: '1.7',
-                                        margin: '0 0 18px'
-                                    }}
-                                >
+                                <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px', lineHeight: '1.7', margin: '0 0 18px' }}>
                                     {item.desc}
                                 </p>
                                 <a
-                                    href="#services"
+                                    href={item.link}
                                     style={{
                                         color: item.color,
                                         fontSize: '13px',
@@ -761,12 +662,13 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* --- ABOUT SECTION --- */}
+            {/* ===================== ABOUT SECTION (dark) ===================== */}
             <section
                 id="about"
                 style={{
                     padding: '120px 25px',
-                    background: '#07111f'
+                    background: '#07111f',
+                    borderTop: '1px solid rgba(255,255,255,0.05)'
                 }}
             >
                 <div
@@ -779,7 +681,7 @@ export default function LandingPage() {
                         alignItems: 'center'
                     }}
                 >
-                    <div>
+                    <div data-aos="fade-right">
                         <span style={darkTag}>About Our Hospital</span>
                         <h2
                             style={{
@@ -808,7 +710,7 @@ export default function LandingPage() {
                                 'Emergency services available 24/7'
                             ].map((item, i) => (
                                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'rgba(255,255,255,0.9)', fontWeight: '500', fontSize: '15px' }}>
-                                    <FaCircleCheck style={{ color: '#0d9488', fontSize: '18px' }} />
+                                    <FaCircleCheck style={{ color: '#0d9488', fontSize: '18px', flexShrink: 0 }} />
                                     {item}
                                 </div>
                             ))}
@@ -816,6 +718,7 @@ export default function LandingPage() {
                     </div>
 
                     <div
+                        data-aos="fade-left"
                         style={{
                             background: 'rgba(255,255,255,0.03)',
                             borderRadius: '26px',
@@ -841,6 +744,8 @@ export default function LandingPage() {
                         ].map((item, i) => (
                             <div
                                 key={i}
+                                data-aos="fade-up"
+                                data-aos-delay={i * 100}
                                 style={{
                                     display: 'flex',
                                     alignItems: 'center',
@@ -895,13 +800,20 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* SERVICES SECTION */}
-            <section id="services" style={{ padding: '120px 25px', background: '#f8fafc' }}>
+            {/* ===================== SERVICES DETAIL SECTION (dark) ===================== */}
+            <section
+                id="services"
+                style={{
+                    padding: '120px 25px',
+                    background: '#0a1628',
+                    borderTop: '1px solid rgba(255,255,255,0.05)'
+                }}
+            >
                 <div style={{ maxWidth: '1300px', margin: '0 auto' }}>
                     <div style={{ textAlign: 'center', marginBottom: '70px' }}>
-                        <span style={sectionTag}>Hospital Care Services</span>
-                        <h2 style={sectionTitle}>Integrated Medical Care Across All Departments</h2>
-                        <p style={sectionDesc}>
+                        <span style={darkTag}>Hospital Care Services</span>
+                        <h2 style={{ ...darkSectionTitle, color: 'white' }}>Integrated Medical Care Across All Departments</h2>
+                        <p style={darkSectionDesc}>
                             A complete hospital care ecosystem designed to support patients from emergency response
                             to recovery with continuous monitoring and specialist care.
                         </p>
@@ -909,6 +821,7 @@ export default function LandingPage() {
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '30px', alignItems: 'stretch' }}>
                         <div
+                            data-aos="fade-right"
                             style={{
                                 background: 'linear-gradient(135deg,#0f172a,#0f766e)',
                                 borderRadius: '26px',
@@ -949,15 +862,23 @@ export default function LandingPage() {
                                 <div
                                     key={i}
                                     style={{
-                                        background: 'white',
+                                        background: 'rgba(255,255,255,0.04)',
                                         borderRadius: '18px',
                                         padding: '18px 20px',
-                                        border: '1px solid #e2e8f0',
-                                        boxShadow: '0 8px 20px rgba(0,0,0,0.04)'
+                                        border: '1px solid rgba(255,255,255,0.08)',
+                                        transition: '0.3s'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.background = 'rgba(255,255,255,0.07)';
+                                        e.currentTarget.style.borderColor = 'rgba(13,148,136,0.4)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+                                        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
                                     }}
                                 >
-                                    <h4 style={{ margin: 0, fontSize: '15px', color: '#0f172a' }}>{item.title}</h4>
-                                    <p style={{ marginTop: '6px', fontSize: '13px', color: '#64748b' }}>{item.desc}</p>
+                                    <h4 style={{ margin: 0, fontSize: '15px', color: 'white' }}>{item.title}</h4>
+                                    <p style={{ marginTop: '6px', fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>{item.desc}</p>
                                 </div>
                             ))}
                         </div>
@@ -968,13 +889,14 @@ export default function LandingPage() {
                             <div
                                 key={i}
                                 style={{
-                                    background: '#ffffff',
-                                    border: '1px solid #e2e8f0',
+                                    background: 'rgba(255,255,255,0.04)',
+                                    border: '1px solid rgba(255,255,255,0.08)',
                                     borderRadius: '18px',
                                     padding: '18px',
                                     textAlign: 'center',
                                     fontWeight: '600',
-                                    color: '#0f172a'
+                                    color: 'white',
+                                    fontSize: '14px'
                                 }}
                             >
                                 {step}
@@ -984,13 +906,20 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* CARE UNITS */}
-            <section id="care-units" style={{ padding: '120px 25px', background: '#f8fafc' }}>
+            {/* ===================== CARE UNITS SECTION (dark) ===================== */}
+            <section
+                id="care-units"
+                style={{
+                    padding: '120px 25px',
+                    background: '#07111f',
+                    borderTop: '1px solid rgba(255,255,255,0.05)'
+                }}
+            >
                 <div style={{ maxWidth: '1300px', margin: '0 auto' }}>
                     <div style={{ textAlign: 'center', marginBottom: '70px' }}>
-                        <span style={sectionTag}>Care Units</span>
-                        <h2 style={sectionTitle}>Hospital Departments & Specialized Medical Units</h2>
-                        <p style={sectionDesc}>
+                        <span style={darkTag}>Care Units</span>
+                        <h2 style={{ ...darkSectionTitle, color: 'white' }}>Hospital Departments & Specialized Medical Units</h2>
+                        <p style={darkSectionDesc}>
                             Each care unit is designed with dedicated medical teams, advanced facilities and
                             continuous patient monitoring for safe and effective treatment.
                         </p>
@@ -1007,17 +936,42 @@ export default function LandingPage() {
                         ].map((item, index) => (
                             <div
                                 key={index}
+                                data-aos="fade-up"
+                                data-aos-delay={index * 100}
                                 style={{
-                                    background: '#fff',
+                                    background: 'rgba(255,255,255,0.03)',
                                     borderRadius: '22px',
                                     overflow: 'hidden',
-                                    border: '1px solid #e2e8f0',
-                                    boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
+                                    border: '1px solid rgba(255,255,255,0.08)',
                                     transition: '0.3s ease'
                                 }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                                    e.currentTarget.style.borderColor = 'rgba(13,148,136,0.35)';
+                                    e.currentTarget.style.transform = 'translateY(-4px)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
+                                    e.currentTarget.style.transform = 'translateY(0)';
+                                }}
                             >
-                                <div style={{ height: '170px', overflow: 'hidden' }}>
-                                    <img src={item.img} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                <div style={{ height: '170px', overflow: 'hidden', position: 'relative' }}>
+                                    <img
+                                        src={item.img}
+                                        alt={item.title}
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.7 }}
+                                    />
+                                    <div
+                                        style={{
+                                            position: 'absolute',
+                                            bottom: 0,
+                                            left: 0,
+                                            right: 0,
+                                            height: '60px',
+                                            background: 'linear-gradient(to top, rgba(7,17,31,0.9) 0%, transparent 100%)'
+                                        }}
+                                    />
                                 </div>
                                 <div style={{ padding: '22px' }}>
                                     <div
@@ -1025,17 +979,18 @@ export default function LandingPage() {
                                             display: 'inline-block',
                                             fontSize: '12px',
                                             fontWeight: '700',
-                                            color: '#0f766e',
-                                            background: 'rgba(15,118,110,0.08)',
+                                            color: '#2dd4bf',
+                                            background: 'rgba(13,148,136,0.15)',
                                             padding: '6px 12px',
                                             borderRadius: '999px',
-                                            marginBottom: '12px'
+                                            marginBottom: '12px',
+                                            border: '1px solid rgba(13,148,136,0.2)'
                                         }}
                                     >
                                         {item.status}
                                     </div>
-                                    <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#0f172a' }}>{item.title}</h3>
-                                    <p style={{ marginTop: '10px', fontSize: '14px', color: '#64748b', lineHeight: '1.7' }}>{item.desc}</p>
+                                    <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: 'white' }}>{item.title}</h3>
+                                    <p style={{ marginTop: '10px', fontSize: '14px', color: 'rgba(255,255,255,0.55)', lineHeight: '1.7' }}>{item.desc}</p>
                                 </div>
                             </div>
                         ))}
@@ -1043,37 +998,112 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* HOSPITAL ACCESS PORTALS */}
-            <section id="dashboard" style={{ background: '#07111f', padding: '120px 25px', color: 'white' }}>
+            {/* ===================== DASHBOARD / PORTALS SECTION (dark) ===================== */}
+            <section
+                id="dashboard"
+                style={{
+                    background: '#0a1628',
+                    padding: '120px 25px',
+                    borderTop: '1px solid rgba(255,255,255,0.05)'
+                }}
+            >
                 <div style={{ maxWidth: '1300px', margin: '0 auto' }}>
                     <div style={{ textAlign: 'center', marginBottom: '70px' }}>
                         <span style={darkTag}>Hospital Access System</span>
-                        <h2 style={darkTitle}>Integrated Hospital Service Portals</h2>
-                        <p style={{ color: 'rgba(255,255,255,0.65)', marginTop: '18px', maxWidth: '750px', marginLeft: 'auto', marginRight: 'auto', lineHeight: '1.8' }}>
+                        <h2 style={{ ...darkSectionTitle, color: 'white' }}>Integrated Hospital Service Portals</h2>
+                        <p style={darkSectionDesc}>
                             Different hospital service portals designed to support medical staff, patients and
                             administrative operations in a structured and efficient healthcare environment.
                         </p>
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: '26px' }}>
-                        <div style={previewCard}>
-                            <FaUserShield size={44} />
-                            <h3 style={{ marginTop: '18px' }}>Hospital Administration</h3>
-                            <p>Manages hospital operations, staff coordination, patient flow, reports and overall service management.</p>
-                        </div>
-                        <div style={previewCard}>
-                            <FaUserDoctor size={44} />
-                            <h3 style={{ marginTop: '18px' }}>Medical Staff Portal</h3>
-                            <p>Supports doctors and medical staff in handling consultations, patient care and treatment records.</p>
-                        </div>
-                        <div style={previewCard}>
-                            <FaHospitalUser size={44} />
-                            <h3 style={{ marginTop: '18px' }}>Patient Services Portal</h3>
-                            <p>Allows patients to access appointments, medical information and hospital service updates.</p>
-                        </div>
+                        {[
+                            {
+                                icon: <FaUserShield size={44} />,
+                                color: '#38bdf8',
+                                bg: 'rgba(56,189,248,0.1)',
+                                border: 'rgba(56,189,248,0.2)',
+                                title: 'Hospital Administration',
+                                desc: 'Manages hospital operations, staff coordination, patient flow, reports and overall service management.',
+                                link: '/login'
+                            },
+                            {
+                                icon: <FaUserDoctor size={44} />,
+                                color: '#0d9488',
+                                bg: 'rgba(13,148,136,0.1)',
+                                border: 'rgba(13,148,136,0.2)',
+                                title: 'Medical Staff Portal',
+                                desc: 'Supports doctors and medical staff in handling consultations, patient care and treatment records.',
+                                link: '/login'
+                            },
+                            {
+                                icon: <FaHospitalUser size={44} />,
+                                color: '#818cf8',
+                                bg: 'rgba(129,140,248,0.1)',
+                                border: 'rgba(129,140,248,0.2)',
+                                title: 'Patient Services Portal',
+                                desc: 'Allows patients to access appointments, medical information and hospital service updates.',
+                                link: '/login'
+                            }
+                        ].map((item, i) => (
+                            <a
+                                key={i}
+                                href={item.link}
+                                data-aos="zoom-in"
+                                data-aos-delay={i * 120}
+                                style={{
+                                    textDecoration: 'none',
+                                    display: 'block',
+                                    background: 'rgba(255,255,255,0.03)',
+                                    border: `1px solid ${item.border}`,
+                                    padding: '40px',
+                                    borderRadius: '28px',
+                                    textAlign: 'center',
+                                    backdropFilter: 'blur(16px)',
+                                    transition: '0.3s',
+                                    cursor: 'pointer'
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                                    e.currentTarget.style.transform = 'translateY(-4px)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                                    e.currentTarget.style.transform = 'translateY(0)';
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        width: '80px',
+                                        height: '80px',
+                                        borderRadius: '22px',
+                                        background: item.bg,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        color: item.color,
+                                        margin: '0 auto 22px'
+                                    }}
+                                >
+                                    {item.icon}
+                                </div>
+                                <h3 style={{ margin: '0 0 14px', color: 'white', fontSize: '20px', fontWeight: '800' }}>{item.title}</h3>
+                                <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', lineHeight: '1.8', margin: 0 }}>{item.desc}</p>
+                            </a>
+                        ))}
                     </div>
 
-                    <div style={{ marginTop: '60px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '24px', padding: '26px', textAlign: 'center' }}>
+                    <div
+                        style={{
+                            marginTop: '60px',
+                            background: 'rgba(255,255,255,0.04)',
+                            border: '1px solid rgba(255,255,255,0.06)',
+                            borderRadius: '24px',
+                            padding: '26px',
+                            textAlign: 'center'
+                        }}
+                    >
                         <p style={{ margin: 0, color: 'rgba(255,255,255,0.7)', lineHeight: '1.8' }}>
                             All hospital portals are designed to ensure secure, efficient and patient-centered healthcare service delivery.
                         </p>
@@ -1081,8 +1111,15 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* FOOTER */}
-            <footer style={{ background: 'linear-gradient(135deg,#020617,#0f172a)', color: 'white', padding: '80px 25px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+            {/* ===================== FOOTER (dark) ===================== */}
+            <footer
+                style={{
+                    background: 'linear-gradient(135deg,#020617,#0f172a)',
+                    color: 'white',
+                    padding: '80px 25px',
+                    borderTop: '1px solid rgba(255,255,255,0.08)'
+                }}
+            >
                 <div style={{ maxWidth: '1300px', margin: '0 auto', display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '40px' }}>
                     <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -1129,51 +1166,69 @@ export default function LandingPage() {
     );
 }
 
+const animationStyles = `
+@keyframes floatUpDown {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+}
+
+@keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 10px rgba(45,212,191,0.45); }
+    50% { box-shadow: 0 0 28px rgba(45,212,191,0.95); }
+}
+
+@keyframes fadeSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(35px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes softZoom {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.04); }
+    100% { transform: scale(1); }
+}
+
+@keyframes heartBeat {
+    0%, 100% { transform: scale(1); }
+    20% { transform: scale(1.14); }
+    40% { transform: scale(1); }
+    60% { transform: scale(1.1); }
+    80% { transform: scale(1); }
+}
+`;
+
 /* ---------------- STYLES ---------------- */
 
-const sectionTag = {
-    background: '#dff6f5',
-    color: '#0f766e',
-    padding: '10px 18px',
-    borderRadius: '999px',
-    fontWeight: '700',
-    fontSize: '14px'
-};
-
-const sectionTitle = {
-    fontSize: '52px',
-    marginTop: '25px',
-    lineHeight: '1.15'
-};
-
-const sectionDesc = {
-    maxWidth: '720px',
-    margin: '20px auto 0',
-    color: '#64748b',
-    lineHeight: '1.9',
-    fontSize: '18px'
-};
-
 const darkTag = {
-    background: 'rgba(255,255,255,0.08)',
+    background: 'rgba(255,255,255,0.06)',
     color: '#7dd3fc',
     padding: '10px 18px',
     borderRadius: '999px',
-    fontWeight: '700'
+    fontWeight: '700',
+    fontSize: '13px',
+    border: '1px solid rgba(255,255,255,0.08)'
 };
 
-const darkTitle = {
-    fontSize: '52px',
-    marginTop: '25px'
+const darkSectionTitle = {
+    fontSize: '48px',
+    marginTop: '25px',
+    lineHeight: '1.15',
+    fontWeight: '900',
+    letterSpacing: '-1px'
 };
 
-const previewCard = {
-    background: 'rgba(255,255,255,0.05)',
-    border: '1px solid rgba(255,255,255,0.08)',
-    padding: '40px',
-    borderRadius: '28px',
-    textAlign: 'center',
-    backdropFilter: 'blur(16px)'
+const darkSectionDesc = {
+    maxWidth: '720px',
+    margin: '20px auto 0',
+    color: 'rgba(255,255,255,0.55)',
+    lineHeight: '1.9',
+    fontSize: '17px'
 };
 
 const footerTitle = {

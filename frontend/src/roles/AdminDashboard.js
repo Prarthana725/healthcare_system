@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import { Eye, EyeOff } from 'lucide-react';
 const API_URL = 'http://localhost:5000/api';
 
 const roles = [
@@ -38,7 +38,7 @@ const navItems = [
 export default function AdminDashboard() {
     const navigate = useNavigate();
 
-    // UPDATED: Stats state now includes the System Overview fields
+    // Stats state
     const [stats, setStats] = useState({
         patients: 0, doctors: 0, medicines: 0, appointments: 0,
         totalUsers: 0, activeUsers: 0, loginsToday: 0, totalActivities: 0
@@ -47,6 +47,7 @@ export default function AdminDashboard() {
     // UI State
     const [activeNav, setActiveNav] = useState('Dashboard');
     const [showPass, setShowPass] = useState(false);
+    const [activeMenu, setActiveMenu] = useState(null);
 
     // Form States
     const [form, setForm] = useState({ username: '', password: '', role_id: '' });
@@ -54,6 +55,13 @@ export default function AdminDashboard() {
     const [patForm, setPatForm] = useState({ name: '', age: '', phone: '', user_id: '' });
     const [pharmForm, setPharmForm] = useState({ name: '', category: '', quantity: '', price: '' });
     const [apptForm, setApptForm] = useState({ patient_id: '', doctor_id: '', date: '', time: '', status: 'Scheduled' });
+
+    // Editing ID States (Tracks which row we are updating)
+    const [editingUserId, setEditingUserId] = useState(null);
+    const [editingDocId, setEditingDocId] = useState(null);
+    const [editingPatId, setEditingPatId] = useState(null);
+    const [editingPharmId, setEditingPharmId] = useState(null);
+    const [editingApptId, setEditingApptId] = useState(null);
 
     // Message States
     const [message, setMessage] = useState('');
@@ -81,182 +89,334 @@ export default function AdminDashboard() {
 
     async function loadStats() {
         try {
-            const res = await fetch(`${API_URL}/hospital-stats`);
-            if (res.ok) {
-                const data = await res.json();
-                setStats(data);
-            }
-        } catch (err) {
-            console.error("Failed to load stats:", err);
-        }
+            const resTop = await fetch(`${API_URL}/hospital-stats`);
+            const topData = resTop.ok ? await resTop.json() : {};
+
+            const resBottom = await fetch(`${API_URL}/stats/overview`);
+            const bottomData = resBottom.ok ? await resBottom.json() : {};
+
+            setStats({ ...topData, ...bottomData });
+        } catch (err) { console.error(err); }
     }
+
+
 
     async function loadUsers() {
         try {
             const res = await fetch(`${API_URL}/users`);
             const data = await res.json();
-            setUsers(Array.isArray(data) ? data : []);
-        } catch (err) { console.error("Failed to load users:", err); }
-    }
 
+            console.log("Users data from backend:", data);
+            setUsers(Array.isArray(data) ? data : []);
+        } catch (err) {
+            console.error(err);
+            setUsers([]);
+        }
+    }
     async function loadDoctors() {
         try {
-            const res = await fetch(`${API_URL}/doctors`);
-            const data = await res.json();
-            setDoctorsList(Array.isArray(data) ? data : []);
-        } catch (err) { console.error("Failed to load doctors:", err); }
-    }
 
+            const res = await fetch(`${API_URL}/doctors`);
+            setDoctorsList(await res.json());
+        } catch (err) { console.error(err); }
+    }
     async function loadPatients() {
         try {
             const res = await fetch(`${API_URL}/patients`);
-            const data = await res.json();
-            setPatientsList(Array.isArray(data) ? data : []);
-        } catch (err) { console.error("Failed to load patients:", err); }
+            setPatientsList(await res.json());
+        } catch (err) { console.error(err); }
     }
-
     async function loadPharmacy() {
         try {
             const res = await fetch(`${API_URL}/medicines`);
-            const data = await res.json();
-            setPharmacyList(Array.isArray(data) ? data : []);
-        } catch (err) { console.error("Failed to load medicines:", err); }
+            setPharmacyList(await res.json());
+        } catch (err) { console.error(err); }
     }
-
     async function loadAppointments() {
         try {
             const res = await fetch(`${API_URL}/appointments`);
-            const data = await res.json();
-            setAppointmentsList(Array.isArray(data) ? data : []);
-        } catch (err) { console.error("Failed to load appointments:", err); }
+            setAppointmentsList(await res.json());
+        } catch (err) { console.error(err); }
     }
 
+    // ==========================================
+    // 👥 USERS HANDLERS
+    // ==========================================
     async function handleUserSubmit(e) {
         e.preventDefault();
         try {
-            const res = await fetch(`${API_URL}/users`, {
-                method: 'POST',
+            const method = editingUserId ? 'PUT' : 'POST';
+            const endpoint = editingUserId ? `${API_URL}/users/${editingUserId}` : `${API_URL}/users`;
+
+            const res = await fetch(endpoint, {
+                method: method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(form),
             });
             if (res.ok) {
                 setMessage('success');
                 setForm({ username: '', password: '', role_id: '' });
-                loadUsers();
-                loadStats();
+                setEditingUserId(null);
+                loadUsers(); loadStats();
             } else { setMessage('error'); }
         } catch { setMessage('error'); }
         setTimeout(() => setMessage(''), 3000);
     }
 
+    const handleEditUser = (u) => {
+        const foundRole = roles.find(r => r.role_name === u.role_name);
+        setForm({ username: u.username, password: '', role_id: foundRole ? foundRole.role_id : '' });
+        setEditingUserId(u.id || u.user_id);
+        setActiveMenu(null);
+    };
+
+    const handleDeleteUser = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this user?")) return;
+        try {
+            const res = await fetch(`${API_URL}/users/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                setMessage('deleted'); loadUsers(); loadStats();
+            } else { setMessage('error'); }
+        } catch { setMessage('error'); }
+        setActiveMenu(null);
+        setTimeout(() => setMessage(''), 3000);
+    };
+
+    // ==========================================
+    // 🩺 DOCTORS HANDLERS
+    // ==========================================
     async function handleDoctorSubmit(e) {
         e.preventDefault();
         try {
-            const res = await fetch(`${API_URL}/doctors`, {
-                method: 'POST',
+            const method = editingDocId ? 'PUT' : 'POST';
+            const endpoint = editingDocId ? `${API_URL}/doctors/${editingDocId}` : `${API_URL}/doctors`;
+
+            const res = await fetch(endpoint, {
+                method: method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(docForm),
             });
             if (res.ok) {
                 setDocMessage('success');
                 setDocForm({ name: '', specialization: '', user_id: '' });
-                loadStats();
-                loadDoctors();
+                setEditingDocId(null);
+                loadDoctors(); loadStats();
             } else { setDocMessage('error'); }
         } catch { setDocMessage('error'); }
         setTimeout(() => setDocMessage(''), 3000);
     }
 
+    const handleEditDoctor = (doc) => {
+        setDocForm({ name: doc.name, specialization: doc.specialization || '', user_id: doc.user_id || '' });
+        setEditingDocId(doc.doctor_id || doc.id);
+        setActiveMenu(null);
+    };
+
+    const handleDeleteDoctor = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this doctor?")) return;
+        try {
+            const res = await fetch(`${API_URL}/doctors/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                setDocMessage('deleted'); loadDoctors(); loadStats();
+            } else { setDocMessage('error'); }
+        } catch { setDocMessage('error'); }
+        setActiveMenu(null);
+        setTimeout(() => setDocMessage(''), 3000);
+    };
+
+    // ==========================================
+    // 🧑 PATIENTS HANDLERS
+    // ==========================================
     async function handlePatientSubmit(e) {
         e.preventDefault();
         try {
-            const res = await fetch(`${API_URL}/patients`, {
-                method: 'POST',
+            const method = editingPatId ? 'PUT' : 'POST';
+            const endpoint = editingPatId ? `${API_URL}/patients/${editingPatId}` : `${API_URL}/patients`;
+
+            const res = await fetch(endpoint, {
+                method: method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(patForm),
             });
             if (res.ok) {
                 setPatMessage('success');
                 setPatForm({ name: '', age: '', phone: '', user_id: '' });
-                loadStats();
-                loadPatients();
+                setEditingPatId(null);
+                loadPatients(); loadStats();
             } else { setPatMessage('error'); }
         } catch { setPatMessage('error'); }
         setTimeout(() => setPatMessage(''), 3000);
     }
 
+    const handleEditPatient = (pat) => {
+        setPatForm({ name: pat.name, age: pat.age, phone: pat.phone, user_id: pat.user_id || '' });
+        setEditingPatId(pat.patient_id || pat.id);
+        setActiveMenu(null);
+    };
+
+    const handleDeletePatient = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this patient?")) return;
+        try {
+            const res = await fetch(`${API_URL}/patients/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                setPatMessage('deleted'); loadPatients(); loadStats();
+            } else { setPatMessage('error'); }
+        } catch { setPatMessage('error'); }
+        setActiveMenu(null);
+        setTimeout(() => setPatMessage(''), 3000);
+    };
+
+    // ==========================================
+    // 💊 PHARMACY HANDLERS
+    // ==========================================
     async function handlePharmacySubmit(e) {
         e.preventDefault();
         try {
-            const res = await fetch(`${API_URL}/medicines`, {
-                method: 'POST',
+            const method = editingPharmId ? 'PUT' : 'POST';
+            const endpoint = editingPharmId ? `${API_URL}/medicines/${editingPharmId}` : `${API_URL}/medicines`;
+
+            const res = await fetch(endpoint, {
+                method: method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(pharmForm),
             });
             if (res.ok) {
                 setPharmMessage('success');
                 setPharmForm({ name: '', category: '', quantity: '', price: '' });
-                loadStats();
-                loadPharmacy();
+                setEditingPharmId(null);
+                loadPharmacy(); loadStats();
             } else { setPharmMessage('error'); }
         } catch { setPharmMessage('error'); }
         setTimeout(() => setPharmMessage(''), 3000);
     }
 
+    const handleEditPharmacy = (med) => {
+        setPharmForm({ name: med.name, category: med.category, quantity: med.quantity, price: med.price });
+        setEditingPharmId(med.medicine_id || med.id);
+        setActiveMenu(null);
+    };
+
+    const handleDeletePharmacy = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this medicine?")) return;
+        try {
+            const res = await fetch(`${API_URL}/medicines/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                setPharmMessage('deleted'); loadPharmacy(); loadStats();
+            } else { setPharmMessage('error'); }
+        } catch { setPharmMessage('error'); }
+        setActiveMenu(null);
+        setTimeout(() => setPharmMessage(''), 3000);
+    };
+
+    // ==========================================
+    // 📅 APPOINTMENTS HANDLERS
+    // ==========================================
     async function handleAppointmentSubmit(e) {
         e.preventDefault();
         try {
-            const res = await fetch(`${API_URL}/appointments`, {
-                method: 'POST',
+            const method = editingApptId ? 'PUT' : 'POST';
+            const endpoint = editingApptId ? `${API_URL}/appointments/${editingApptId}` : `${API_URL}/appointments`;
+
+            const res = await fetch(endpoint, {
+                method: method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(apptForm),
             });
             if (res.ok) {
                 setApptMessage('success');
                 setApptForm({ patient_id: '', doctor_id: '', date: '', time: '', status: 'Scheduled' });
-                loadStats();
-                loadAppointments();
+                setEditingApptId(null);
+                loadAppointments(); loadStats();
             } else { setApptMessage('error'); }
         } catch { setApptMessage('error'); }
         setTimeout(() => setApptMessage(''), 3000);
     }
 
+    const handleEditAppointment = (appt) => {
+        setApptForm({ patient_id: appt.patient_id, doctor_id: appt.doctor_id, date: appt.date, time: appt.time, status: appt.status });
+        setEditingApptId(appt.appointment_id || appt.id);
+        setActiveMenu(null);
+    };
+
+    const handleDeleteAppointment = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this appointment?")) return;
+        try {
+            const res = await fetch(`${API_URL}/appointments/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                setApptMessage('deleted'); loadAppointments(); loadStats();
+            } else { setApptMessage('error'); }
+        } catch { setApptMessage('error'); }
+        setActiveMenu(null);
+        setTimeout(() => setApptMessage(''), 3000);
+    };
+
     const today = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-    // ✅ UPDATED: The 'trend' values are now dynamically pulled from the database stats!
     const statCards = [
-        {
-            label: 'Total Doctors', value: stats.doctors, icon: '🩺',
-            trend: stats.doctorTrend ? `${stats.doctorTrend}%` : '0%',
-            navTarget: 'Doctors'
-        },
-        {
-            label: 'Total Patients', value: stats.patients, icon: '🧑',
-            trend: stats.patientTrend ? `${stats.patientTrend}%` : '0%',
-            navTarget: 'Patients'
-        },
-        {
-            label: 'Total Medicines', value: stats.medicines, icon: '💊',
-            trend: stats.medicineTrend ? `${stats.medicineTrend}%` : '0%',
-            navTarget: 'Pharmacy'
-        },
-        {
-            label: "Total Appointments", value: stats.appointments, icon: '📅',
-            trend: stats.appointmentTrend ? `${stats.appointmentTrend}%` : '0%',
-            navTarget: 'Appointments'
-        },
+        { label: 'Total Doctors', value: stats.doctors, icon: '🩺', trend: stats.doctorTrend ? `${stats.doctorTrend}%` : '0%', navTarget: 'Doctors' },
+        { label: 'Total Patients', value: stats.patients, icon: '🧑', trend: stats.patientTrend ? `${stats.patientTrend}%` : '0%', navTarget: 'Patients' },
+        { label: 'Total Medicines', value: stats.medicines, icon: '💊', trend: stats.medicineTrend ? `${stats.medicineTrend}%` : '0%', navTarget: 'Pharmacy' },
+        { label: "Total Appointments", value: stats.appointments, icon: '📅', trend: stats.appointmentTrend ? `${stats.appointmentTrend}%` : '0%', navTarget: 'Appointments' },
     ];
-    // --- DYNAMIC CONTENT RENDERER ---
+
+    // --- CONDITIONALLY RENDER CONTENT ---
     const renderMainContent = () => {
-        if (activeNav === 'Dashboard' || activeNav === 'Users') {
+        if (activeNav === 'Dashboard') {
+            return (
+                <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 24, marginBottom: 36 }}>
+                        {statCards.map(({ label, value, icon, trend, navTarget }) => (
+                            <div key={label} style={{ background: 'white', borderRadius: 16, border: '1px solid #e2e8f0', padding: '24px', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                        <div style={{ width: 42, height: 42, borderRadius: 10, background: '#f0fdfa', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>{icon}</div>
+                                        <span style={{ fontSize: 15, fontWeight: 600, color: '#64748b' }}>{label}</span>
+                                    </div>
+                                    <span style={{ fontSize: 13, fontWeight: 700, color: '#10b981', background: '#ecfdf5', borderRadius: 20, padding: '4px 10px' }}>↑ {trend}</span>
+                                </div>
+                                <div style={{ fontSize: 40, fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>{value}</div>
+                                <div onClick={() => setActiveNav(navTarget)} style={{ marginTop: 14, fontSize: 14, fontWeight: 500, color: '#0284c7', cursor: 'pointer' }}>
+                                    View all {label.toLowerCase().replace("today's ", "")} ›
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div style={{ marginTop: 'auto', background: '#0d1f2d', borderRadius: 20, padding: '30px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', flexWrap: 'wrap', gap: '24px', boxShadow: '0 10px 25px rgba(13,31,45,0.15)' }}>
+                        <div>
+                            <div style={{ fontWeight: 800, fontSize: 18 }}>System Overview</div>
+                            <div style={{ fontSize: 14, opacity: 0.6, marginTop: 6 }}>Quick overview of system statistics</div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '48px', flexWrap: 'wrap' }}>
+                            {[
+                                { icon: '👥', value: stats.totalUsers, label: 'Total Users' },
+                                { icon: '🛡', value: stats.activeUsers, label: 'Active Users' },
+                                { icon: '🕐', value: stats.loginsToday, label: 'Total Logins Today' },
+                                { icon: '📋', value: stats.totalActivities, label: 'Total Activities' }
+                            ].map(({ icon, value, label }) => (
+                                <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                                    <div style={{ width: 52, height: 52, borderRadius: 14, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>{icon}</div>
+                                    <div>
+                                        <div style={{ fontSize: 28, fontWeight: 800, lineHeight: 1 }}>{value}</div>
+                                        <div style={{ fontSize: 13, opacity: 0.6, marginTop: 6, fontWeight: 500 }}>{label}</div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        if (activeNav === 'Users') {
             return (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.8fr', gap: 28, marginBottom: 40 }}>
                     <div style={{ background: 'white', borderRadius: 20, border: '1px solid #e2e8f0', padding: '32px', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 28 }}>
                             <div style={{ width: 46, height: 46, borderRadius: 12, background: '#f0fdfa', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>👤</div>
                             <div>
-                                <div style={{ fontWeight: 800, fontSize: 18, color: '#0f172a' }}>Create User</div>
-                                <div style={{ fontSize: 14, color: '#64748b', marginTop: 4 }}>Add a new user to the system</div>
+                                <div style={{ fontWeight: 800, fontSize: 18, color: '#0f172a' }}>{editingUserId ? 'Update User' : 'Create User'}</div>
+                                <div style={{ fontSize: 14, color: '#64748b', marginTop: 4 }}>{editingUserId ? 'Edit user credentials' : 'Add a new user to the system'}</div>
                             </div>
                         </div>
                         <form onSubmit={handleUserSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -265,11 +425,11 @@ export default function AdminDashboard() {
                                 <input placeholder="Enter username" value={form.username} onChange={e => setForm({ ...form, username: e.target.value })} required style={inputSt} />
                             </div>
                             <div>
-                                <label style={labelSt}>Password</label>
+                                <label style={labelSt}>Password {editingUserId && '(Leave blank to keep current)'}</label>
                                 <div style={{ position: 'relative' }}>
-                                    <input type={showPass ? 'text' : 'password'} placeholder="Enter password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} required style={{ ...inputSt, paddingRight: 46 }} />
+                                    <input type={showPass ? 'text' : 'password'} placeholder="Enter password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} required={!editingUserId} style={{ ...inputSt, paddingRight: 46 }} />
                                     <button type="button" onClick={() => setShowPass(s => !s)} style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: '#64748b' }}>
-                                        {showPass ? '🙈' : '👁'}
+                                        {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
                                     </button>
                                 </div>
                             </div>
@@ -280,11 +440,18 @@ export default function AdminDashboard() {
                                     {roles.map(r => <option key={r.role_id} value={r.role_id}>{r.role_name}</option>)}
                                 </select>
                             </div>
-                            <button type="submit" style={btnStyle}>👤 Create User</button>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <button type="submit" style={{ ...btnStyle, flex: 1 }}>
+                                    {editingUserId ? '👤 Update User' : '👤 Create User'}
+                                </button>
+                                {editingUserId && (
+                                    <button type="button" onClick={() => { setEditingUserId(null); setForm({ username: '', password: '', role_id: '' }); }} style={{ ...btnStyle, background: '#fee2e2', color: '#ef4444', width: 'auto', padding: '16px 20px', boxShadow: 'none' }}>Cancel</button>
+                                )}
+                            </div>
                         </form>
                         {message && (
-                            <div style={message === 'success' ? msgSuccess : msgError}>
-                                {message === 'success' ? '✅ User created successfully' : '❌ Failed to create user'}
+                            <div style={message === 'error' ? msgError : msgSuccess}>
+                                {message === 'success' ? '✅ User saved successfully' : message === 'deleted' ? '✅ User deleted successfully' : '❌ Failed to process request'}
                             </div>
                         )}
                     </div>
@@ -299,7 +466,7 @@ export default function AdminDashboard() {
                                 </div>
                             </div>
                         </div>
-                        <div style={{ overflowX: 'auto' }}>
+                        <div style={{ overflow: 'visible', paddingBottom: '120px' }}>
                             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                 <thead>
                                     <tr style={{ borderBottom: '2px solid #f1f5f9' }}>
@@ -307,19 +474,34 @@ export default function AdminDashboard() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {users.map((u, i) => (
-                                        <tr key={i} style={{ borderBottom: '1px solid #f8fafc' }}>
-                                            <td style={tdSt}>{u.username}</td>
-                                            <td style={tdSt}>
-                                                <span style={{ padding: '5px 12px', borderRadius: 20, fontSize: 13, fontWeight: 700, ...(roleBadgeStyle[u.role_name] || { background: '#f1f5f9', color: '#475569' }) }}>
-                                                    {u.role_name}
-                                                </span>
-                                            </td>
-                                            <td style={tdSt}><span style={statusActive}>Active</span></td>
-                                            <td style={{ ...tdSt, color: '#64748b' }}>{u.lastLogin || '—'}</td>
-                                            <td style={tdSt}><button style={actionBtn}>⋮</button></td>
-                                        </tr>
-                                    ))}
+                                    {users.map((u, i) => {
+                                        const userId = u.id || u.user_id || `user_${i}`;
+                                        return (
+                                            <tr key={i} style={{ borderBottom: '1px solid #f8fafc' }}>
+                                                <td style={tdSt}>{u.username}</td>
+                                                <td style={tdSt}>
+                                                    <span style={{ padding: '5px 12px', borderRadius: 20, fontSize: 13, fontWeight: 700, ...(roleBadgeStyle[u.role_name] || { background: '#f1f5f9', color: '#475569' }) }}>
+                                                        {u.role_name}
+                                                    </span>
+                                                </td>
+                                                <td style={tdSt}><span style={statusActive}>Active</span></td>
+                                                {/* මෙන්න මේ කොටස තමයි අපි වෙනස් කළේ 👇 (දිනය කැඩෙන්නේ නැති වෙන්න whiteSpace: nowrap දැම්මා) */}
+                                                <td style={{ ...tdSt, color: '#64748b', fontSize: 14, whiteSpace: 'nowrap' }}>
+                                                    {u.lastLogin ? u.lastLogin : '—'}
+                                                </td>
+
+                                                <td style={{ ...tdSt, position: 'relative' }}>
+                                                    <button onClick={(e) => { e.stopPropagation(); setActiveMenu(activeMenu === userId ? null : userId); }} style={actionBtn}>⋮</button>
+                                                    {activeMenu === userId && (
+                                                        <div style={dropdownMenu}>
+                                                            <div style={dropdownItem} onClick={(e) => { e.stopPropagation(); handleEditUser(u); }}>✏️ Edit</div>
+                                                            <div style={{ ...dropdownItem, color: '#ef4444' }} onClick={(e) => { e.stopPropagation(); handleDeleteUser(userId); }}>🗑️ Delete</div>
+                                                        </div>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        )
+                                    })}
                                 </tbody>
                             </table>
                         </div>
@@ -335,8 +517,8 @@ export default function AdminDashboard() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 28 }}>
                             <div style={{ width: 46, height: 46, borderRadius: 12, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>🩺</div>
                             <div>
-                                <div style={{ fontWeight: 800, fontSize: 18, color: '#0f172a' }}>Register Doctor</div>
-                                <div style={{ fontSize: 14, color: '#64748b', marginTop: 4 }}>Add a medical professional</div>
+                                <div style={{ fontWeight: 800, fontSize: 18, color: '#0f172a' }}>{editingDocId ? 'Update Doctor' : 'Register Doctor'}</div>
+                                <div style={{ fontSize: 14, color: '#64748b', marginTop: 4 }}>{editingDocId ? 'Edit medical professional details' : 'Add a medical professional'}</div>
                             </div>
                         </div>
                         <form onSubmit={handleDoctorSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -360,11 +542,19 @@ export default function AdminDashboard() {
                                     ))}
                                 </select>
                             </div>
-                            <button type="submit" style={{ ...btnStyle, background: 'linear-gradient(to right, #2563eb, #3b82f6)' }}>🩺 Add Doctor</button>
+
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <button type="submit" style={{ ...btnStyle, flex: 1, background: 'linear-gradient(to right, #2563eb, #3b82f6)' }}>
+                                    {editingDocId ? '🩺 Update Doctor' : '🩺 Add Doctor'}
+                                </button>
+                                {editingDocId && (
+                                    <button type="button" onClick={() => { setEditingDocId(null); setDocForm({ name: '', specialization: '', user_id: '' }); }} style={{ ...btnStyle, background: '#fee2e2', color: '#ef4444', width: 'auto', padding: '16px 20px', boxShadow: 'none' }}>Cancel</button>
+                                )}
+                            </div>
                         </form>
                         {docMessage && (
-                            <div style={docMessage === 'success' ? msgSuccess : msgError}>
-                                {docMessage === 'success' ? '✅ Doctor registered successfully' : '❌ Failed to register'}
+                            <div style={docMessage === 'error' ? msgError : msgSuccess}>
+                                {docMessage === 'success' ? '✅ Doctor saved successfully' : docMessage === 'deleted' ? '✅ Doctor deleted successfully' : '❌ Failed to process request'}
                             </div>
                         )}
                     </div>
@@ -379,7 +569,7 @@ export default function AdminDashboard() {
                                 </div>
                             </div>
                         </div>
-                        <div style={{ overflowX: 'auto' }}>
+                        <div style={{ overflow: 'visible', paddingBottom: '120px' }}>
                             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                 <thead>
                                     <tr style={{ borderBottom: '2px solid #f1f5f9' }}>
@@ -387,19 +577,29 @@ export default function AdminDashboard() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {doctorsList.map((d, i) => (
-                                        <tr key={i} style={{ borderBottom: '1px solid #f8fafc' }}>
-                                            <td style={{ ...tdSt, fontWeight: 700 }}>{d.name}</td>
-                                            <td style={tdSt}>
-                                                <span style={{ padding: '5px 12px', borderRadius: 8, fontSize: 13, fontWeight: 600, background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0' }}>
-                                                    {d.specialization}
-                                                </span>
-                                            </td>
-                                            <td style={{ ...tdSt, color: '#64748b' }}>{d.user_id || 'Not Linked'}</td>
-                                            <td style={tdSt}><span style={statusActive}>Available</span></td>
-                                            <td style={tdSt}><button style={actionBtn}>⋮</button></td>
-                                        </tr>
-                                    ))}
+                                    {doctorsList.map((d, i) => {
+                                        const docId = d.doctor_id || d.id;
+                                        return (
+                                            <tr key={i} style={{ borderBottom: '1px solid #f8fafc' }}>
+                                                <td style={{ ...tdSt, fontWeight: 700 }}>{d.name}</td>
+                                                <td style={tdSt}>
+                                                    <span style={{ padding: '5px 12px', borderRadius: 8, fontSize: 13, fontWeight: 600, background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0' }}>{d.specialization}</span>
+                                                </td>
+                                                <td style={{ ...tdSt, color: '#64748b' }}>{d.user_id || 'Not Linked'}</td>
+                                                <td style={tdSt}><span style={statusActive}>Available</span></td>
+
+                                                <td style={{ ...tdSt, position: 'relative' }}>
+                                                    <button onClick={(e) => { e.stopPropagation(); setActiveMenu(activeMenu === docId ? null : docId); }} style={actionBtn}>⋮</button>
+                                                    {activeMenu === docId && (
+                                                        <div style={dropdownMenu}>
+                                                            <div style={dropdownItem} onClick={(e) => { e.stopPropagation(); handleEditDoctor(d); }}>✏️ Edit</div>
+                                                            <div style={{ ...dropdownItem, color: '#ef4444' }} onClick={(e) => { e.stopPropagation(); handleDeleteDoctor(docId); }}>🗑️ Delete</div>
+                                                        </div>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        )
+                                    })}
                                 </tbody>
                             </table>
                         </div>
@@ -415,8 +615,8 @@ export default function AdminDashboard() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 28 }}>
                             <div style={{ width: 46, height: 46, borderRadius: 12, background: '#fdf4ff', color: '#c026d3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>🧑</div>
                             <div>
-                                <div style={{ fontWeight: 800, fontSize: 18, color: '#0f172a' }}>Register Patient</div>
-                                <div style={{ fontSize: 14, color: '#64748b', marginTop: 4 }}>Add a new patient record</div>
+                                <div style={{ fontWeight: 800, fontSize: 18, color: '#0f172a' }}>{editingPatId ? 'Update Patient' : 'Register Patient'}</div>
+                                <div style={{ fontSize: 14, color: '#64748b', marginTop: 4 }}>{editingPatId ? 'Edit patient details' : 'Add a new patient record'}</div>
                             </div>
                         </div>
                         <form onSubmit={handlePatientSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -443,11 +643,18 @@ export default function AdminDashboard() {
                                     ))}
                                 </select>
                             </div>
-                            <button type="submit" style={{ ...btnStyle, background: 'linear-gradient(to right, #a21caf, #d946ef)' }}>🧑 Add Patient</button>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <button type="submit" style={{ ...btnStyle, flex: 1, background: 'linear-gradient(to right, #a21caf, #d946ef)' }}>
+                                    {editingPatId ? '🧑 Update Patient' : '🧑 Add Patient'}
+                                </button>
+                                {editingPatId && (
+                                    <button type="button" onClick={() => { setEditingPatId(null); setPatForm({ name: '', age: '', phone: '', user_id: '' }); }} style={{ ...btnStyle, background: '#fee2e2', color: '#ef4444', width: 'auto', padding: '16px 20px', boxShadow: 'none' }}>Cancel</button>
+                                )}
+                            </div>
                         </form>
                         {patMessage && (
-                            <div style={patMessage === 'success' ? msgSuccess : msgError}>
-                                {patMessage === 'success' ? '✅ Patient registered successfully' : '❌ Failed to register'}
+                            <div style={patMessage === 'error' ? msgError : msgSuccess}>
+                                {patMessage === 'success' ? '✅ Patient saved successfully' : patMessage === 'deleted' ? '✅ Patient deleted successfully' : '❌ Failed to process request'}
                             </div>
                         )}
                     </div>
@@ -462,7 +669,7 @@ export default function AdminDashboard() {
                                 </div>
                             </div>
                         </div>
-                        <div style={{ overflowX: 'auto' }}>
+                        <div style={{ overflow: 'visible', paddingBottom: '120px' }}>
                             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                 <thead>
                                     <tr style={{ borderBottom: '2px solid #f1f5f9' }}>
@@ -470,19 +677,29 @@ export default function AdminDashboard() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {patientsList.map((p, i) => (
-                                        <tr key={i} style={{ borderBottom: '1px solid #f8fafc' }}>
-                                            <td style={{ ...tdSt, fontWeight: 700 }}>{p.name}</td>
-                                            <td style={tdSt}>
-                                                <span style={{ padding: '4px 10px', borderRadius: 6, fontSize: 13, fontWeight: 600, background: '#f1f5f9', color: '#64748b' }}>
-                                                    {p.age} yrs
-                                                </span>
-                                            </td>
-                                            <td style={{ ...tdSt, color: '#475569' }}>📞 {p.phone}</td>
-                                            <td style={{ ...tdSt, color: '#64748b' }}>{p.user_id || 'Not Linked'}</td>
-                                            <td style={tdSt}><button style={actionBtn}>⋮</button></td>
-                                        </tr>
-                                    ))}
+                                    {patientsList.map((p, i) => {
+                                        const patId = p.patient_id || p.id;
+                                        return (
+                                            <tr key={i} style={{ borderBottom: '1px solid #f8fafc' }}>
+                                                <td style={{ ...tdSt, fontWeight: 700 }}>{p.name}</td>
+                                                <td style={tdSt}>
+                                                    <span style={{ padding: '4px 10px', borderRadius: 6, fontSize: 13, fontWeight: 600, background: '#f1f5f9', color: '#64748b' }}>{p.age} yrs</span>
+                                                </td>
+                                                <td style={{ ...tdSt, color: '#475569' }}>📞 {p.phone}</td>
+                                                <td style={{ ...tdSt, color: '#64748b' }}>{p.user_id || 'Not Linked'}</td>
+
+                                                <td style={{ ...tdSt, position: 'relative' }}>
+                                                    <button onClick={(e) => { e.stopPropagation(); setActiveMenu(activeMenu === patId ? null : patId); }} style={actionBtn}>⋮</button>
+                                                    {activeMenu === patId && (
+                                                        <div style={dropdownMenu}>
+                                                            <div style={dropdownItem} onClick={(e) => { e.stopPropagation(); handleEditPatient(p); }}>✏️ Edit</div>
+                                                            <div style={{ ...dropdownItem, color: '#ef4444' }} onClick={(e) => { e.stopPropagation(); handleDeletePatient(patId); }}>🗑️ Delete</div>
+                                                        </div>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        )
+                                    })}
                                 </tbody>
                             </table>
                         </div>
@@ -498,8 +715,8 @@ export default function AdminDashboard() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 28 }}>
                             <div style={{ width: 46, height: 46, borderRadius: 12, background: '#ffedd5', color: '#ea580c', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>💊</div>
                             <div>
-                                <div style={{ fontWeight: 800, fontSize: 18, color: '#0f172a' }}>Add Medicine</div>
-                                <div style={{ fontSize: 14, color: '#64748b', marginTop: 4 }}>Enter new stock to inventory</div>
+                                <div style={{ fontWeight: 800, fontSize: 18, color: '#0f172a' }}>{editingPharmId ? 'Update Medicine' : 'Add Medicine'}</div>
+                                <div style={{ fontSize: 14, color: '#64748b', marginTop: 4 }}>{editingPharmId ? 'Edit stock details' : 'Enter new stock to inventory'}</div>
                             </div>
                         </div>
                         <form onSubmit={handlePharmacySubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -524,11 +741,18 @@ export default function AdminDashboard() {
                                     <input type="number" step="0.01" placeholder="0.00" value={pharmForm.price} onChange={e => setPharmForm({ ...pharmForm, price: e.target.value })} required style={inputSt} />
                                 </div>
                             </div>
-                            <button type="submit" style={{ ...btnStyle, background: 'linear-gradient(to right, #ea580c, #f97316)' }}>💊 Add Medicine</button>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <button type="submit" style={{ ...btnStyle, flex: 1, background: 'linear-gradient(to right, #ea580c, #f97316)' }}>
+                                    {editingPharmId ? '💊 Update Medicine' : '💊 Add Medicine'}
+                                </button>
+                                {editingPharmId && (
+                                    <button type="button" onClick={() => { setEditingPharmId(null); setPharmForm({ name: '', category: '', quantity: '', price: '' }); }} style={{ ...btnStyle, background: '#fee2e2', color: '#ef4444', width: 'auto', padding: '16px 20px', boxShadow: 'none' }}>Cancel</button>
+                                )}
+                            </div>
                         </form>
                         {pharmMessage && (
-                            <div style={pharmMessage === 'success' ? msgSuccess : msgError}>
-                                {pharmMessage === 'success' ? '✅ Medicine added successfully' : '❌ Failed to add medicine'}
+                            <div style={pharmMessage === 'error' ? msgError : msgSuccess}>
+                                {pharmMessage === 'success' ? '✅ Medicine saved successfully' : pharmMessage === 'deleted' ? '✅ Medicine deleted successfully' : '❌ Failed to process request'}
                             </div>
                         )}
                     </div>
@@ -543,7 +767,7 @@ export default function AdminDashboard() {
                                 </div>
                             </div>
                         </div>
-                        <div style={{ overflowX: 'auto' }}>
+                        <div style={{ overflow: 'visible', paddingBottom: '120px' }}>
                             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                 <thead>
                                     <tr style={{ borderBottom: '2px solid #f1f5f9' }}>
@@ -552,29 +776,31 @@ export default function AdminDashboard() {
                                 </thead>
                                 <tbody>
                                     {pharmacyList.map((m, i) => {
+                                        const medId = m.medicine_id || m.id;
                                         const qty = parseInt(m.quantity);
-                                        let statBadge = statusActive;
-                                        let statText = "In Stock";
-                                        if (qty === 0) {
-                                            statBadge = statusDanger;
-                                            statText = "Out of Stock";
-                                        } else if (qty < 20) {
-                                            statBadge = statusWarning;
-                                            statText = "Low Stock";
-                                        }
+                                        let statBadge = statusActive; let statText = "In Stock";
+                                        if (qty === 0) { statBadge = statusDanger; statText = "Out of Stock"; }
+                                        else if (qty < 20) { statBadge = statusWarning; statText = "Low Stock"; }
 
                                         return (
                                             <tr key={i} style={{ borderBottom: '1px solid #f8fafc' }}>
                                                 <td style={{ ...tdSt, fontWeight: 700 }}>{m.name}</td>
                                                 <td style={tdSt}>
-                                                    <span style={{ padding: '4px 10px', borderRadius: 6, fontSize: 13, fontWeight: 600, background: '#f1f5f9', color: '#64748b' }}>
-                                                        {m.category}
-                                                    </span>
+                                                    <span style={{ padding: '4px 10px', borderRadius: 6, fontSize: 13, fontWeight: 600, background: '#f1f5f9', color: '#64748b' }}>{m.category}</span>
                                                 </td>
                                                 <td style={{ ...tdSt, fontWeight: 600 }}>{m.quantity} Units</td>
                                                 <td style={{ ...tdSt, color: '#475569' }}>Rs {parseFloat(m.price).toFixed(2)}</td>
                                                 <td style={tdSt}><span style={statBadge}>{statText}</span></td>
-                                                <td style={tdSt}><button style={actionBtn}>⋮</button></td>
+
+                                                <td style={{ ...tdSt, position: 'relative' }}>
+                                                    <button onClick={(e) => { e.stopPropagation(); setActiveMenu(activeMenu === medId ? null : medId); }} style={actionBtn}>⋮</button>
+                                                    {activeMenu === medId && (
+                                                        <div style={dropdownMenu}>
+                                                            <div style={dropdownItem} onClick={(e) => { e.stopPropagation(); handleEditPharmacy(m); }}>✏️ Edit</div>
+                                                            <div style={{ ...dropdownItem, color: '#ef4444' }} onClick={(e) => { e.stopPropagation(); handleDeletePharmacy(medId); }}>🗑️ Delete</div>
+                                                        </div>
+                                                    )}
+                                                </td>
                                             </tr>
                                         )
                                     })}
@@ -593,8 +819,8 @@ export default function AdminDashboard() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 28 }}>
                             <div style={{ width: 46, height: 46, borderRadius: 12, background: '#ede9fe', color: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>📅</div>
                             <div>
-                                <div style={{ fontWeight: 800, fontSize: 18, color: '#0f172a' }}>Schedule Visit</div>
-                                <div style={{ fontSize: 14, color: '#64748b', marginTop: 4 }}>Book a new appointment</div>
+                                <div style={{ fontWeight: 800, fontSize: 18, color: '#0f172a' }}>{editingApptId ? 'Update Visit' : 'Schedule Visit'}</div>
+                                <div style={{ fontSize: 14, color: '#64748b', marginTop: 4 }}>{editingApptId ? 'Edit appointment details' : 'Book a new appointment'}</div>
                             </div>
                         </div>
                         <form onSubmit={handleAppointmentSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -603,9 +829,7 @@ export default function AdminDashboard() {
                                 <select value={apptForm.patient_id} onChange={e => setApptForm({ ...apptForm, patient_id: e.target.value })} required style={inputSt}>
                                     <option value="">Choose Patient</option>
                                     {patientsList.map(p => (
-                                        <option key={p.patient_id || p.id} value={p.patient_id || p.id}>
-                                            {p.name}
-                                        </option>
+                                        <option key={p.patient_id || p.id} value={p.patient_id || p.id}>{p.name}</option>
                                     ))}
                                 </select>
                             </div>
@@ -614,9 +838,7 @@ export default function AdminDashboard() {
                                 <select value={apptForm.doctor_id} onChange={e => setApptForm({ ...apptForm, doctor_id: e.target.value })} required style={inputSt}>
                                     <option value="">Choose Doctor</option>
                                     {doctorsList.map(d => (
-                                        <option key={d.doctor_id || d.id} value={d.doctor_id || d.id}>
-                                            {d.name} ({d.specialization})
-                                        </option>
+                                        <option key={d.doctor_id || d.id} value={d.doctor_id || d.id}>{d.name} ({d.specialization})</option>
                                     ))}
                                 </select>
                             </div>
@@ -630,11 +852,18 @@ export default function AdminDashboard() {
                                     <input type="time" value={apptForm.time} onChange={e => setApptForm({ ...apptForm, time: e.target.value })} required style={inputSt} />
                                 </div>
                             </div>
-                            <button type="submit" style={{ ...btnStyle, background: 'linear-gradient(to right, #7c3aed, #a855f7)' }}>📅 Schedule Appointment</button>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <button type="submit" style={{ ...btnStyle, flex: 1, background: 'linear-gradient(to right, #7c3aed, #a855f7)' }}>
+                                    {editingApptId ? '📅 Update Appointment' : '📅 Schedule Appointment'}
+                                </button>
+                                {editingApptId && (
+                                    <button type="button" onClick={() => { setEditingApptId(null); setApptForm({ patient_id: '', doctor_id: '', date: '', time: '', status: 'Scheduled' }); }} style={{ ...btnStyle, background: '#fee2e2', color: '#ef4444', width: 'auto', padding: '16px 20px', boxShadow: 'none' }}>Cancel</button>
+                                )}
+                            </div>
                         </form>
                         {apptMessage && (
-                            <div style={apptMessage === 'success' ? msgSuccess : msgError}>
-                                {apptMessage === 'success' ? '✅ Appointment scheduled' : '❌ Scheduling failed'}
+                            <div style={apptMessage === 'error' ? msgError : msgSuccess}>
+                                {apptMessage === 'success' ? '✅ Appointment saved successfully' : apptMessage === 'deleted' ? '✅ Appointment deleted successfully' : '❌ Failed to process request'}
                             </div>
                         )}
                     </div>
@@ -649,7 +878,7 @@ export default function AdminDashboard() {
                                 </div>
                             </div>
                         </div>
-                        <div style={{ overflowX: 'auto' }}>
+                        <div style={{ overflow: 'visible', paddingBottom: '120px' }}>
                             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                 <thead>
                                     <tr style={{ borderBottom: '2px solid #f1f5f9' }}>
@@ -658,6 +887,7 @@ export default function AdminDashboard() {
                                 </thead>
                                 <tbody>
                                     {appointmentsList.map((a, i) => {
+                                        const apptId = a.appointment_id || a.id;
                                         let statBadge;
                                         if (a.status === 'Completed') statBadge = statusActive;
                                         else if (a.status === 'Pending' || a.status === 'Scheduled') statBadge = statusWarning;
@@ -668,14 +898,21 @@ export default function AdminDashboard() {
                                             <tr key={i} style={{ borderBottom: '1px solid #f8fafc' }}>
                                                 <td style={{ ...tdSt, fontWeight: 700 }}>{a.patient_id}</td>
                                                 <td style={tdSt}>
-                                                    <span style={{ padding: '4px 10px', borderRadius: 6, fontSize: 13, fontWeight: 600, background: '#f1f5f9', color: '#64748b' }}>
-                                                        {a.doctor_id}
-                                                    </span>
+                                                    <span style={{ padding: '4px 10px', borderRadius: 6, fontSize: 13, fontWeight: 600, background: '#f1f5f9', color: '#64748b' }}>{a.doctor_id}</span>
                                                 </td>
                                                 <td style={{ ...tdSt, color: '#475569', fontSize: 14 }}>{a.date}</td>
                                                 <td style={{ ...tdSt, color: '#0f172a', fontWeight: 600 }}>{a.time}</td>
                                                 <td style={tdSt}><span style={statBadge}>{a.status}</span></td>
-                                                <td style={tdSt}><button style={actionBtn}>⋮</button></td>
+
+                                                <td style={{ ...tdSt, position: 'relative' }}>
+                                                    <button onClick={(e) => { e.stopPropagation(); setActiveMenu(activeMenu === apptId ? null : apptId); }} style={actionBtn}>⋮</button>
+                                                    {activeMenu === apptId && (
+                                                        <div style={dropdownMenu}>
+                                                            <div style={dropdownItem} onClick={(e) => { e.stopPropagation(); handleEditAppointment(a); }}>✏️ Edit</div>
+                                                            <div style={{ ...dropdownItem, color: '#ef4444' }} onClick={(e) => { e.stopPropagation(); handleDeleteAppointment(apptId); }}>🗑️ Delete</div>
+                                                        </div>
+                                                    )}
+                                                </td>
                                             </tr>
                                         )
                                     })}
@@ -720,23 +957,7 @@ export default function AdminDashboard() {
 
                 <div style={{ padding: '20px 24px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
-
-                        {/* THIS IS THE LOGO YOU ARE ASKING ABOUT */}
-                        <div style={{
-                            width: 42,
-                            height: 42,
-                            borderRadius: '50%',
-                            background: '#334155',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: 20,
-                            flexShrink: 0
-                        }}>
-                            👤
-                        </div>
-                        {/* --------------------------------------- */}
-
+                        <div style={{ width: 42, height: 42, borderRadius: '50%', background: '#334155', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>👤</div>
                         <div>
                             <div style={{ fontWeight: 600, fontSize: 15 }}>Admin</div>
                             <div style={{ fontSize: 12, opacity: 0.6, marginTop: 2 }}>Shashi</div>
@@ -748,7 +969,8 @@ export default function AdminDashboard() {
                 </div>
             </aside>
 
-            <main style={{ flex: 1, padding: '40px 48px', overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
+            {/* Global Click handler to close dropdowns */}
+            <main onClick={() => activeMenu && setActiveMenu(null)} style={{ flex: 1, padding: '40px 48px', overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 36 }}>
                     <div>
                         <h1 style={{ margin: 0, fontSize: 30, fontWeight: 800, color: '#0f172a' }}>Welcome Back, Admin 👋</h1>
@@ -759,52 +981,7 @@ export default function AdminDashboard() {
                     </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 24, marginBottom: 36 }}>
-                    {/* ✅ UPDATED: The onClick handler is now added to the "View all..." text */}
-                    {statCards.map(({ label, value, icon, trend, navTarget }) => (
-                        <div key={label} style={{ background: 'white', borderRadius: 16, border: '1px solid #e2e8f0', padding: '24px', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                                    <div style={{ width: 42, height: 42, borderRadius: 10, background: '#f0fdfa', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>{icon}</div>
-                                    <span style={{ fontSize: 15, fontWeight: 600, color: '#64748b' }}>{label}</span>
-                                </div>
-                                <span style={{ fontSize: 13, fontWeight: 700, color: '#10b981', background: '#ecfdf5', borderRadius: 20, padding: '4px 10px' }}>↑ {trend}</span>
-                            </div>
-                            <div style={{ fontSize: 40, fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>{value}</div>
-                            <div
-                                onClick={() => setActiveNav(navTarget)}
-                                style={{ marginTop: 14, fontSize: 14, fontWeight: 500, color: '#0284c7', cursor: 'pointer' }}
-                            >
-                                View all {label.toLowerCase().replace("today's ", "")} ›
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
                 {renderMainContent()}
-
-                <div style={{ marginTop: 'auto', background: '#0d1f2d', borderRadius: 20, padding: '30px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', flexWrap: 'wrap', gap: '24px', boxShadow: '0 10px 25px rgba(13,31,45,0.15)' }}>
-                    <div>
-                        <div style={{ fontWeight: 800, fontSize: 18 }}>System Overview</div>
-                        <div style={{ fontSize: 14, opacity: 0.6, marginTop: 6 }}>Quick overview of system statistics</div>
-                    </div>
-                    <div style={{ display: 'flex', gap: '48px', flexWrap: 'wrap' }}>
-                        {[
-                            { icon: '👥', value: stats.totalUsers, label: 'Total Users' },
-                            { icon: '🛡', value: stats.activeUsers, label: 'Active Users' },
-                            { icon: '🕐', value: stats.loginsToday, label: 'Total Logins Today' },
-                            { icon: '📋', value: stats.totalActivities, label: 'Total Activities' }
-                        ].map(({ icon, value, label }) => (
-                            <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                                <div style={{ width: 52, height: 52, borderRadius: 14, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>{icon}</div>
-                                <div>
-                                    <div style={{ fontSize: 28, fontWeight: 800, lineHeight: 1 }}>{value}</div>
-                                    <div style={{ fontSize: 13, opacity: 0.6, marginTop: 6, fontWeight: 500 }}>{label}</div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
             </main>
         </div>
     );
@@ -816,7 +993,6 @@ const inputSt = { width: '100%', padding: '14px 18px', borderRadius: 12, border:
 const tdSt = { padding: '16px 16px', fontSize: 15, color: '#1e293b', fontWeight: 500 };
 const thSt = { padding: '14px 16px', textAlign: 'left', fontSize: 14, color: '#475569', fontWeight: 700 };
 const btnStyle = { padding: '16px', border: 'none', borderRadius: 12, background: 'linear-gradient(to right, #0d9488, #0284c7)', color: 'white', fontSize: 16, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginTop: 8, boxShadow: '0 4px 12px rgba(2,132,199,0.2)' };
-const viewAllBtn = { padding: '10px 20px', borderRadius: 10, border: '1px solid #e2e8f0', background: 'white', fontSize: 14, fontWeight: 600, color: '#475569', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 };
 const actionBtn = { background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: '#94a3b8' };
 const msgSuccess = { marginTop: 20, padding: '14px', borderRadius: 10, textAlign: 'center', background: '#ecfdf5', color: '#065f46', fontWeight: 700, fontSize: 15 };
 const msgError = { marginTop: 20, padding: '14px', borderRadius: 10, textAlign: 'center', background: '#fef2f2', color: '#991b1b', fontWeight: 700, fontSize: 15 };
@@ -825,3 +1001,14 @@ const msgError = { marginTop: 20, padding: '14px', borderRadius: 10, textAlign: 
 const statusActive = { padding: '5px 12px', borderRadius: 20, fontSize: 13, fontWeight: 700, background: '#dcfce7', color: '#166534' };
 const statusWarning = { padding: '5px 12px', borderRadius: 20, fontSize: 13, fontWeight: 700, background: '#fef3c7', color: '#92400e' };
 const statusDanger = { padding: '5px 12px', borderRadius: 20, fontSize: 13, fontWeight: 700, background: '#fee2e2', color: '#991b1b' };
+
+/* Dropdown Menu Styles */
+const dropdownMenu = {
+    position: 'absolute', right: 40, top: 20, background: 'white', border: '1px solid #e2e8f0',
+    borderRadius: 12, boxShadow: '0 10px 25px rgba(0,0,0,0.15)', padding: 8, zIndex: 999,
+    width: 120, display: 'flex', flexDirection: 'column', gap: 4
+};
+const dropdownItem = {
+    display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', fontSize: 14,
+    fontWeight: 600, color: '#334155', cursor: 'pointer', borderRadius: 8
+};

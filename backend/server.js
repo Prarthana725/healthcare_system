@@ -14,6 +14,7 @@ const prescriptionRoutes = require('./routes/prescriptions');
 const billRoutes = require('./routes/bills');
 const viewRoutes = require('./routes/views');
 const forgotPasswordRoutes = require('./routes/auth.forgotPassword');
+const statsRoutes = require('./routes/stats');
 
 const app = express();
 
@@ -33,6 +34,7 @@ app.use('/api/appointments', appointmentRoutes);
 app.use('/api/prescriptions', prescriptionRoutes);
 app.use('/api/bills', billRoutes);
 app.use('/api/views', viewRoutes);
+app.use('/api/stats', statsRoutes);
 
 // --- THE MASTER STATS ROUTE ---
 app.get('/api/hospital-stats', async (req, res) => {

@@ -4,7 +4,6 @@ const bcrypt = require('bcrypt'); // Use 'bcryptjs' here if that's what you inst
 class AuthController {
 
     async login(req, res) {
-
         try {
             const { username, password } = req.body;
             const connection = await getConnection();
@@ -54,10 +53,22 @@ class AuthController {
                 return res.status(401).json({ error: 'Invalid credentials' });
             }
 
-
             //--------------------------------------------------
-            // SUCCESS LOGIN
+            // SUCCESS LOGIN - UPDATE LAST LOGIN TIME
             //--------------------------------------------------
+            // මෙතන තමයි අපි අලුතින් එකතු කළේ. ලොග් වුණ වෙලාව සටහන් කරනවා.
+            try {
+                await connection.request()
+                    .input('userId', user.user_id)
+                    .query(`
+                        UPDATE users 
+                        SET last_login = GETDATE() 
+                        WHERE user_id = @userId
+                    `);
+            } catch (updateErr) {
+                console.error("Failed to update last login time:", updateErr);
+                // වෙලාව සේව් කරන්න බැරි වුණත් ලොග් වෙන එක නතර කරන්නේ නැහැ
+            }
 
             res.json({
                 message: 'Login successful',
@@ -73,6 +84,78 @@ class AuthController {
         } catch (error) {
             console.error("Login Error:", error);
             res.status(500).json({ error: 'Login failed' });
+        }
+    }
+
+    async updateUser(req, res) {
+        try {
+            const { id } = req.params;
+            
+            // දැන් Frontend එකෙන් එන role_id එකත් අපි මෙතනින් අල්ලගන්නවා
+            const { username, password, role_name, role, role_id } = req.body; 
+            const incomingRoleName = role_name || role; 
+
+            const connection = await getConnection();
+
+            // 1. Password & Username Update කිරීම
+            if (password && password.trim() !== "") {
+                await connection.request()
+                    .input('id', id)
+                    .input('username', username)
+                    .input('password', password)
+                    .query(`
+                        UPDATE users 
+                        SET username = @username, password = @password 
+                        WHERE user_id = @id
+                    `);
+            } else if (username) {
+                await connection.request()
+                    .input('id', id)
+                    .input('username', username)
+                    .query(`
+                        UPDATE users 
+                        SET username = @username 
+                        WHERE user_id = @id
+                    `);
+            }
+
+            // 2. Role Update කිරීම (role_id එක හරහා)
+            if (role_id) {
+                // කෙලින්ම ID එක පාවිච්චි කරලා අකුරු වැරදීම් (spelling mistakes) නැතුව අප්ඩේට් කිරීම
+                await connection.request()
+                    .input('id', id)
+                    .input('role_id', parseInt(role_id))
+                    .query(`
+                        UPDATE user_roles 
+                        SET role_id = @role_id 
+                        WHERE user_id = @id;
+                        
+                        -- යම් හෙයකින් user_roles එකේ record එකක් කලින් තිබුණේ නැත්නම් අලුතින් දැමීම
+                        IF @@ROWCOUNT = 0
+                        BEGIN
+                            INSERT INTO user_roles (user_id, role_id) VALUES (@id, @role_id);
+                        END
+                    `);
+            } else if (incomingRoleName) {
+                // යම් හෙයකින් අනාගතයේදී නමෙන් එව්වොත් වැඩ කරන්න පරණ කේතයත් තබාගැනීම
+                const formattedRole = incomingRoleName.charAt(0).toUpperCase() + incomingRoleName.slice(1).toLowerCase();
+                await connection.request()
+                    .input('id', id)
+                    .input('role_name', formattedRole)
+                    .query(`
+                        DECLARE @TargetRoleID INT = (SELECT TOP 1 role_id FROM roles WHERE role_name LIKE '%' + LTRIM(RTRIM(@role_name)) + '%');
+                        IF @TargetRoleID IS NOT NULL
+                        BEGIN
+                            UPDATE user_roles SET role_id = @TargetRoleID WHERE user_id = @id;
+                        END
+                    `);
+            }
+
+            res.json({ message: 'User updated successfully' });
+
+        } catch (error) {
+            console.error("Update User Error:", error);
+            res.status(500).json({ error: 'Failed to update user' });
         }
     }
 }
