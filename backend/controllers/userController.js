@@ -4,15 +4,12 @@ class UserController {
 
     // GET USERS
     async getAll(req, res) {
-
         try {
-
             const users = await userQueries.getAllUsers();
 
             res.json(users);
 
         } catch (error) {
-
             console.error(error);
 
             res.status(500).json({
@@ -23,17 +20,10 @@ class UserController {
 
     // CREATE USER
     async create(req, res) {
-
         try {
-
-            const {
-                username,
-                password,
-                role_id
-            } = req.body;
+            const { username, password, role_id } = req.body;
 
             if (!username || !password || !role_id) {
-
                 return res.status(400).json({
                     error: 'Missing fields'
                 });
@@ -51,11 +41,30 @@ class UserController {
             });
 
         } catch (error) {
-
             console.error(error);
 
             res.status(500).json({
                 error: 'Failed to create user'
+            });
+        }
+    }
+
+    // DELETE USER
+    async deleteUser(req, res) {
+        try {
+            const { id } = req.params;
+
+            await userQueries.deleteUser(id);
+
+            res.json({
+                message: 'User deleted successfully'
+            });
+
+        } catch (error) {
+            console.error(error);
+
+            res.status(500).json({
+                error: 'Failed to delete user'
             });
         }
     }
