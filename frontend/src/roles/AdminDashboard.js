@@ -87,18 +87,14 @@ export default function AdminDashboard() {
         loadAppointments();
     }, []);
 
-    // 🚀 මෙතන තමයි අපි වෙනස් කළේ! (අලුත් API එකයි පරණ API එකයි දෙකම එකට Load කරනවා)
     async function loadStats() {
         try {
-            // 1. පරණ API එකෙන් උඩ තියෙන කාඩ් 4ට දත්ත ගන්නවා
             const resTop = await fetch(`${API_URL}/hospital-stats`);
             const topData = resTop.ok ? await resTop.json() : {};
 
-            // 2. අලුත් API එකෙන් යට තියෙන කළු පාට පැනල් එකට සැබෑ දත්ත ගන්නවා
             const resBottom = await fetch(`${API_URL}/stats/overview`);
             const bottomData = resBottom.ok ? await resBottom.json() : {};
 
-            // දත්ත දෙකම එකතු කරලා State එකට දානවා
             setStats({ ...topData, ...bottomData });
         } catch (err) { console.error(err); }
     }
@@ -286,7 +282,7 @@ export default function AdminDashboard() {
     }
 
     const handleEditPharmacy = (med) => {
-        setPharmForm({ name: med.category, category: med.category, quantity: med.quantity, price: med.price });
+        setPharmForm({ name: med.name, category: med.category, quantity: med.quantity, price: med.price });
         setEditingPharmId(med.medicine_id || med.id);
         setActiveMenu(null);
     };
@@ -354,8 +350,56 @@ export default function AdminDashboard() {
         { label: "Total Appointments", value: stats.appointments, icon: '📅', trend: stats.appointmentTrend ? `${stats.appointmentTrend}%` : '0%', navTarget: 'Appointments' },
     ];
 
+    // --- CONDITIONALLY RENDER CONTENT ---
     const renderMainContent = () => {
-        if (activeNav === 'Dashboard' || activeNav === 'Users') {
+        if (activeNav === 'Dashboard') {
+            return (
+                <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 24, marginBottom: 36 }}>
+                        {statCards.map(({ label, value, icon, trend, navTarget }) => (
+                            <div key={label} style={{ background: 'white', borderRadius: 16, border: '1px solid #e2e8f0', padding: '24px', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                        <div style={{ width: 42, height: 42, borderRadius: 10, background: '#f0fdfa', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>{icon}</div>
+                                        <span style={{ fontSize: 15, fontWeight: 600, color: '#64748b' }}>{label}</span>
+                                    </div>
+                                    <span style={{ fontSize: 13, fontWeight: 700, color: '#10b981', background: '#ecfdf5', borderRadius: 20, padding: '4px 10px' }}>↑ {trend}</span>
+                                </div>
+                                <div style={{ fontSize: 40, fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>{value}</div>
+                                <div onClick={() => setActiveNav(navTarget)} style={{ marginTop: 14, fontSize: 14, fontWeight: 500, color: '#0284c7', cursor: 'pointer' }}>
+                                    View all {label.toLowerCase().replace("today's ", "")} ›
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div style={{ marginTop: 'auto', background: '#0d1f2d', borderRadius: 20, padding: '30px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', flexWrap: 'wrap', gap: '24px', boxShadow: '0 10px 25px rgba(13,31,45,0.15)' }}>
+                        <div>
+                            <div style={{ fontWeight: 800, fontSize: 18 }}>System Overview</div>
+                            <div style={{ fontSize: 14, opacity: 0.6, marginTop: 6 }}>Quick overview of system statistics</div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '48px', flexWrap: 'wrap' }}>
+                            {[ 
+                                { icon: '👥', value: stats.totalUsers, label: 'Total Users' }, 
+                                { icon: '🛡', value: stats.activeUsers, label: 'Active Users' }, 
+                                { icon: '🕐', value: stats.loginsToday, label: 'Total Logins Today' }, 
+                                { icon: '📋', value: stats.totalActivities, label: 'Total Activities' } 
+                            ].map(({ icon, value, label }) => (
+                                <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                                    <div style={{ width: 52, height: 52, borderRadius: 14, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>{icon}</div>
+                                    <div>
+                                        <div style={{ fontSize: 28, fontWeight: 800, lineHeight: 1 }}>{value}</div>
+                                        <div style={{ fontSize: 13, opacity: 0.6, marginTop: 6, fontWeight: 500 }}>{label}</div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        if (activeNav === 'Users') {
             return (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.8fr', gap: 28, marginBottom: 40 }}>
                     <div style={{ background: 'white', borderRadius: 20, border: '1px solid #e2e8f0', padding: '32px', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
@@ -925,48 +969,7 @@ export default function AdminDashboard() {
                     </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 24, marginBottom: 36 }}>
-                    {statCards.map(({ label, value, icon, trend, navTarget }) => (
-                        <div key={label} style={{ background: 'white', borderRadius: 16, border: '1px solid #e2e8f0', padding: '24px', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                                    <div style={{ width: 42, height: 42, borderRadius: 10, background: '#f0fdfa', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>{icon}</div>
-                                    <span style={{ fontSize: 15, fontWeight: 600, color: '#64748b' }}>{label}</span>
-                                </div>
-                                <span style={{ fontSize: 13, fontWeight: 700, color: '#10b981', background: '#ecfdf5', borderRadius: 20, padding: '4px 10px' }}>↑ {trend}</span>
-                            </div>
-                            <div style={{ fontSize: 40, fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>{value}</div>
-                            <div onClick={() => setActiveNav(navTarget)} style={{ marginTop: 14, fontSize: 14, fontWeight: 500, color: '#0284c7', cursor: 'pointer' }}>
-                                View all {label.toLowerCase().replace("today's ", "")} ›
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
                 {renderMainContent()}
-
-                <div style={{ marginTop: 'auto', background: '#0d1f2d', borderRadius: 20, padding: '30px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', flexWrap: 'wrap', gap: '24px', boxShadow: '0 10px 25px rgba(13,31,45,0.15)' }}>
-                    <div>
-                        <div style={{ fontWeight: 800, fontSize: 18 }}>System Overview</div>
-                        <div style={{ fontSize: 14, opacity: 0.6, marginTop: 6 }}>Quick overview of system statistics</div>
-                    </div>
-                    <div style={{ display: 'flex', gap: '48px', flexWrap: 'wrap' }}>
-                        {[ 
-                            { icon: '👥', value: stats.totalUsers, label: 'Total Users' }, 
-                            { icon: '🛡', value: stats.activeUsers, label: 'Active Users' }, 
-                            { icon: '🕐', value: stats.loginsToday, label: 'Total Logins Today' }, 
-                            { icon: '📋', value: stats.totalActivities, label: 'Total Activities' } 
-                        ].map(({ icon, value, label }) => (
-                            <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                                <div style={{ width: 52, height: 52, borderRadius: 14, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>{icon}</div>
-                                <div>
-                                    <div style={{ fontSize: 28, fontWeight: 800, lineHeight: 1 }}>{value}</div>
-                                    <div style={{ fontSize: 13, opacity: 0.6, marginTop: 6, fontWeight: 500 }}>{label}</div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
             </main>
         </div>
     );
