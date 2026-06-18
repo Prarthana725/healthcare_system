@@ -99,14 +99,23 @@ export default function AdminDashboard() {
         } catch (err) { console.error(err); }
     }
 
-    async function loadUsers() {
-        try {
-            const res = await fetch(`${API_URL}/users`);
-            setUsers(await res.json());
-        } catch (err) { console.error(err); }
+    
+   
+async function loadUsers() {
+    try {
+        const res = await fetch(`${API_URL}/users`);
+        const data = await res.json();
+        
+        console.log("Users data from backend:", data); 
+        setUsers(Array.isArray(data) ? data : []);
+    } catch (err) { 
+        console.error(err);
+        setUsers([]); 
     }
+}
     async function loadDoctors() {
         try {
+            
             const res = await fetch(`${API_URL}/doctors`);
             setDoctorsList(await res.json());
         } catch (err) { console.error(err); }
@@ -476,7 +485,10 @@ export default function AdminDashboard() {
                                                     </span>
                                                 </td>
                                                 <td style={tdSt}><span style={statusActive}>Active</span></td>
-                                                <td style={{ ...tdSt, color: '#64748b' }}>{u.lastLogin || '—'}</td>
+                                                {/* මෙන්න මේ කොටස තමයි අපි වෙනස් කළේ 👇 (දිනය කැඩෙන්නේ නැති වෙන්න whiteSpace: nowrap දැම්මා) */}
+                                                <td style={{ ...tdSt, color: '#64748b', fontSize: 14, whiteSpace: 'nowrap' }}>
+                                                    {u.lastLogin ? u.lastLogin : '—'}
+                                                </td>
                                                 
                                                 <td style={{...tdSt, position: 'relative'}}>
                                                     <button onClick={(e) => { e.stopPropagation(); setActiveMenu(activeMenu === userId ? null : userId); }} style={actionBtn}>⋮</button>
