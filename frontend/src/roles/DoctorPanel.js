@@ -181,9 +181,13 @@ export default function DoctorPanel() {
             {/* SIDEBAR */}
             <div style={sidebarStyle}>
                 <div style={sidebarHeader}>
-                    <div style={sidebarLogo}>🏥</div>
+                    <img
+                        src="/medicare-logo.png"
+                        alt="MediCare Hospital Logo"
+                        style={sidebarLogoImage}
+                    />
                     <div>
-                        <div style={sidebarTitle}>Health Care Hospital</div>
+                        <div style={sidebarTitle}>MediCare Hospital</div>
                         <div style={sidebarSub}>Doctor Management</div>
                     </div>
                 </div>
@@ -511,7 +515,7 @@ const pageLayout = { display: 'flex', minHeight: '100vh', background: '#f8fafc',
 
 const sidebarStyle = { width: '280px', background: '#0a192f', color: 'white', display: 'flex', flexDirection: 'column' };
 const sidebarHeader = { padding: '25px 20px', display: 'flex', alignItems: 'center', gap: '15px', borderBottom: '1px solid #1e293b' };
-const sidebarLogo = { background: '#0ea5e9', width: '42px', height: '42px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px' };
+const sidebarLogoImage = { width: '42px', height: '42px', borderRadius: '10px', objectFit: 'cover', flexShrink: 0 };
 const sidebarTitle = { fontSize: '18px', fontWeight: 'bold' };
 const sidebarSub = { fontSize: '14px', color: '#94a3b8', marginTop: '4px' };
 const sidebarNav = { padding: '20px', display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 };
