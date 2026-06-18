@@ -27,6 +27,25 @@ class BillController {
         }
     }
 
+    async updateBillStatus(req, res) {
+        try {
+            const { id } = req.params; 
+            
+            // sqlConnection එක මේ ෆයිල් එකේ උඩින්ම require කරලා නැත්නම් විතරක් මේ පේළිය වැඩ කරාවි
+            const { getConnection } = require('../db/sqlConnection'); 
+            const connection = await getConnection();
+            
+            await connection.request()
+                .input('id', id)
+                .query(`UPDATE bills SET status = 'Paid' WHERE bill_id = @id`);
+
+            res.json({ message: 'Payment successful!' });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Failed to update payment status' });
+        }
+    }
+
     // Get bill details by bill ID
     async getById(req, res) {
 
