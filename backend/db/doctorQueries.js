@@ -40,16 +40,17 @@ class DoctorQueries {
     }
 
     // UPDATE DOCTOR
-    async updateDoctor(doctorId, name, specialization) {
+    async updateDoctor(doctorId, name, specialization, user_id) {
         const pool = await getConnection();
 
         const result = await pool.request()
             .input("id", sql.Int, doctorId)
             .input("name", sql.VarChar, name)
             .input("specialization", sql.VarChar, specialization)
+            .input("user_id", sql.Int, user_id)
             .query(`
                 UPDATE doctors
-                SET name=@name, specialization=@specialization
+                SET name=@name, specialization=@specialization, user_id=@user_id
                 WHERE doctor_id=@id
             `);
 

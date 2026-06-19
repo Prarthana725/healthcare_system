@@ -191,9 +191,14 @@ export default function AdminDashboard() {
             const method = editingDocId ? 'PUT' : 'POST';
             const endpoint = editingDocId ? `${API_URL}/doctors/${editingDocId}` : `${API_URL}/doctors`;
 
+            const safeUserId = docForm.user_id !== '' && docForm.user_id !== null && docForm.user_id !== undefined
+                ? Number(docForm.user_id)
+                : null;
+
             const payload = {
-                ...docForm,
-                user_id: docForm.user_id ? Number(docForm.user_id) : null
+                name: docForm.name,
+                specialization: docForm.specialization,
+                user_id: safeUserId
             };
 
             const res = await fetch(endpoint, {
