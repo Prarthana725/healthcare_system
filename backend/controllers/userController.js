@@ -21,11 +21,14 @@ class UserController {
     // CREATE USER
     async create(req, res) {
         try {
-            const { username, password, role_id, doctor_id } = req.body;
+            const { username, password, role_id, doctor_id, patient_id } = req.body;
             const parsedRoleId = Number(role_id);
             const parsedDoctorId = doctor_id === undefined || doctor_id === null || doctor_id === ''
                 ? null
                 : Number(doctor_id);
+            const parsedPatientId = patient_id === undefined || patient_id === null || patient_id === ''
+                ? null
+                : Number(patient_id);
 
             if (!username || !password || !role_id || Number.isNaN(parsedRoleId)) {
                 return res.status(400).json({
@@ -39,11 +42,18 @@ class UserController {
                 });
             }
 
+            if (parsedRoleId === 3 && (parsedPatientId === null || Number.isNaN(parsedPatientId))) {
+                return res.status(400).json({
+                    error: 'Patient role requires a valid existing patient_id'
+                });
+            }
+
             const user = await userQueries.createUser(
                 username,
                 password,
                 parsedRoleId,
-                parsedDoctorId
+                parsedDoctorId,
+                parsedPatientId
             );
 
             res.status(201).json({

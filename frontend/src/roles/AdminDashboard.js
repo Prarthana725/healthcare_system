@@ -50,7 +50,7 @@ export default function AdminDashboard() {
     const [activeMenu, setActiveMenu] = useState(null);
 
     // Form States
-    const [form, setForm] = useState({ username: '', password: '', role_id: '', doctor_id: '' });
+    const [form, setForm] = useState({ username: '', password: '', role_id: '', doctor_id: '', patient_id: '' });
     const [docForm, setDocForm] = useState({ name: '', specialization: '' });
     const [patForm, setPatForm] = useState({ name: '', age: '', phone: '', user_id: '' });
     const [pharmForm, setPharmForm] = useState({ name: '', category: '', quantity: '', price: '' });
@@ -151,11 +151,16 @@ export default function AdminDashboard() {
                 username: form.username,
                 password: form.password,
                 role_id: Number(form.role_id),
-                doctor_id: Number(form.doctor_id) || null
+                doctor_id: Number(form.doctor_id) || null,
+                patient_id: Number(form.patient_id) || null
             };
 
             if (payload.role_id !== 2) {
                 payload.doctor_id = null;
+            }
+
+            if (payload.role_id !== 3) {
+                payload.patient_id = null;
             }
 
             const res = await fetch(endpoint, {
@@ -165,7 +170,7 @@ export default function AdminDashboard() {
             });
             if (res.ok) {
                 setMessage('success');
-                setForm({ username: '', password: '', role_id: '', doctor_id: '' });
+                setForm({ username: '', password: '', role_id: '', doctor_id: '', patient_id: '' });
                 setEditingUserId(null);
                 loadUsers(); loadStats();
             } else { setMessage('error'); }
@@ -179,7 +184,8 @@ export default function AdminDashboard() {
             username: u.username,
             password: '',
             role_id: foundRole ? foundRole.role_id : '',
-            doctor_id: u.doctor_id || ''
+            doctor_id: u.doctor_id || '',
+            patient_id: u.patient_id || ''
         });
         setEditingUserId(u.id || u.user_id);
         setActiveMenu(null);
@@ -455,7 +461,7 @@ export default function AdminDashboard() {
                             </div>
                             <div>
                                 <label style={labelSt}>Select Role</label>
-                                <select value={form.role_id} onChange={e => setForm({ ...form, role_id: e.target.value, doctor_id: '' })} required style={inputSt}>
+                                <select value={form.role_id} onChange={e => setForm({ ...form, role_id: e.target.value, doctor_id: '', patient_id: '' })} required style={inputSt}>
                                     <option value="">Choose a role</option>
                                     {roles.map(r => <option key={r.role_id} value={r.role_id}>{r.role_name}</option>)}
                                 </select>
@@ -471,12 +477,23 @@ export default function AdminDashboard() {
                                     </select>
                                 </div>
                             )}
+                            {form.role_id === '3' && (
+                                <div>
+                                    <label style={labelSt}>Link Patient Profile</label>
+                                    <select value={form.patient_id} onChange={e => setForm({ ...form, patient_id: e.target.value })} required style={inputSt}>
+                                        <option value="">Select a patient profile</option>
+                                        {patientsList.map(p => (
+                                            <option key={p.patient_id || p.id} value={p.patient_id || p.id}>{p.name} ({p.age} yrs)</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
                             <div style={{ display: 'flex', gap: '10px' }}>
                                 <button type="submit" style={{ ...btnStyle, flex: 1 }}>
                                     {editingUserId ? '👤 Update User' : '👤 Create User'}
                                 </button>
                                 {editingUserId && (
-                                    <button type="button" onClick={() => { setEditingUserId(null); setForm({ username: '', password: '', role_id: '' }); }} style={{ ...btnStyle, background: '#fee2e2', color: '#ef4444', width: 'auto', padding: '16px 20px', boxShadow: 'none' }}>Cancel</button>
+                                    <button type="button" onClick={() => { setEditingUserId(null); setForm({ username: '', password: '', role_id: '', doctor_id: '', patient_id: '' }); }} style={{ ...btnStyle, background: '#fee2e2', color: '#ef4444', width: 'auto', padding: '16px 20px', boxShadow: 'none' }}>Cancel</button>
                                 )}
                             </div>
                         </form>

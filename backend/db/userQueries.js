@@ -20,15 +20,18 @@ async function getAllUsers() {
 }
 
 
-async function createUser(username, password, role_id, doctor_id = null) {
+async function createUser(username, password, role_id, doctor_id = null, patient_id = null) {
     const connection = await getConnection();
 
     const parsedRoleId = Number(role_id);
     const parsedDoctorId = doctor_id === null || doctor_id === undefined || doctor_id === ''
         ? null
         : Number(doctor_id);
+    const parsedPatientId = patient_id === null || patient_id === undefined || patient_id === ''
+        ? null
+        : Number(patient_id);
 
-    console.log('createUser payload:', { username, role_id: parsedRoleId, doctor_id: parsedDoctorId });
+    console.log('createUser payload:', { username, role_id: parsedRoleId, doctor_id: parsedDoctorId, patient_id: parsedPatientId });
 
     const userResult = await connection.request()
         .input('username', sql.VarChar, username)
@@ -74,11 +77,29 @@ async function createUser(username, password, role_id, doctor_id = null) {
             `);
     }
 
+    if (parsedRoleId === 3 && parsedPatientId !== null) {
+        console.log(`Linking patient_id=${parsedPatientId} to user_id=${user_id}`);
+
+        await connection.request()
+            .input('patient_id', sql.Int, parsedPatientId)
+            .input('user_id', sql.Int, user_id)
+            .query(`
+                UPDATE patients
+                SET user_id = @user_id
+                WHERE patient_id = @patient_id;
+
+                UPDATE users
+                SET patient_id = @patient_id
+                WHERE user_id = @user_id;
+            `);
+    }
+
     return {
         user_id,
         username,
         role_id: parsedRoleId,
-        doctor_id: parsedRoleId === 2 ? parsedDoctorId : null
+        doctor_id: parsedRoleId === 2 ? parsedDoctorId : null,
+        patient_id: parsedRoleId === 3 ? parsedPatientId : null
     };
 }
 
