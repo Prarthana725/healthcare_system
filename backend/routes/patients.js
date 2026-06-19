@@ -59,20 +59,20 @@ router.get('/inactive', async (req, res) => {
 });
 
 
-// GET PATIENT PROFILE BY USER ID
+// GET PATIENT PROFILE BY PATIENT ID
 
-router.get('/profile/:userId', async (req, res) => {
+router.get('/profile/:patientId', async (req, res) => {
 
     try {
 
         const pool = await getConnection();
 
         const result = await pool.request()
-            .input('userId', sql.VarChar, req.params.userId)
+            .input('patientId', sql.Int, req.params.patientId)
             .query(`
                 SELECT TOP 1 *
                 FROM patients
-                WHERE user_id = @userId
+                WHERE patient_id = @patientId
             `);
 
         if (result.recordset.length === 0) {
@@ -140,8 +140,7 @@ router.post('/', async (req, res) => {
         const {
             name,
             age,
-            phone,
-            user_id
+            phone
         } = req.body;
 
         const pool = await getConnection();
@@ -150,14 +149,12 @@ router.post('/', async (req, res) => {
             .input('name', sql.VarChar, name)
             .input('age', sql.Int, age)
             .input('phone', sql.VarChar, phone)
-            .input('user_id', sql.VarChar, user_id || null)
             .query(`
                 INSERT INTO patients
                 (
                     name,
                     age,
                     phone,
-                    user_id,
                     status
                 )
                 VALUES
@@ -165,7 +162,6 @@ router.post('/', async (req, res) => {
                     @name,
                     @age,
                     @phone,
-                    @user_id,
                     'Active'
                 )
             `);

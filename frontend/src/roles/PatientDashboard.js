@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
-import { 
-    LayoutDashboard, 
-    Calendar, 
-    Plus, 
-    Pill, 
-    CreditCard, 
-    LogOut, 
-    User, 
-    Zap, 
+import {
+    LayoutDashboard,
+    Calendar,
+    Plus,
+    Pill,
+    CreditCard,
+    LogOut,
+    User,
+    Zap,
     ChevronRight,
     Building2,
     FolderOpen,
@@ -25,8 +25,8 @@ export default function PatientDashboard() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [doctors, setDoctors] = useState([]);
-    
-    const [doctorSearch, setDoctorSearch] = useState(''); 
+
+    const [doctorSearch, setDoctorSearch] = useState('');
 
     const [activeSection, setActiveSection] = useState('dashboard');
     const [message, setMessage] = useState('');
@@ -36,25 +36,25 @@ export default function PatientDashboard() {
     });
 
     const user = JSON.parse(localStorage.getItem('user'));
-    const userId = user?.username || user?.user_id; 
+    const patientId = user?.patient_id || user?.patientId || null;
 
     useEffect(() => {
-        if (userId) {
-            loadInitialData(userId);
+        if (patientId) {
+            loadInitialData(patientId);
         } else {
-            setError('User session not found. Please login again.');
+            setError('Patient session not found. Please login again.');
             setLoading(false);
         }
-    }, [userId]);
+    }, [patientId]);
 
-    async function loadInitialData(username) {
+    async function loadInitialData(patientId) {
         try {
             setLoading(true);
-            
-            const profRes = await fetch(`${API_URL}/patients/profile/${username}`);
+
+            const profRes = await fetch(`${API_URL}/patients/profile/${patientId}`);
             if (!profRes.ok) throw new Error('Could not find your patient profile.');
             const profileData = await profRes.json();
-            
+
             const pId = profileData.patient_id || profileData.id;
 
             let docsData = [];
@@ -86,7 +86,7 @@ export default function PatientDashboard() {
             if (prescRes.ok) {
                 const allPresc = await prescRes.json();
                 myPresc = allPresc.filter(p => String(p.patient_id) === String(pId));
-                
+
                 myPresc = myPresc.map(p => {
                     const doc = docsData.find(d => String(d.doctor_id || d.id) === String(p.doctor_id));
                     let medNames = 'General Treatment';
@@ -96,14 +96,14 @@ export default function PatientDashboard() {
                             return med ? `${med.name} (Qty: ${detail.quantity})` : `Med ID ${detail.medicine_id}`;
                         }).join(', ');
                     } else if (p.medicine_id) {
-                         const med = medsData.find(m => String(m.medicine_id || m.id) === String(p.medicine_id));
-                         if(med) medNames = med.name;
+                        const med = medsData.find(m => String(m.medicine_id || m.id) === String(p.medicine_id));
+                        if (med) medNames = med.name;
                     } else if (p.medicine_name) {
-                         medNames = p.medicine_name;
+                        medNames = p.medicine_name;
                     }
 
-                    return { 
-                        ...p, 
+                    return {
+                        ...p,
                         doctor_name: p.doctor_name || (doc ? (doc.name || doc.user_id) : 'Doctor'),
                         display_medicines: medNames
                     };
@@ -154,9 +154,9 @@ export default function PatientDashboard() {
             if (res.ok) {
                 setMessage('Appointment booked successfully ✅');
                 setAppointmentForm({ doctor_id: '', date: '' });
-                setDoctorSearch(''); 
-                loadInitialData(userId); 
-                setActiveSection('appointments'); 
+                setDoctorSearch('');
+                loadInitialData(userId);
+                setActiveSection('appointments');
             } else {
                 const errData = await res.json();
                 setMessage(errData.error || 'Failed to book appointment ❌');
@@ -175,7 +175,7 @@ export default function PatientDashboard() {
                 body: JSON.stringify({ status })
             });
             if (res.ok) {
-                loadInitialData(userId); 
+                loadInitialData(userId);
             } else {
                 alert('Failed to cancel the appointment.');
             }
@@ -188,12 +188,12 @@ export default function PatientDashboard() {
         alert(`Redirecting to secure payment gateway for Invoice #${billId}...\n\n(This is a placeholder for your future payment integration!)`);
     }
 
-    
+
     // PDF GENERATION FUNCTION 
 
     const handleDownloadPdf = async (billId) => {
         const invoiceElement = document.getElementById(`invoice-${billId}`);
-        
+
         if (!invoiceElement) {
             alert("Could not find invoice document.");
             return;
@@ -201,22 +201,22 @@ export default function PatientDashboard() {
 
         try {
             // Create a canvas from the HTML element
-            const canvas = await html2canvas(invoiceElement, { 
-                scale: 2, 
+            const canvas = await html2canvas(invoiceElement, {
+                scale: 2,
                 useCORS: true,
                 backgroundColor: '#ffffff'
             });
-            
+
             const imgData = canvas.toDataURL('image/png');
-            
+
             // Generate PDF
             const pdf = new jsPDF('p', 'mm', 'a4');
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-            
+
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
             pdf.save(`MediCare_Invoice_INV-${billId}.pdf`);
-            
+
         } catch (error) {
             console.error("PDF Generation Error:", error);
             alert("Failed to generate PDF. Please try again.");
@@ -299,7 +299,7 @@ export default function PatientDashboard() {
 
             {/* MAIN CONTENT AREA */}
             <div style={mainContentStyle}>
-                
+
                 {/* WELCOME BANNER */}
                 <div style={bannerStyle}>
                     <div>
@@ -321,7 +321,7 @@ export default function PatientDashboard() {
                     <>
                         <div style={statsGrid}>
                             <div style={statsCard}>
-                                <div style={{...iconBox, background: '#dcfce7', color: '#16a34a'}}><Calendar size={28} /></div>
+                                <div style={{ ...iconBox, background: '#dcfce7', color: '#16a34a' }}><Calendar size={28} /></div>
                                 <div>
                                     <div style={statLabel}>ACTIVE APPOINTMENTS</div>
                                     <div style={statValue}>{data?.appointments?.filter(a => a.status?.toLowerCase() !== 'cancelled').length || 0}</div>
@@ -329,7 +329,7 @@ export default function PatientDashboard() {
                                 </div>
                             </div>
                             <div style={statsCard}>
-                                <div style={{...iconBox, background: '#e0f2fe', color: '#0284c7'}}><FolderOpen size={28} /></div>
+                                <div style={{ ...iconBox, background: '#e0f2fe', color: '#0284c7' }}><FolderOpen size={28} /></div>
                                 <div>
                                     <div style={statLabel}>MEDICAL RECORDS</div>
                                     <div style={statValue}>{data?.prescriptions?.length || 0}</div>
@@ -337,7 +337,7 @@ export default function PatientDashboard() {
                                 </div>
                             </div>
                             <div style={statsCard}>
-                                <div style={{...iconBox, background: '#ffedd5', color: '#ea580c'}}><CreditCard size={28} /></div>
+                                <div style={{ ...iconBox, background: '#ffedd5', color: '#ea580c' }}><CreditCard size={28} /></div>
                                 <div>
                                     <div style={statLabel}>TOTAL BILLS</div>
                                     <div style={statValue}>{data?.bills?.length || 0}</div>
@@ -380,7 +380,7 @@ export default function PatientDashboard() {
                             </div>
                             <div style={quickActionsContainer}>
                                 <div style={actionRow} onClick={() => setActiveSection('appointments')}>
-                                    <div style={{...actionIcon, background: '#dcfce7', color: '#16a34a'}}><Calendar size={24} /></div>
+                                    <div style={{ ...actionIcon, background: '#dcfce7', color: '#16a34a' }}><Calendar size={24} /></div>
                                     <div style={actionText}>
                                         <div style={actionTitle}>Appointments</div>
                                         <div style={actionSub}>View and manage your appointments</div>
@@ -388,7 +388,7 @@ export default function PatientDashboard() {
                                     <ChevronRight color="#94a3b8" size={24} />
                                 </div>
                                 <div style={actionRow} onClick={() => setActiveSection('book')}>
-                                    <div style={{...actionIcon, background: '#f3e8ff', color: '#9333ea'}}><Plus size={24} /></div>
+                                    <div style={{ ...actionIcon, background: '#f3e8ff', color: '#9333ea' }}><Plus size={24} /></div>
                                     <div style={actionText}>
                                         <div style={actionTitle}>Book Now</div>
                                         <div style={actionSub}>Schedule a new appointment</div>
@@ -396,7 +396,7 @@ export default function PatientDashboard() {
                                     <ChevronRight color="#94a3b8" size={24} />
                                 </div>
                                 <div style={actionRow} onClick={() => setActiveSection('history')}>
-                                    <div style={{...actionIcon, background: '#ffe4e6', color: '#db2777'}}><Pill size={24} /></div>
+                                    <div style={{ ...actionIcon, background: '#ffe4e6', color: '#db2777' }}><Pill size={24} /></div>
                                     <div style={actionText}>
                                         <div style={actionTitle}>History</div>
                                         <div style={actionSub}>View your appointment and medical history</div>
@@ -404,7 +404,7 @@ export default function PatientDashboard() {
                                     <ChevronRight color="#94a3b8" size={24} />
                                 </div>
                                 <div style={actionRow} onClick={() => setActiveSection('bills')}>
-                                    <div style={{...actionIcon, background: '#ffedd5', color: '#ea580c'}}><CreditCard size={24} /></div>
+                                    <div style={{ ...actionIcon, background: '#ffedd5', color: '#ea580c' }}><CreditCard size={24} /></div>
                                     <div style={actionText}>
                                         <div style={actionTitle}>Bills</div>
                                         <div style={actionSub}>View your invoices and payment history</div>
@@ -438,7 +438,7 @@ export default function PatientDashboard() {
                                                 const isCompleted = a.status?.toLowerCase() === 'completed';
                                                 return (
                                                     <tr key={i}>
-                                                        <td style={{...tableData, fontWeight: 'bold'}}>{new Date(a.date).toLocaleDateString()}</td>
+                                                        <td style={{ ...tableData, fontWeight: 'bold' }}>{new Date(a.date).toLocaleDateString()}</td>
                                                         <td style={tableData}>{a.doctor_name || 'Medical Specialist'}</td>
                                                         <td style={tableData}>
                                                             <span style={{
@@ -474,14 +474,14 @@ export default function PatientDashboard() {
                             <>
                                 <h2 style={cardTitle}>➕ Schedule a New Visit</h2>
                                 <form onSubmit={bookAppointment} style={formContainer}>
-                                    
+
                                     <div>
                                         <label style={formLabel}>Search for a Doctor</label>
                                         <div style={searchWrapper}>
                                             <Search size={22} color="#94a3b8" style={searchIcon} />
-                                            <input 
-                                                type="text" 
-                                                placeholder="Search by name or specialty (e.g., Cardiologist)" 
+                                            <input
+                                                type="text"
+                                                placeholder="Search by name or specialty (e.g., Cardiologist)"
                                                 value={doctorSearch}
                                                 onChange={(e) => setDoctorSearch(e.target.value)}
                                                 style={searchInputStyle}
@@ -491,15 +491,15 @@ export default function PatientDashboard() {
 
                                     <div>
                                         <label style={formLabel}>Select Specialist</label>
-                                        <select 
-                                            value={appointmentForm.doctor_id} 
-                                            onChange={(e) => setAppointmentForm({...appointmentForm, doctor_id: e.target.value})} 
+                                        <select
+                                            value={appointmentForm.doctor_id}
+                                            onChange={(e) => setAppointmentForm({ ...appointmentForm, doctor_id: e.target.value })}
                                             required style={inputStyle}
                                         >
                                             <option value="">-- Select a Doctor --</option>
                                             {filteredDoctors.map(d => (
                                                 <option key={d.doctor_id || d.id} value={d.doctor_id || d.id}>
-                                                    {d.name || d.doctor_name || d.user_id || 'Unknown Doctor'} 
+                                                    {d.name || d.doctor_name || d.user_id || 'Unknown Doctor'}
                                                     ({d.specialization || d.specialty || 'General'})
                                                 </option>
                                             ))}
@@ -510,14 +510,14 @@ export default function PatientDashboard() {
                                     </div>
                                     <div>
                                         <label style={formLabel}>Preferred Date</label>
-                                        <input 
-                                            type="date" 
-                                            value={appointmentForm.date} 
-                                            onChange={(e) => setAppointmentForm({...appointmentForm, date: e.target.value})} 
-                                            required style={inputStyle} 
+                                        <input
+                                            type="date"
+                                            value={appointmentForm.date}
+                                            onChange={(e) => setAppointmentForm({ ...appointmentForm, date: e.target.value })}
+                                            required style={inputStyle}
                                         />
                                     </div>
-                                    <button type="submit" style={{...buttonStyle, width: '100%', padding: '16px'}}>Confirm Appointment</button>
+                                    <button type="submit" style={{ ...buttonStyle, width: '100%', padding: '16px' }}>Confirm Appointment</button>
                                 </form>
                                 {message && <div style={messageStyle}>{message}</div>}
                             </>
@@ -538,8 +538,8 @@ export default function PatientDashboard() {
                                         <tbody>
                                             {data.prescriptions.map((p, i) => (
                                                 <tr key={i}>
-                                                    <td style={{...tableData, fontWeight: 'bold'}}>{new Date(p.date).toLocaleDateString()}</td>
-                                                    <td style={{...tableData, color: '#0f766e', fontWeight: 'bold'}}>{p.display_medicines}</td>
+                                                    <td style={{ ...tableData, fontWeight: 'bold' }}>{new Date(p.date).toLocaleDateString()}</td>
+                                                    <td style={{ ...tableData, color: '#0f766e', fontWeight: 'bold' }}>{p.display_medicines}</td>
                                                     <td style={tableData}>{p.doctor_name}</td>
                                                 </tr>
                                             ))}
@@ -571,14 +571,14 @@ export default function PatientDashboard() {
                                             {data.bills.map((b, i) => {
                                                 const billId = b.bill_id || b.id || (i + 1000);
                                                 const isPaid = (b.status || '').toLowerCase() === 'paid';
-                                                
+
                                                 return (
                                                     <tr key={billId}>
-                                                        <td style={{...tableData, fontWeight: 'bold', color: '#0284c7'}}>
+                                                        <td style={{ ...tableData, fontWeight: 'bold', color: '#0284c7' }}>
                                                             #INV-{billId}
                                                         </td>
                                                         <td style={tableData}>{new Date(b.bill_date || b.date).toLocaleDateString()}</td>
-                                                        <td style={{...tableData, fontWeight: '900', fontSize: '18px'}}>Rs. {b.total_amount || b.amount}</td>
+                                                        <td style={{ ...tableData, fontWeight: '900', fontSize: '18px' }}>Rs. {b.total_amount || b.amount}</td>
                                                         <td style={tableData}>
                                                             <span style={{
                                                                 ...statusBadge,
@@ -590,8 +590,8 @@ export default function PatientDashboard() {
                                                         </td>
                                                         <td style={tableData}>
                                                             {!isPaid ? (
-                                                                <button 
-                                                                    onClick={() => handlePaymentClick(billId)} 
+                                                                <button
+                                                                    onClick={() => handlePaymentClick(billId)}
                                                                     style={payBtnStyle}
                                                                 >
                                                                     Pay Now
@@ -601,9 +601,9 @@ export default function PatientDashboard() {
                                                             )}
 
                                                             {/* PDF Download Button */}
-                                                            <button 
-                                                                onClick={() => handleDownloadPdf(billId)} 
-                                                                style={{...payBtnStyle, background: '#0f172a', marginLeft: '10px'}}
+                                                            <button
+                                                                onClick={() => handleDownloadPdf(billId)}
+                                                                style={{ ...payBtnStyle, background: '#0f172a', marginLeft: '10px' }}
                                                             >
                                                                 Download PDF
                                                             </button>
@@ -611,7 +611,7 @@ export default function PatientDashboard() {
                                                             {/* HIDDEN INVOICE TEMPLATE (This will be converted to PDF) */}
                                                             <div style={{ position: 'absolute', top: '-9999px', left: '-9999px' }}>
                                                                 <div id={`invoice-${billId}`} style={{ padding: '40px', width: '800px', background: 'white', color: 'black', fontFamily: 'Arial, sans-serif' }}>
-                                                                    
+
                                                                     {/* Hospital Header */}
                                                                     <div style={{ borderBottom: '3px solid #0d9488', paddingBottom: '20px', marginBottom: '30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                                         <div>
@@ -635,7 +635,7 @@ export default function PatientDashboard() {
                                                                         <div style={{ textAlign: 'right' }}>
                                                                             <p style={{ margin: '0 0 5px 0' }}><strong>Date Issued:</strong> {new Date(b.bill_date || b.date).toLocaleDateString()}</p>
                                                                             <p style={{ margin: '0' }}>
-                                                                                <strong>Status:</strong> 
+                                                                                <strong>Status:</strong>
                                                                                 <span style={{ color: isPaid ? '#16a34a' : '#ea580c', marginLeft: '5px' }}>
                                                                                     {b.status ? b.status.toUpperCase() : 'PENDING'}
                                                                                 </span>
@@ -682,7 +682,7 @@ export default function PatientDashboard() {
                                                                         <p style={{ margin: 0 }}>Thank you for trusting MediCare Hospital.</p>
                                                                         <p style={{ margin: '5px 0 0 0', fontSize: '12px' }}>This is a computer-generated document and requires no signature.</p>
                                                                     </div>
-                                                                    
+
                                                                 </div>
                                                             </div>
                                                             {/* END OF HIDDEN INVOICE */}

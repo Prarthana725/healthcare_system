@@ -36,16 +36,32 @@ class UserController {
                 });
             }
 
-            if (parsedRoleId === 2 && (parsedDoctorId === null || Number.isNaN(parsedDoctorId))) {
-                return res.status(400).json({
-                    error: 'Doctor role requires a valid existing doctor_id'
-                });
+            if (parsedRoleId === 2) {
+                if (parsedDoctorId === null || Number.isNaN(parsedDoctorId)) {
+                    return res.status(400).json({
+                        error: 'Doctor role requires a valid existing doctor_id'
+                    });
+                }
+
+                if (!(await userQueries.doctorExists(parsedDoctorId))) {
+                    return res.status(400).json({
+                        error: 'Selected doctor profile does not exist'
+                    });
+                }
             }
 
-            if (parsedRoleId === 3 && (parsedPatientId === null || Number.isNaN(parsedPatientId))) {
-                return res.status(400).json({
-                    error: 'Patient role requires a valid existing patient_id'
-                });
+            if (parsedRoleId === 3) {
+                if (parsedPatientId === null || Number.isNaN(parsedPatientId)) {
+                    return res.status(400).json({
+                        error: 'Patient role requires a valid existing patient_id'
+                    });
+                }
+
+                if (!(await userQueries.patientExists(parsedPatientId))) {
+                    return res.status(400).json({
+                        error: 'Selected patient profile does not exist'
+                    });
+                }
             }
 
             const user = await userQueries.createUser(

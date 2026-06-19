@@ -19,6 +19,29 @@ async function getAllUsers() {
     return result.recordset;
 }
 
+async function doctorExists(doctor_id) {
+    const connection = await getConnection();
+    const result = await connection.request()
+        .input('doctor_id', sql.Int, doctor_id)
+        .query(`
+            SELECT doctor_id
+            FROM doctors
+            WHERE doctor_id = @doctor_id
+        `);
+    return result.recordset.length > 0;
+}
+
+async function patientExists(patient_id) {
+    const connection = await getConnection();
+    const result = await connection.request()
+        .input('patient_id', sql.Int, patient_id)
+        .query(`
+            SELECT patient_id
+            FROM patients
+            WHERE patient_id = @patient_id
+        `);
+    return result.recordset.length > 0;
+}
 
 async function createUser(username, password, role_id, doctor_id = null, patient_id = null) {
     const connection = await getConnection();
@@ -31,15 +54,20 @@ async function createUser(username, password, role_id, doctor_id = null, patient
         ? null
         : Number(patient_id);
 
-    console.log('createUser payload:', { username, role_id: parsedRoleId, doctor_id: parsedDoctorId, patient_id: parsedPatientId });
+    const doctorValue = parsedRoleId === 2 ? parsedDoctorId : null;
+    const patientValue = parsedRoleId === 3 ? parsedPatientId : null;
+
+    console.log('createUser payload:', { username, role_id: parsedRoleId, doctor_id: doctorValue, patient_id: patientValue });
 
     const userResult = await connection.request()
         .input('username', sql.VarChar, username)
         .input('password', sql.VarChar, password)
+        .input('doctor_id', sql.Int, doctorValue)
+        .input('patient_id', sql.Int, patientValue)
         .query(`
-            INSERT INTO users (username, password)
+            INSERT INTO users (username, password, doctor_id, patient_id)
             OUTPUT INSERTED.user_id
-            VALUES (@username, @password)
+            VALUES (@username, @password, @doctor_id, @patient_id)
         `);
 
     const user_id = userResult.recordset[0].user_id;
@@ -60,38 +88,22 @@ async function createUser(username, password, role_id, doctor_id = null, patient
         END
     `);
 
-    if (parsedRoleId === 2 && parsedDoctorId !== null) {
-        console.log(`Linking doctor_id=${parsedDoctorId} to user_id=${user_id}`);
+    if (parsedRoleId === 2 && doctorValue !== null) {
+        console.log(`Linking doctor_id=${doctorValue} to user_id=${user_id}`);
 
         await connection.request()
-            .input('doctor_id', sql.Int, parsedDoctorId)
+            .input('doctor_id', sql.Int, doctorValue)
             .input('user_id', sql.Int, user_id)
             .query(`
                 UPDATE doctors
                 SET user_id = @user_id
                 WHERE doctor_id = @doctor_id;
-
-                UPDATE users
-                SET doctor_id = @doctor_id
-                WHERE user_id = @user_id;
             `);
     }
 
-    if (parsedRoleId === 3 && parsedPatientId !== null) {
-        console.log(`Linking patient_id=${parsedPatientId} to user_id=${user_id}`);
-
-        await connection.request()
-            .input('patient_id', sql.Int, parsedPatientId)
-            .input('user_id', sql.Int, user_id)
-            .query(`
-                UPDATE patients
-                SET user_id = @user_id
-                WHERE patient_id = @patient_id;
-
-                UPDATE users
-                SET patient_id = @patient_id
-                WHERE user_id = @user_id;
-            `);
+    if (parsedRoleId === 3 && patientValue !== null) {
+        console.log(`Linking patient_id=${patientValue} to user_id=${user_id}`);
+        // Patient linking is maintained through users.patient_id only.
     }
 
     return {
@@ -128,6 +140,8 @@ async function deleteUser(user_id) {
 
 module.exports = {
     getAllUsers,
+    doctorExists,
+    patientExists,
     createUser,
     deleteUser
 };

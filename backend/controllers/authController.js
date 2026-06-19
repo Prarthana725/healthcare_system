@@ -28,7 +28,7 @@ class AuthController {
                     LEFT JOIN roles r
                         ON ur.role_id = r.role_id
                     LEFT JOIN doctors d
-                        ON d.user_id = u.user_id
+                        ON d.doctor_id = u.doctor_id
                     WHERE u.username = @username
                 `);
 

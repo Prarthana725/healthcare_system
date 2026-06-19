@@ -677,7 +677,7 @@ export default function AdminDashboard() {
                                 <select value={patForm.user_id} onChange={e => setPatForm({ ...patForm, user_id: e.target.value })} style={inputSt}>
                                     <option value="">Select an existing user</option>
                                     {users.filter(u => u.role_name === 'Patient').map(u => (
-                                        <option key={u.username} value={u.username}>{u.username}</option>
+                                        <option key={u.user_id || u.id} value={u.user_id || u.id}>{u.username}</option>
                                     ))}
                                 </select>
                             </div>
