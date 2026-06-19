@@ -537,33 +537,6 @@ export default function ReceptionistDashboard() {
                         />
                     </div>
                 )}
-
-                {/* =========================================
-                    BOOK NOW FULL TAB
-                ========================================= */}
-                {activeTab === 'book' && (
-                    <DashboardForms
-                        form={form}
-                        setForm={setForm}
-                        appointmentForm={appointmentForm}
-                        setAppointmentForm={setAppointmentForm}
-                        patients={patients}
-                        doctors={doctors}
-                        handlePatientSubmit={handlePatientSubmit}
-                        handleAppointmentSubmit={handleAppointmentSubmit}
-                        formsGrid={formsGrid}
-                        panelCard={panelCard}
-                        panelHeader={panelHeader}
-                        panelTitle={panelTitle}
-                        formStyle={formStyle}
-                        inputWrapper={inputWrapper}
-                        inputIcon={inputIcon}
-                        dropdownArrow={dropdownArrow}
-                        iconInput={iconInput}
-                        primaryBtn={primaryBtn}
-                        tealBtn={tealBtn}
-                    />
-                )}
                 {/* =========================================
     HISTORY (PATIENT DIRECTORY) FULL TAB
 ========================================= */}
