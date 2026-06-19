@@ -53,13 +53,15 @@ async function createUser(username, password, role_id) {
 
     // AUTO CREATE DOCTOR
     if (role_id == 2) {
+
         const doctorResult = await connection.request()
             .input('name', sql.VarChar, username)
             .input('specialization', sql.VarChar, 'General')
+            .input('user_id', sql.Int, user_id)
             .query(`
-            INSERT INTO doctors (name, specialization)
+            INSERT INTO doctors (name, specialization, user_id)
             OUTPUT INSERTED.doctor_id
-            VALUES (@name, @specialization)
+            VALUES (@name, @specialization, @user_id)
         `);
 
         const doctor_id = doctorResult.recordset[0].doctor_id;
@@ -72,7 +74,6 @@ async function createUser(username, password, role_id) {
             SET doctor_id = @doctor_id
             WHERE user_id = @user_id
         `);
-
     }
 
     // AUTO CREATE PATIENT (ROLE = 3)

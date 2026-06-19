@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { 
-    LayoutDashboard, 
-    CalendarCheck, 
-    Pill, 
-    Users, 
-    FileText, 
+import {
+    LayoutDashboard,
+    CalendarCheck,
+    Pill,
+    Users,
+    FileText,
     LogOut
 } from 'lucide-react';
 
@@ -12,15 +12,15 @@ const API_URL = 'http://localhost:5000/api';
 
 export default function DoctorPanel() {
     const user = JSON.parse(localStorage.getItem('user'));
-    const loginName = user?.username || user?.user_id || 'UNKNOWN'; 
+    const loginName = user?.username || user?.id || 'UNKNOWN';
 
     const [activeTab, setActiveTab] = useState('Dashboard');
 
-    const [myDoctorId, setMyDoctorId] = useState(null); 
+    const [myDoctorId, setMyDoctorId] = useState(user?.doctor_id || null);
     const [appointments, setAppointments] = useState([]);
     const [patients, setPatients] = useState([]);
     const [medicines, setMedicines] = useState([]);
-    const [prescriptions, setPrescriptions] = useState([]); 
+    const [prescriptions, setPrescriptions] = useState([]);
 
     const [selectedRecordPatient, setSelectedRecordPatient] = useState('');
     const [message, setMessage] = useState('');
@@ -36,10 +36,18 @@ export default function DoctorPanel() {
                 const res = await fetch(`${API_URL}/doctors`);
                 if (res.ok) {
                     const allDocs = await res.json();
-                    const myDoc = allDocs.find(d => d.user_id === loginName);
+                    const effectiveUserId = user?.id || user?.user_id;
+
+                    const myDoc = allDocs.find(d =>
+                        String(d.user_id) === String(effectiveUserId)
+                    );
+
                     if (myDoc) {
                         setMyDoctorId(myDoc.doctor_id || myDoc.id);
-                        setMessage(''); 
+                        setMessage('');
+                    } else if (user?.doctor_id) {
+                        setMyDoctorId(user.doctor_id);
+                        setMessage('');
                     } else {
                         setMessage(`⚠️ Warning: Your login ('${loginName}') is not linked to any Doctor in the database.`);
                     }
@@ -54,7 +62,7 @@ export default function DoctorPanel() {
     useEffect(() => {
         if (myDoctorId) {
             loadAppointments(myDoctorId);
-            loadPrescriptions(myDoctorId); 
+            loadPrescriptions(myDoctorId);
         }
     }, [myDoctorId]);
 
@@ -125,7 +133,7 @@ export default function DoctorPanel() {
 
     async function handlePrescriptionSubmit(e) {
         e.preventDefault();
-        
+
         if (!myDoctorId) {
             setMessage(`❌ Cannot create prescription: No doctor profile found for '${loginName}'.`);
             return;
@@ -142,7 +150,7 @@ export default function DoctorPanel() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     patient_id: Number(prescriptionForm.patient_id),
-                    doctor_id: Number(myDoctorId), 
+                    doctor_id: Number(myDoctorId),
                     date: prescriptionForm.date,
                     details: formattedDetails
                 })
@@ -153,8 +161,8 @@ export default function DoctorPanel() {
             if (res.ok) {
                 setMessage('Prescription created successfully ✅');
                 setPrescriptionForm({ patient_id: '', date: '', details: [{ medicine_id: '', quantity: '' }] });
-                loadMedicines(); 
-                if (myDoctorId) loadPrescriptions(myDoctorId); 
+                loadMedicines();
+                if (myDoctorId) loadPrescriptions(myDoctorId);
             } else {
                 setMessage(result.error || 'Failed to create prescription ❌');
             }
@@ -226,7 +234,7 @@ export default function DoctorPanel() {
 
             {/* MAIN CONTENT AREA */}
             <div style={mainContentStyle}>
-                
+
                 <div style={headerStyle}>
                     <div>
                         <h1 style={{ margin: 0, fontSize: '28px', display: 'flex', alignItems: 'center', gap: '12px', fontWeight: '800' }}>
@@ -240,7 +248,7 @@ export default function DoctorPanel() {
                 </div>
 
                 {message && (
-                    <div style={{...messageStyle, color: message.includes('❌') || message.includes('⚠️') ? '#dc2626' : '#0f766e', background: message.includes('❌') || message.includes('⚠️') ? '#fef2f2' : '#ecfeff'}}>
+                    <div style={{ ...messageStyle, color: message.includes('❌') || message.includes('⚠️') ? '#dc2626' : '#0f766e', background: message.includes('❌') || message.includes('⚠️') ? '#fef2f2' : '#ecfeff' }}>
                         {message}
                     </div>
                 )}
@@ -288,10 +296,10 @@ export default function DoctorPanel() {
                                                     <td style={tableData}>{new Date(a.date).toLocaleDateString()}</td>
                                                     <td style={tableData}>
                                                         <span style={{
-                                                            padding: '6px 14px', 
-                                                            borderRadius: '20px', 
-                                                            fontSize: '14px', 
-                                                            fontWeight: 'bold', 
+                                                            padding: '6px 14px',
+                                                            borderRadius: '20px',
+                                                            fontSize: '14px',
+                                                            fontWeight: 'bold',
                                                             textTransform: 'uppercase',
                                                             background: isComplete ? '#dcfce7' : '#ffedd5',
                                                             color: isComplete ? '#166534' : '#9a3412'
@@ -337,10 +345,10 @@ export default function DoctorPanel() {
                                             <td style={tableData}>{a.time || 'N/A'}</td>
                                             <td style={tableData}>
                                                 <span style={{
-                                                    padding: '6px 14px', 
-                                                    borderRadius: '20px', 
-                                                    fontSize: '14px', 
-                                                    fontWeight: 'bold', 
+                                                    padding: '6px 14px',
+                                                    borderRadius: '20px',
+                                                    fontSize: '14px',
+                                                    fontWeight: 'bold',
                                                     textTransform: 'uppercase',
                                                     background: isComplete ? '#dcfce7' : '#ffedd5',
                                                     color: isComplete ? '#166534' : '#9a3412'
@@ -381,7 +389,7 @@ export default function DoctorPanel() {
 
                             <button type="button" onClick={addMedicineRow} style={blueBtnStyle}>+ Add Medicine</button>
                             <br /><br />
-                            <button type="submit" style={{...tealBtnStyle, width: '100%', padding: '16px'}}>Create Prescription</button>
+                            <button type="submit" style={{ ...tealBtnStyle, width: '100%', padding: '16px' }}>Create Prescription</button>
                         </form>
                     </div>
                 )}
@@ -402,7 +410,7 @@ export default function DoctorPanel() {
                                 <tbody>
                                     {myRealPatients.map(p => (
                                         <tr key={p.patient_id || p.id}>
-                                            <td style={{...tableData, fontWeight: 'bold'}}>{p.name}</td>
+                                            <td style={{ ...tableData, fontWeight: 'bold' }}>{p.name}</td>
                                             <td style={tableData}>{p.age} yrs</td>
                                             <td style={tableData}>{p.phone || 'N/A'}</td>
                                         </tr>
@@ -419,17 +427,17 @@ export default function DoctorPanel() {
                 {activeTab === 'Records' && (
                     <div style={panelStyle}>
                         <h2 style={sectionTitle}>📄 Patient Medical Records</h2>
-                        
+
                         {myRealPatients.length > 0 ? (
                             <>
                                 <div style={{ marginBottom: '25px' }}>
                                     <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '10px', color: '#1e293b', fontSize: '16px' }}>
                                         Select Patient to View History:
                                     </label>
-                                    <select 
-                                        value={selectedRecordPatient} 
-                                        onChange={(e) => setSelectedRecordPatient(e.target.value)} 
-                                        style={{...inputStyle, maxWidth: '500px'}}
+                                    <select
+                                        value={selectedRecordPatient}
+                                        onChange={(e) => setSelectedRecordPatient(e.target.value)}
+                                        style={{ ...inputStyle, maxWidth: '500px' }}
                                     >
                                         <option value="">-- Choose a Patient --</option>
                                         {myRealPatients.map(p => (
@@ -443,7 +451,7 @@ export default function DoctorPanel() {
                                 {selectedRecordPatient ? (
                                     <div style={{ marginTop: '40px' }}>
                                         <h3 style={{ borderBottom: '3px solid #e2e8f0', paddingBottom: '10px', color: '#0284c7', fontSize: '20px' }}>Appointment History</h3>
-                                        <table style={{...tableStyle, marginBottom: '40px'}}>
+                                        <table style={{ ...tableStyle, marginBottom: '40px' }}>
                                             <thead>
                                                 <tr style={tableHeaderRow}>
                                                     <th style={tableHead}>Date</th>
@@ -454,7 +462,7 @@ export default function DoctorPanel() {
                                                 {appointments.filter(a => String(a.patient_id) === String(selectedRecordPatient)).length > 0 ? (
                                                     appointments.filter(a => String(a.patient_id) === String(selectedRecordPatient)).map(a => {
                                                         const isComplete = a.status?.toLowerCase() === 'completed';
-                                                        return(
+                                                        return (
                                                             <tr key={a.appointment_id || a.id}>
                                                                 <td style={tableData}>{new Date(a.date).toLocaleDateString()}</td>
                                                                 <td style={tableData}>
@@ -485,7 +493,7 @@ export default function DoctorPanel() {
                                                     prescriptions.filter(p => String(p.patient_id) === String(selectedRecordPatient)).map(p => (
                                                         <tr key={p.prescription_id || p.id}>
                                                             <td style={tableData}>{new Date(p.date).toLocaleDateString()}</td>
-                                                            <td style={{...tableData, fontWeight: 'bold'}}>#PR-{p.prescription_id || p.id}</td>
+                                                            <td style={{ ...tableData, fontWeight: 'bold' }}>#PR-{p.prescription_id || p.id}</td>
                                                         </tr>
                                                     ))
                                                 ) : <tr><td colSpan="2" style={tableData}>No prescriptions found for this patient.</td></tr>}

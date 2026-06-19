@@ -23,18 +23,18 @@ class DoctorQueries {
     }
 
     // CREATE DOCTOR
-    async createDoctor(name, specialization) {
+    async createDoctor(name, specialization, user_id) {
         const pool = await getConnection();
 
         const result = await pool.request()
             .input("name", sql.VarChar, name)
             .input("specialization", sql.VarChar, specialization)
+            .input("user_id", sql.Int, user_id)
             .query(`
-                INSERT INTO doctors (name, specialization)
-                VALUES (@name, @specialization);
-
-                SELECT SCOPE_IDENTITY() AS id;
-            `);
+    INSERT INTO doctors (name, specialization, user_id)
+    OUTPUT INSERTED.doctor_id
+    VALUES (@name, @specialization, @user_id);
+`);
 
         return result.recordset[0];
     }

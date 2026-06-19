@@ -57,14 +57,14 @@ class DoctorController {
     // Create new doctor
     async create(req, res) {
         try {
-            const { name, specialization } = req.body;
-            console.log('DoctorController.create - Request body:', { name, specialization });
+            const { name, specialization, user_id } = req.body;
+            console.log('DoctorController.create - Request body:', { name, specialization, user_id });
 
-            if (!name || !specialization) {
-                return res.status(400).json({ error: 'Missing required fields: name, specialization' });
+            if (!name || !specialization || !user_id) {
+                return res.status(400).json({ error: 'Missing required fields: name, specialization, user_id' });
             }
-            const result = await doctorQueries.createDoctor(name, specialization);
-            res.status(201).json({ message: 'Doctor created successfully', doctorId: result.insertId });
+            const result = await doctorQueries.createDoctor(name, specialization, Number(user_id));
+            res.status(201).json({ message: 'Doctor created successfully', doctorId: result.doctor_id });
         } catch (error) {
             console.error('DoctorController.create - Error:', error.message);
             res.status(500).json({ error: 'Failed to create doctor', details: error.message });

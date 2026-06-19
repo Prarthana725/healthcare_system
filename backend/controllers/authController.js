@@ -1,4 +1,4 @@
-const { getConnection } = require('../db/sqlConnection');
+const { getConnection, sql } = require('../db/sqlConnection');
 const bcrypt = require('bcrypt'); // Use 'bcryptjs' here if that's what you installed earlier!
 
 class AuthController {
@@ -8,8 +8,11 @@ class AuthController {
             const { username, password } = req.body;
             const connection = await getConnection();
 
+            const cleanUsername = username.trim();
+            const cleanPassword = password.trim();
+
             const result = await connection.request()
-                .input('username', username)
+                .input('username', sql.VarChar, cleanUsername)
                 .query(`
                     SELECT
                         u.user_id,
@@ -17,33 +20,33 @@ class AuthController {
                         u.password,
                         u.doctor_id,
                         u.patient_id,
-                        r.role_name
+                        r.role_name,
+                        d.doctor_id AS doctor_row_id
                     FROM users u
-                    JOIN user_roles ur
+                    LEFT JOIN user_roles ur
                         ON u.user_id = ur.user_id
-                    JOIN roles r
+                    LEFT JOIN roles r
                         ON ur.role_id = r.role_id
+                    LEFT JOIN doctors d
+                        ON d.user_id = u.user_id
                     WHERE u.username = @username
                 `);
 
             const user = result.recordset[0];
+            if (!user) {
+                return res.status(401).json({ error: 'Invalid credentials' });
+            }
 
             //--------------------------------------------------
             // INVALID LOGIN CHECK
             //--------------------------------------------------
 
-            // 1. If username doesn't exist at all
-            // CLEAN INPUTS
-            const cleanUsername = username.trim();
-            const cleanPassword = password.trim();
-
             let isMatch = false;
 
-            // ALWAYS SAFE CHECK
-            if (user.password.startsWith('$2a$') || user.password.startsWith('$2b$')) {
+            if (user.password && (user.password.startsWith('$2a$') || user.password.startsWith('$2b$'))) {
                 isMatch = await bcrypt.compare(cleanPassword, user.password);
             } else {
-                isMatch = (user.password.trim() === cleanPassword);
+                isMatch = user.password && user.password.trim() === cleanPassword;
             }
 
             // If the passwords do not match
@@ -70,7 +73,8 @@ class AuthController {
 
 
             // ROLE LINK VALIDATION (ONLY FOR DOCTOR)
-            if (user.role_name === 'Doctor' && !user.doctor_id) {
+            const resolvedDoctorId = user.doctor_row_id || user.doctor_id;
+            if (user.role_name === 'Doctor' && !resolvedDoctorId) {
                 return res.status(403).json({
                     error: "Your login is not linked to any Doctor profile. Please contact admin."
                 });
@@ -81,7 +85,7 @@ class AuthController {
                     id: user.user_id,
                     username: user.username,
                     role: user.role_name,
-                    doctor_id: user.doctor_id,
+                    doctor_id: resolvedDoctorId,
                     patient_id: user.patient_id
                 }
             });

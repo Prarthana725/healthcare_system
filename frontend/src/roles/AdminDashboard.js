@@ -191,10 +191,15 @@ export default function AdminDashboard() {
             const method = editingDocId ? 'PUT' : 'POST';
             const endpoint = editingDocId ? `${API_URL}/doctors/${editingDocId}` : `${API_URL}/doctors`;
 
+            const payload = {
+                ...docForm,
+                user_id: docForm.user_id ? Number(docForm.user_id) : null
+            };
+
             const res = await fetch(endpoint, {
                 method: method,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(docForm),
+                body: JSON.stringify(payload)
             });
             if (res.ok) {
                 setDocMessage('success');
