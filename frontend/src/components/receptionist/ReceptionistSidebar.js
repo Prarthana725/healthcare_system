@@ -42,11 +42,6 @@ export default function ReceptionistSidebar({
             icon: <CalendarDays size={22} />
         },
         {
-            id: 'book', // FIXED
-            label: 'Book Now',
-            icon: <Plus size={22} />
-        },
-        {
             id: 'history',
             label: 'History',
             icon: <History size={22} />
