@@ -20,9 +20,15 @@ async function getAllUsers() {
 }
 
 
-async function createUser(username, password, role_id) {
+async function createUser(username, password, role_id, doctor_id = null) {
     const connection = await getConnection();
 
+    const parsedRoleId = Number(role_id);
+    const parsedDoctorId = doctor_id === null || doctor_id === undefined || doctor_id === ''
+        ? null
+        : Number(doctor_id);
+
+    console.log('createUser payload:', { username, role_id: parsedRoleId, doctor_id: parsedDoctorId });
 
     const userResult = await connection.request()
         .input('username', sql.VarChar, username)
@@ -38,7 +44,7 @@ async function createUser(username, password, role_id) {
     // INSERT ROLE
     await connection.request()
         .input('user_id', sql.Int, user_id)
-        .input('role_id', sql.Int, role_id)
+        .input('role_id', sql.Int, parsedRoleId)
         .query(`
         IF EXISTS (SELECT * FROM user_roles WHERE user_id = @user_id)
         BEGIN
@@ -51,60 +57,28 @@ async function createUser(username, password, role_id) {
         END
     `);
 
-    // AUTO CREATE DOCTOR
-    if (role_id == 2) {
-
-        const doctorResult = await connection.request()
-            .input('name', sql.VarChar, username)
-            .input('specialization', sql.VarChar, 'General')
-            .input('user_id', sql.Int, user_id)
-            .query(`
-            INSERT INTO doctors (name, specialization, user_id)
-            OUTPUT INSERTED.doctor_id
-            VALUES (@name, @specialization, @user_id)
-        `);
-
-        const doctor_id = doctorResult.recordset[0].doctor_id;
+    if (parsedRoleId === 2 && parsedDoctorId !== null) {
+        console.log(`Linking doctor_id=${parsedDoctorId} to user_id=${user_id}`);
 
         await connection.request()
-            .input('doctor_id', sql.Int, doctor_id)
+            .input('doctor_id', sql.Int, parsedDoctorId)
             .input('user_id', sql.Int, user_id)
             .query(`
-            UPDATE users
-            SET doctor_id = @doctor_id
-            WHERE user_id = @user_id
-        `);
-    }
+                UPDATE doctors
+                SET user_id = @user_id
+                WHERE doctor_id = @doctor_id;
 
-    // AUTO CREATE PATIENT (ROLE = 3)
-    if (role_id == 3) {
-        const patientResult = await connection.request()
-            .input('name', sql.VarChar, username)
-            .input('age', sql.Int, 0)
-            .input('phone', sql.VarChar, 'Not Added')
-            .query(`
-            INSERT INTO patients (name, age, phone)
-            OUTPUT INSERTED.patient_id
-            VALUES (@name, @age, @phone)
-        `);
-
-        const patient_id = patientResult.recordset[0].patient_id;
-
-        await connection.request()
-            .input('patient_id', sql.Int, patient_id)
-            .input('user_id', sql.Int, user_id)
-            .query(`
-            UPDATE users
-            SET patient_id = @patient_id
-            WHERE user_id = @user_id
-        `);
-
+                UPDATE users
+                SET doctor_id = @doctor_id
+                WHERE user_id = @user_id;
+            `);
     }
 
     return {
         user_id,
         username,
-        role_id
+        role_id: parsedRoleId,
+        doctor_id: parsedRoleId === 2 ? parsedDoctorId : null
     };
 }
 

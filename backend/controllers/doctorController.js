@@ -57,22 +57,14 @@ class DoctorController {
     // Create new doctor
     async create(req, res) {
         try {
-            const { name, specialization, user_id } = req.body;
-            console.log('DoctorController.create - Request body:', { name, specialization, user_id });
+            const { name, specialization } = req.body;
+            console.log('DoctorController.create - Request body:', { name, specialization });
 
             if (!name || !specialization) {
                 return res.status(400).json({ error: 'Missing required fields: name, specialization' });
             }
 
-            const parsedUserId = user_id === undefined || user_id === null || user_id === ''
-                ? null
-                : Number(user_id);
-
-            if (parsedUserId !== null && Number.isNaN(parsedUserId)) {
-                return res.status(400).json({ error: 'Invalid user_id: must be an integer or empty' });
-            }
-
-            const result = await doctorQueries.createDoctor(name, specialization, parsedUserId);
+            const result = await doctorQueries.createDoctor(name, specialization);
             res.status(201).json({ message: 'Doctor created successfully', doctorId: result.doctor_id });
         } catch (error) {
             console.error('DoctorController.create - Error:', error.message);
@@ -84,20 +76,12 @@ class DoctorController {
     async update(req, res) {
         try {
             const { id } = req.params;
-            const { name, specialization, user_id } = req.body;
+            const { name, specialization } = req.body;
             if (!name || !specialization) {
                 return res.status(400).json({ error: 'Missing required fields: name, specialization' });
             }
 
-            const parsedUserId = user_id === undefined || user_id === null || user_id === ''
-                ? null
-                : Number(user_id);
-
-            if (parsedUserId !== null && Number.isNaN(parsedUserId)) {
-                return res.status(400).json({ error: 'Invalid user_id: must be an integer or empty' });
-            }
-
-            const result = await doctorQueries.updateDoctor(id, name, specialization, parsedUserId);
+            const result = await doctorQueries.updateDoctor(id, name, specialization);
             if (result.affectedRows === 0) {
                 return res.status(404).json({ error: 'Doctor not found' });
             }

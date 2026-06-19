@@ -50,8 +50,8 @@ export default function AdminDashboard() {
     const [activeMenu, setActiveMenu] = useState(null);
 
     // Form States
-    const [form, setForm] = useState({ username: '', password: '', role_id: '' });
-    const [docForm, setDocForm] = useState({ name: '', specialization: '', user_id: '' });
+    const [form, setForm] = useState({ username: '', password: '', role_id: '', doctor_id: '' });
+    const [docForm, setDocForm] = useState({ name: '', specialization: '' });
     const [patForm, setPatForm] = useState({ name: '', age: '', phone: '', user_id: '' });
     const [pharmForm, setPharmForm] = useState({ name: '', category: '', quantity: '', price: '' });
     const [apptForm, setApptForm] = useState({ patient_id: '', doctor_id: '', date: '', time: '', status: 'Scheduled' });
@@ -147,15 +147,25 @@ export default function AdminDashboard() {
         try {
             const method = editingUserId ? 'PUT' : 'POST';
             const endpoint = editingUserId ? `${API_URL}/users/${editingUserId}` : `${API_URL}/users`;
+            const payload = {
+                username: form.username,
+                password: form.password,
+                role_id: Number(form.role_id),
+                doctor_id: Number(form.doctor_id) || null
+            };
+
+            if (payload.role_id !== 2) {
+                payload.doctor_id = null;
+            }
 
             const res = await fetch(endpoint, {
                 method: method,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(form),
+                body: JSON.stringify(payload),
             });
             if (res.ok) {
                 setMessage('success');
-                setForm({ username: '', password: '', role_id: '' });
+                setForm({ username: '', password: '', role_id: '', doctor_id: '' });
                 setEditingUserId(null);
                 loadUsers(); loadStats();
             } else { setMessage('error'); }
@@ -165,7 +175,12 @@ export default function AdminDashboard() {
 
     const handleEditUser = (u) => {
         const foundRole = roles.find(r => r.role_name === u.role_name);
-        setForm({ username: u.username, password: '', role_id: foundRole ? foundRole.role_id : '' });
+        setForm({
+            username: u.username,
+            password: '',
+            role_id: foundRole ? foundRole.role_id : '',
+            doctor_id: u.doctor_id || ''
+        });
         setEditingUserId(u.id || u.user_id);
         setActiveMenu(null);
     };
@@ -191,14 +206,9 @@ export default function AdminDashboard() {
             const method = editingDocId ? 'PUT' : 'POST';
             const endpoint = editingDocId ? `${API_URL}/doctors/${editingDocId}` : `${API_URL}/doctors`;
 
-            const safeUserId = docForm.user_id !== '' && docForm.user_id !== null && docForm.user_id !== undefined
-                ? Number(docForm.user_id)
-                : null;
-
             const payload = {
                 name: docForm.name,
-                specialization: docForm.specialization,
-                user_id: safeUserId
+                specialization: docForm.specialization
             };
 
             const res = await fetch(endpoint, {
@@ -217,7 +227,7 @@ export default function AdminDashboard() {
     }
 
     const handleEditDoctor = (doc) => {
-        setDocForm({ name: doc.name, specialization: doc.specialization || '', user_id: doc.user_id || '' });
+        setDocForm({ name: doc.name, specialization: doc.specialization || '' });
         setEditingDocId(doc.doctor_id || doc.id);
         setActiveMenu(null);
     };
@@ -445,11 +455,22 @@ export default function AdminDashboard() {
                             </div>
                             <div>
                                 <label style={labelSt}>Select Role</label>
-                                <select value={form.role_id} onChange={e => setForm({ ...form, role_id: e.target.value })} required style={inputSt}>
+                                <select value={form.role_id} onChange={e => setForm({ ...form, role_id: e.target.value, doctor_id: '' })} required style={inputSt}>
                                     <option value="">Choose a role</option>
                                     {roles.map(r => <option key={r.role_id} value={r.role_id}>{r.role_name}</option>)}
                                 </select>
                             </div>
+                            {form.role_id === '2' && (
+                                <div>
+                                    <label style={labelSt}>Link Doctor Profile</label>
+                                    <select value={form.doctor_id} onChange={e => setForm({ ...form, doctor_id: e.target.value })} required style={inputSt}>
+                                        <option value="">Select a doctor profile</option>
+                                        {doctorsList.map(d => (
+                                            <option key={d.doctor_id || d.id} value={d.doctor_id || d.id}>{d.name} ({d.specialization})</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
                             <div style={{ display: 'flex', gap: '10px' }}>
                                 <button type="submit" style={{ ...btnStyle, flex: 1 }}>
                                     {editingUserId ? '👤 Update User' : '👤 Create User'}
@@ -543,22 +564,12 @@ export default function AdminDashboard() {
                                     {specializations.map(s => <option key={s} value={s}>{s}</option>)}
                                 </select>
                             </div>
-                            <div>
-                                <label style={labelSt}>Link User Account (Optional)</label>
-                                <select value={docForm.user_id} onChange={e => setDocForm({ ...docForm, user_id: e.target.value })} style={inputSt}>
-                                    <option value="">Select an existing user</option>
-                                    {users.filter(u => u.role_name === 'Doctor').map(u => (
-                                        <option key={u.username} value={u.username}>{u.username}</option>
-                                    ))}
-                                </select>
-                            </div>
-
                             <div style={{ display: 'flex', gap: '10px' }}>
                                 <button type="submit" style={{ ...btnStyle, flex: 1, background: 'linear-gradient(to right, #2563eb, #3b82f6)' }}>
                                     {editingDocId ? '🩺 Update Doctor' : '🩺 Add Doctor'}
                                 </button>
                                 {editingDocId && (
-                                    <button type="button" onClick={() => { setEditingDocId(null); setDocForm({ name: '', specialization: '', user_id: '' }); }} style={{ ...btnStyle, background: '#fee2e2', color: '#ef4444', width: 'auto', padding: '16px 20px', boxShadow: 'none' }}>Cancel</button>
+                                    <button type="button" onClick={() => { setEditingDocId(null); setDocForm({ name: '', specialization: '' }); }} style={{ ...btnStyle, background: '#fee2e2', color: '#ef4444', width: 'auto', padding: '16px 20px', boxShadow: 'none' }}>Cancel</button>
                                 )}
                             </div>
                         </form>

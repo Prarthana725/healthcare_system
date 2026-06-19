@@ -23,34 +23,32 @@ class DoctorQueries {
     }
 
     // CREATE DOCTOR
-    async createDoctor(name, specialization, user_id) {
+    async createDoctor(name, specialization) {
         const pool = await getConnection();
 
         const result = await pool.request()
             .input("name", sql.VarChar, name)
             .input("specialization", sql.VarChar, specialization)
-            .input("user_id", sql.Int, user_id)
             .query(`
-    INSERT INTO doctors (name, specialization, user_id)
+    INSERT INTO doctors (name, specialization)
     OUTPUT INSERTED.doctor_id
-    VALUES (@name, @specialization, @user_id);
+    VALUES (@name, @specialization);
 `);
 
         return result.recordset[0];
     }
 
     // UPDATE DOCTOR
-    async updateDoctor(doctorId, name, specialization, user_id) {
+    async updateDoctor(doctorId, name, specialization) {
         const pool = await getConnection();
 
         const result = await pool.request()
             .input("id", sql.Int, doctorId)
             .input("name", sql.VarChar, name)
             .input("specialization", sql.VarChar, specialization)
-            .input("user_id", sql.Int, user_id)
             .query(`
                 UPDATE doctors
-                SET name=@name, specialization=@specialization, user_id=@user_id
+                SET name=@name, specialization=@specialization
                 WHERE doctor_id=@id
             `);
 

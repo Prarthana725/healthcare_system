@@ -21,18 +21,29 @@ class UserController {
     // CREATE USER
     async create(req, res) {
         try {
-            const { username, password, role_id } = req.body;
+            const { username, password, role_id, doctor_id } = req.body;
+            const parsedRoleId = Number(role_id);
+            const parsedDoctorId = doctor_id === undefined || doctor_id === null || doctor_id === ''
+                ? null
+                : Number(doctor_id);
 
-            if (!username || !password || !role_id) {
+            if (!username || !password || !role_id || Number.isNaN(parsedRoleId)) {
                 return res.status(400).json({
-                    error: 'Missing fields'
+                    error: 'Missing or invalid fields: username, password, role_id'
+                });
+            }
+
+            if (parsedRoleId === 2 && (parsedDoctorId === null || Number.isNaN(parsedDoctorId))) {
+                return res.status(400).json({
+                    error: 'Doctor role requires a valid existing doctor_id'
                 });
             }
 
             const user = await userQueries.createUser(
                 username,
                 password,
-                role_id
+                parsedRoleId,
+                parsedDoctorId
             );
 
             res.status(201).json({
