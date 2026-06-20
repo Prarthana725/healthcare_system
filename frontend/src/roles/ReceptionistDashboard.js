@@ -538,8 +538,8 @@ export default function ReceptionistDashboard() {
                     </div>
                 )}
                 {/* =========================================
-    HISTORY (PATIENT DIRECTORY) FULL TAB
-========================================= */}
+                 HISTORY (PATIENT DIRECTORY) FULL TAB
+                ========================================= */}
                 {activeTab === "history" && (
                     <div style={contentCard}>
                         <PatientTable

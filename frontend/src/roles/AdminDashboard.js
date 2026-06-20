@@ -74,6 +74,7 @@ export default function AdminDashboard() {
     const [users, setUsers] = useState([]);
     const [doctorsList, setDoctorsList] = useState([]);
     const [patientsList, setPatientsList] = useState([]);
+    const [availablePatientProfiles, setAvailablePatientProfiles] = useState([]);
     const [pharmacyList, setPharmacyList] = useState([]);
     const [appointmentsList, setAppointmentsList] = useState([]);
 
@@ -83,6 +84,7 @@ export default function AdminDashboard() {
         loadUsers();
         loadDoctors();
         loadPatients();
+        loadAvailablePatientProfiles();
         loadPharmacy();
         loadAppointments();
     }, []);
@@ -125,6 +127,16 @@ export default function AdminDashboard() {
             const res = await fetch(`${API_URL}/patients`);
             setPatientsList(await res.json());
         } catch (err) { console.error(err); }
+    }
+    async function loadAvailablePatientProfiles() {
+        try {
+            const res = await fetch(`${API_URL}/patients/unlinked`);
+            const data = await res.json();
+            setAvailablePatientProfiles(Array.isArray(data) ? data : []);
+        } catch (err) {
+            console.error(err);
+            setAvailablePatientProfiles([]);
+        }
     }
     async function loadPharmacy() {
         try {
@@ -482,9 +494,18 @@ export default function AdminDashboard() {
                                     <label style={labelSt}>Link Patient Profile</label>
                                     <select value={form.patient_id} onChange={e => setForm({ ...form, patient_id: e.target.value })} required style={inputSt}>
                                         <option value="">Select a patient profile</option>
-                                        {patientsList.map(p => (
-                                            <option key={p.patient_id || p.id} value={p.patient_id || p.id}>{p.name} ({p.age} yrs)</option>
-                                        ))}
+                                        {(() => {
+                                            const currentPatient = editingUserId && form.patient_id
+                                                ? patientsList.find(p => String(p.patient_id || p.id) === String(form.patient_id))
+                                                : null;
+                                            const options = availablePatientProfiles.slice();
+                                            if (currentPatient && !options.some(p => String(p.patient_id || p.id) === String(currentPatient.patient_id || currentPatient.id))) {
+                                                options.unshift(currentPatient);
+                                            }
+                                            return options.map(p => (
+                                                <option key={p.patient_id || p.id} value={p.patient_id || p.id}>{p.name} ({p.age} yrs)</option>
+                                            ));
+                                        })()}
                                     </select>
                                 </div>
                             )}

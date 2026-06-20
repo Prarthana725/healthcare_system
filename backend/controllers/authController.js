@@ -96,6 +96,90 @@ class AuthController {
         }
     }
 
+    async register(req, res) {
+        try {
+            const { name, age, phone, username, password } = req.body;
+            if (!name || !age || !phone || !username || !password) {
+                return res.status(400).json({ error: 'Missing required fields: name, age, phone, username, password' });
+            }
+
+            const connection = await getConnection();
+
+            const cleanedPhone = phone.trim();
+            const cleanedUsername = username.trim();
+
+            const existingUser = await connection.request()
+                .input('username', sql.VarChar, cleanedUsername)
+                .query(`
+                    SELECT user_id
+                    FROM users
+                    WHERE username = @username
+                `);
+
+            if (existingUser.recordset.length > 0) {
+                return res.status(409).json({ error: 'Username already exists. Please choose a different username.' });
+            }
+
+            const existingPatient = await connection.request()
+                .input('phone', sql.VarChar, cleanedPhone)
+                .query(`
+                    SELECT patient_id
+                    FROM patients
+                    WHERE phone = @phone
+                `);
+
+            if (existingPatient.recordset.length > 0) {
+                return res.status(409).json({ error: 'A patient with this phone number already exists. Please contact reception for help.' });
+            }
+
+            const createPatientResult = await connection.request()
+                .input('name', sql.VarChar, name)
+                .input('age', sql.Int, age)
+                .input('phone', sql.VarChar, cleanedPhone)
+                .query(`
+                    INSERT INTO patients (name, age, phone, status)
+                    VALUES (@name, @age, @phone, 'Active');
+                    SELECT SCOPE_IDENTITY() AS patient_id;
+                `);
+
+            const patientId = createPatientResult.recordset[0].patient_id;
+            const hashedPassword = await bcrypt.hash(password, 10);
+            const roleId = 3;
+
+            const userResult = await connection.request()
+                .input('username', sql.VarChar, cleanedUsername)
+                .input('password', sql.VarChar, hashedPassword)
+                .input('patient_id', sql.Int, patientId)
+                .query(`
+                    INSERT INTO users (username, password, doctor_id, patient_id)
+                    OUTPUT INSERTED.user_id
+                    VALUES (@username, @password, NULL, @patient_id);
+                `);
+
+            const userId = userResult.recordset[0].user_id;
+            await connection.request()
+                .input('user_id', sql.Int, userId)
+                .input('role_id', sql.Int, roleId)
+                .query(`
+                    INSERT INTO user_roles (user_id, role_id)
+                    VALUES (@user_id, @role_id);
+                `);
+
+            res.status(201).json({
+                message: 'Registration successful',
+                user: {
+                    id: userId,
+                    username: cleanedUsername,
+                    role: 'Patient',
+                    patient_id: patientId
+                }
+            });
+        } catch (error) {
+            console.error('Registration Error:', error);
+            res.status(500).json({ error: 'Registration failed' });
+        }
+    }
+
     async updateUser(req, res) {
         try {
             const { id } = req.params;

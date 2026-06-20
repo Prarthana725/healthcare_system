@@ -27,6 +27,18 @@ class PatientQueries {
         return result.recordset;
     }
 
+    async getPatientByPhone(phone) {
+        const pool = await getConnection();
+        const result = await pool.request()
+            .input('phone', sql.VarChar, phone)
+            .query(`
+                SELECT *
+                FROM patients
+                WHERE phone = @phone
+            `);
+        return result.recordset[0];
+    }
+
     async createPatient(name, age, phone) {
 
         const pool = await getConnection();
@@ -40,13 +52,15 @@ class PatientQueries {
                 INSERT INTO patients (
                     name,
                     age,
-                    phone
+                    phone,
+                    status
                 )
 
                 VALUES (
                     @name,
                     @age,
-                    @phone
+                    @phone,
+                    'Active'
                 );
 
                 SELECT SCOPE_IDENTITY() AS id;
@@ -93,6 +107,21 @@ class PatientQueries {
             `);
 
         return result.rowsAffected[0];
+    }
+
+    async getUnlinkedPatients() {
+        const pool = await getConnection();
+
+        const result = await pool.request().query(`
+            SELECT p.*
+            FROM patients p
+            LEFT JOIN users u
+                ON p.patient_id = u.patient_id
+            WHERE u.patient_id IS NULL
+            ORDER BY p.patient_id DESC
+        `);
+
+        return result.recordset;
     }
 
     async getPatientWithAllData(patientId) {
