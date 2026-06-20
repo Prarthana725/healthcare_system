@@ -242,6 +242,36 @@ export default function DashboardForms({
                             required
                         />
                     </div>
+                    <div style={inputWrapper}>
+    <select
+        value={appointmentForm.appointment_time || ''}
+        onChange={(e) =>
+            setAppointmentForm({
+                ...appointmentForm,
+                appointment_time: e.target.value
+            })
+        }
+        style={iconInput}
+        required
+    >
+        <option value="">
+            Select Time Slot
+        </option>
+
+        <option value="09:00 AM">09:00 AM</option>
+        <option value="10:00 AM">10:00 AM</option>
+        <option value="11:00 AM">11:00 AM</option>
+        <option value="02:00 PM">02:00 PM</option>
+        <option value="03:00 PM">03:00 PM</option>
+        <option value="04:00 PM">04:00 PM</option>
+    </select>
+
+    <ChevronDown
+        size={20}
+        color="#94a3b8"
+        style={dropdownArrow}
+    />
+</div>
 
                     <button
                         type="submit"

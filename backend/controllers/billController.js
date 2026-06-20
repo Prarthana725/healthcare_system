@@ -85,43 +85,56 @@ class BillController {
                 patient_name:
                     billDetails[0].patient_name,
 
-                patient_phone:
-                    billDetails[0].phone,
-
-                patient_age:
-                    billDetails[0].age,
-
                 doctor_id:
                     billDetails[0].doctor_id,
 
                 doctor_name:
                     billDetails[0].doctor_name,
 
-                doctor_specialization:
-                    billDetails[0].specialization,
-
                 bill_date:
                     billDetails[0].bill_date,
 
+                consultation_fee:
+                    billDetails[0].consultation_fee || 0,
+
+                appointment_fee:
+                    billDetails[0].appointment_fee || 0,
+
+                medicine_fee:
+                    billDetails[0].medicine_fee || 0,
+
+                service_fee:
+                    billDetails[0].service_fee || 0,
+
+                subtotal:
+                    billDetails[0].subtotal || 0,
+
+                tax:
+                    billDetails[0].tax || 0,
+
+                total_amount:
+                    billDetails[0].total_amount || 0,
+
+                paid_amount:
+                    billDetails[0].paid_amount || 0,
+
+                balance_amount:
+                    billDetails[0].balance_amount || 0,
+
                 status:
-                    billDetails[0].status,
+                    billDetails[0].status ||
+                    billDetails[0].payment_status ||
+                    'pending',
 
                 items:
 
                     billDetails
 
                         .filter(
-                            row =>
-                                row.item_id
+                            row => row.item_id
                         )
 
                         .map(row => ({
-
-                            item_id:
-                                row.item_id,
-
-                            medicine_id:
-                                row.medicine_id,
 
                             medicine_name:
                                 row.medicine_name,
@@ -141,14 +154,10 @@ class BillController {
                     billDetails
 
                         .filter(
-                            row =>
-                                row.item_id
+                            row => row.item_id
                         )
 
-                        .length,
-
-                total_amount:
-                    billDetails[0].total_amount
+                        .length
             };
 
             res.json(bill);

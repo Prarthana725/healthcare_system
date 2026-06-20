@@ -10,8 +10,10 @@ export default function InvoiceModal({
   setPaymentAmounts,
   markAsPaid
 }) {
-
   if (!showInvoice || !selectedBill) return null;
+
+  const status = (selectedBill.status || selectedBill.payment_status || "pending").toLowerCase();
+  const isPaid = status === "paid";
 
   return (
     <div
@@ -19,33 +21,47 @@ export default function InvoiceModal({
         position: "fixed",
         top: 0,
         right: 0,
-        width: "450px",
+        width: "460px",
         height: "100vh",
-        background: "#f8fafc",
-        boxShadow: "-10px 0 30px rgba(0,0,0,0.12)",
+        background: "#f1f5f9",
+        boxShadow: "-16px 0 40px rgba(15, 23, 42, 0.18)",
         zIndex: 9999,
         overflowY: "auto",
-        padding: "25px",
-        borderLeft: "1px solid #e2e8f0",
+        padding: "28px",
+        borderLeft: "1px solid #cbd5e1",
       }}
     >
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "25px",
+          alignItems: "flex-start",
+          gap: "16px",
+          marginBottom: "26px",
         }}
       >
-        <h2
-          style={{
-            margin: 0,
-            color: "#0f172a",
-            fontWeight: "800",
-          }}
-        >
-          💳 Payment Details
-        </h2>
+        <div>
+          <div
+            style={{
+              fontSize: "12px",
+              letterSpacing: "0.18em",
+              color: "#0f172a",
+              marginBottom: "8px",
+            }}
+          >
+            MEDICARE HOSPITAL
+          </div>
+          <h2
+            style={{
+              margin: 0,
+              fontSize: "28px",
+              color: "#0f172a",
+              fontWeight: 800,
+            }}
+          >
+            Invoice
+          </h2>
+        </div>
 
         <button
           onClick={() => setShowInvoice(false)}
@@ -54,193 +70,285 @@ export default function InvoiceModal({
             background: "transparent",
             fontSize: "24px",
             cursor: "pointer",
-            color: "#64748b",
+            color: "#475569",
+            lineHeight: 1,
           }}
         >
           ✕
         </button>
       </div>
 
-      <div style={{ marginBottom: "20px" }}>
-        <span
-          style={{
-            background:
-              (selectedBill.status || "").toLowerCase() === "paid"
-                ? "#dcfce7"
-                : "#fef3c7",
-            color:
-              (selectedBill.status || "").toLowerCase() === "paid"
-                ? "#16a34a"
-                : "#d97706",
-            padding: "8px 14px",
-            borderRadius: "999px",
-            fontWeight: "bold",
-            fontSize: "13px",
-          }}
-        >
-          {(selectedBill.status || "").toLowerCase() === "paid"
-            ? "Paid"
-            : "Pending Payment"}
-        </span>
-      </div>
-
       <div
         style={{
           background: "#ffffff",
-          padding: "22px",
-          borderRadius: "16px",
+          borderRadius: "20px",
           border: "1px solid #e2e8f0",
-          boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-          marginBottom: "20px",
+          padding: "24px 26px",
+          boxShadow: "0 18px 40px rgba(15, 23, 42, 0.06)",
+          marginBottom: "24px",
         }}
       >
-        <p><strong>Invoice ID:</strong> INV-{selectedBill.bill_id}</p>
-        <p><strong>Patient:</strong> {selectedBill.patient_name}</p>
-        <p><strong>Doctor:</strong> {selectedBill.doctor_name}</p>
-        <p>
-          <strong>Date:</strong>{" "}
-          {new Date(selectedBill.bill_date).toLocaleDateString()}
-        </p>
-      </div>
-
-      <div
-        style={{
-          background: "linear-gradient(135deg,#eff6ff,#dbeafe)",
-          padding: "25px",
-          borderRadius: "16px",
-          border: "1px solid #bfdbfe",
-          marginBottom: "20px",
-        }}
-      >
-        <h1
+        <div
           style={{
-            margin: 0,
-            color: "#2563eb",
-            fontSize: "42px",
-            fontWeight: "900",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            gap: "18px",
           }}
         >
-          Rs. {selectedBill.total_amount}
-        </h1>
+          <div>
+            <p
+              style={{
+                margin: 0,
+                color: "#475569",
+                fontSize: "12px",
+                textTransform: "uppercase",
+                letterSpacing: "0.16em",
+              }}
+            >
+              Invoice Number
+            </p>
+            <p
+              style={{
+                margin: "6px 0 0",
+                fontSize: "18px",
+                fontWeight: 700,
+                color: "#0f172a",
+              }}
+            >
+              INV-{selectedBill.bill_id}
+            </p>
+          </div>
 
-        <small
-          style={{
-            color: "#475569",
-            fontWeight: "600",
-          }}
-        >
-          Total Amount
-        </small>
-      </div>
-
-      <label style={{ fontWeight: "600", color: "#334155" }}>
-        Payment Method
-      </label>
-
-      <select
-        value={paymentMethods[selectedBill.bill_id] || "Cash"}
-        onChange={(e) =>
-          setPaymentMethods({
-            ...paymentMethods,
-            [selectedBill.bill_id]: e.target.value,
-          })
-        }
-        style={{
-          width: "100%",
-          padding: "12px",
-          marginTop: "8px",
-          marginBottom: "15px",
-          borderRadius: "12px",
-          border: "1px solid #cbd5e1",
-          background: "#fff",
-        }}
-      >
-        <option>Cash</option>
-        <option>Card</option>
-        <option>Insurance</option>
-        <option>Online</option>
-      </select>
-
-      <label style={{ fontWeight: "600", color: "#334155" }}>
-        Amount Received
-      </label>
-
-      <input
-        type="number"
-        placeholder="Enter amount"
-        value={paymentAmounts[selectedBill.bill_id] || ""}
-        onChange={(e) =>
-          setPaymentAmounts({
-            ...paymentAmounts,
-            [selectedBill.bill_id]: e.target.value,
-          })
-        }
-        style={{
-          width: "100%",
-          padding: "12px",
-          marginTop: "8px",
-          borderRadius: "12px",
-          border: "1px solid #cbd5e1",
-          background: "#fff",
-        }}
-      />
-
-      <div
-        style={{
-          marginTop: "20px",
-          padding: "20px",
-          background: "#ffffff",
-          borderRadius: "16px",
-          border: "1px solid #e2e8f0",
-          boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-        }}
-      >
-        <p><strong>Consultation Fee:</strong> Rs. {selectedBill.subtotal || 0}</p>
-        <p><strong>Tax:</strong> Rs. {selectedBill.tax || 0}</p>
-
-        <hr />
-
-        <p><strong>Paid:</strong> Rs. {selectedBill.paid_amount || 0}</p>
-
-        <p>
-          <strong>Balance:</strong> Rs.{" "}
-          {selectedBill.balance_amount || selectedBill.total_amount}
-        </p>
-
-        <p>
-          <strong>Status:</strong>{" "}
-          <span
+          <div
             style={{
-              color:
-                (selectedBill.status || "").toLowerCase() === "paid"
-                  ? "#16a34a"
-                  : "#ea580c",
-              fontWeight: "bold",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "10px 14px",
+              borderRadius: "999px",
+              background: isPaid ? "#dcfce7" : "#fef3c7",
+              color: isPaid ? "#15803d" : "#b45309",
+              fontWeight: 700,
+              fontSize: "12px",
+              textTransform: "uppercase",
             }}
           >
-            {selectedBill.status}
-          </span>
+            {isPaid ? "Paid" : "Pending"}
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "18px",
+            marginTop: "24px",
+          }}
+        >
+          <div>
+            <p style={{ margin: 0, color: "#64748b", fontSize: "12px" }}>Patient</p>
+            <p style={{ margin: "8px 0 0", fontSize: "16px", fontWeight: 700, color: "#0f172a" }}>
+              {selectedBill.patient_name}
+            </p>
+          </div>
+
+          <div>
+            <p style={{ margin: 0, color: "#64748b", fontSize: "12px" }}>Doctor</p>
+            <p style={{ margin: "8px 0 0", fontSize: "16px", fontWeight: 700, color: "#0f172a" }}>
+              {selectedBill.doctor_name}
+            </p>
+          </div>
+
+          <div>
+            <p style={{ margin: 0, color: "#64748b", fontSize: "12px" }}>Date</p>
+            <p style={{ margin: "8px 0 0", fontSize: "16px", fontWeight: 700, color: "#0f172a" }}>
+              {new Date(selectedBill.bill_date).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </p>
+          </div>
+
+          <div>
+            <p style={{ margin: 0, color: "#64748b", fontSize: "12px" }}>Status</p>
+            <p style={{ margin: "8px 0 0", fontSize: "16px", fontWeight: 700, color: "#0f172a" }}>
+              {selectedBill.status || selectedBill.payment_status || "Pending"}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div
+        style={{
+          background: "#ffffff",
+          borderRadius: "20px",
+          border: "1px solid #e2e8f0",
+          padding: "24px 26px",
+          boxShadow: "0 18px 40px rgba(15, 23, 42, 0.06)",
+          marginBottom: "24px",
+        }}
+      >
+        <h3
+          style={{
+            margin: 0,
+            fontSize: "18px",
+            fontWeight: 800,
+            color: "#0f172a",
+            letterSpacing: "0.02em",
+          }}
+        >
+          Charges
+        </h3>
+
+        <div style={{ marginTop: "22px", display: "grid", gap: "16px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", color: "#475569" }}>
+            <span>Consultation Fee</span>
+            <span>Rs. {selectedBill.consultation_fee || 0}</span>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "space-between", color: "#475569" }}>
+            <span>Appointment Fee</span>
+            <span>Rs. {selectedBill.appointment_fee || 0}</span>
+          </div>
+
+          <div style={{ paddingTop: "10px", borderTop: "1px solid #e2e8f0" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", fontWeight: 700, color: "#0f172a" }}>
+              <span>Medicine Charges</span>
+              <span>Rs. {selectedBill.medicine_fee || 0}</span>
+            </div>
+            <div style={{ display: "grid", gap: "12px" }}>
+              {(selectedBill.items || []).map((item, index) => (
+                <div key={index} style={{ display: "grid", gridTemplateColumns: "1.2fr 0.9fr 0.9fr 0.9fr", gap: "10px", alignItems: "center", padding: "12px 0", borderBottom: "1px solid #f1f5f9" }}>
+                  <span style={{ fontWeight: 600, color: "#0f172a" }}>{item.medicine_name}</span>
+                  <span style={{ color: "#64748b" }}>Qty {item.quantity}</span>
+                  <span style={{ color: "#64748b" }}>Rs. {item.unit_price}</span>
+                  <span style={{ fontWeight: 700, color: "#0f172a" }}>Rs. {item.item_total}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "space-between", color: "#475569" }}>
+            <span>Hospital Service Fee</span>
+            <span>Rs. {selectedBill.service_fee || 0}</span>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "space-between", color: "#475569" }}>
+            <span>Tax (5%)</span>
+            <span>Rs. {selectedBill.tax || 0}</span>
+          </div>
+        </div>
+      </div>
+
+      <div
+        style={{
+          background: "#2563eb",
+          color: "#ffffff",
+          borderRadius: "20px",
+          padding: "24px 26px",
+          marginBottom: "24px",
+          textAlign: "center",
+        }}
+      >
+        <p style={{ margin: 0, fontSize: "14px", letterSpacing: "0.08em", textTransform: "uppercase", opacity: 0.85 }}>
+          Total Amount
+        </p>
+        <p style={{ margin: "10px 0 0", fontSize: "36px", fontWeight: 900 }}>
+          Rs. {selectedBill.total_amount || 0}
         </p>
       </div>
 
-      {(selectedBill.status || "").toLowerCase() !== "paid" && (
+      <div
+        style={{
+          background: "#ffffff",
+          borderRadius: "20px",
+          border: "1px solid #e2e8f0",
+          padding: "24px 26px",
+          boxShadow: "0 18px 40px rgba(15, 23, 42, 0.06)",
+          marginBottom: "24px",
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "14px", color: "#475569" }}>
+          <span>Paid Amount</span>
+          <span>Rs. {selectedBill.paid_amount || 0}</span>
+        </div>
+
+        <div style={{ display: "flex", justifyContent: "space-between", color: "#475569" }}>
+          <span>Balance Amount</span>
+          <span>Rs. {selectedBill.balance_amount || selectedBill.total_amount || 0}</span>
+        </div>
+      </div>
+
+      <div style={{ marginBottom: "20px" }}>
+        <label style={{ fontWeight: 600, color: "#334155" }}>Payment Method</label>
+        <select
+          value={paymentMethods[selectedBill.bill_id] || "Cash"}
+          onChange={(e) =>
+            setPaymentMethods({
+              ...paymentMethods,
+              [selectedBill.bill_id]: e.target.value,
+            })
+          }
+          style={{
+            width: "100%",
+            padding: "14px",
+            marginTop: "8px",
+            borderRadius: "14px",
+            border: "1px solid #cbd5e1",
+            background: "#fff",
+            color: "#0f172a",
+          }}
+        >
+          <option>Cash</option>
+          <option>Card</option>
+          <option>Insurance</option>
+          <option>Online</option>
+        </select>
+      </div>
+
+      <div style={{ marginBottom: "24px" }}>
+        <label style={{ fontWeight: 600, color: "#334155" }}>Amount Received</label>
+        <input
+          type="number"
+          placeholder="Enter amount"
+          value={paymentAmounts[selectedBill.bill_id] || ""}
+          onChange={(e) =>
+            setPaymentAmounts({
+              ...paymentAmounts,
+              [selectedBill.bill_id]: e.target.value,
+            })
+          }
+          style={{
+            width: "100%",
+            padding: "14px",
+            marginTop: "8px",
+            borderRadius: "14px",
+            border: "1px solid #cbd5e1",
+            background: "#fff",
+            color: "#0f172a",
+          }}
+        />
+      </div>
+
+      {!isPaid && (
         <button
           onClick={() => markAsPaid(selectedBill.bill_id)}
           style={{
             width: "100%",
-            marginTop: "25px",
             padding: "16px",
+            borderRadius: "16px",
             background: "linear-gradient(to right,#16a34a,#22c55e)",
-            color: "#fff",
+            color: "#ffffff",
             border: "none",
-            borderRadius: "14px",
-            fontWeight: "bold",
             fontSize: "16px",
+            fontWeight: 700,
             cursor: "pointer",
-            boxShadow: "0 6px 15px rgba(34,197,94,0.25)",
+            boxShadow: "0 10px 24px rgba(16, 185, 129, 0.22)",
           }}
         >
-          ✓ Confirm Payment
+          Confirm Payment
         </button>
       )}
     </div>

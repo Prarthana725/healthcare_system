@@ -19,6 +19,11 @@ SELECT
     b.doctor_id,
     b.bill_date,
 
+    b.consultation_fee,
+    b.appointment_fee,
+    b.medicine_fee,
+    b.service_fee,
+
     b.subtotal,
     b.tax,
 
@@ -47,22 +52,35 @@ LEFT JOIN doctors d
     ON b.doctor_id = d.doctor_id
 
 ORDER BY b.bill_id DESC
-
                 `);
 
         return result.recordset;
     }
 
     // CREATE BILL
+    
     async createBill(
         prescription_id,
         patient_id,
         doctor_id,
-        total_amount
+        total_amount,
+        consultation_fee = 0,
+        appointment_fee = 0,
+        medicine_fee = 0,
+        service_fee = 0,
+        subtotal = 0,
+        tax = 0
     ) {
+           console.log("CREATE BILL START");
 
         const pool =
             await getConnection();
+            const dbCheck = await pool.request().query(`
+    SELECT DB_NAME() AS CurrentDatabase
+`);
+
+console.log("DATABASE =>");
+console.log(dbCheck.recordset);
 
         const result =
             await pool.request()
@@ -83,6 +101,42 @@ ORDER BY b.bill_id DESC
                     "doctor_id",
                     sql.Int,
                     doctor_id
+                )
+
+                .input(
+                    "consultation_fee",
+                    sql.Decimal(10,2),
+                    consultation_fee
+                )
+
+                .input(
+                    "appointment_fee",
+                    sql.Decimal(10,2),
+                    appointment_fee
+                )
+
+                .input(
+                    "medicine_fee",
+                    sql.Decimal(10,2),
+                    medicine_fee
+                )
+
+                .input(
+                    "service_fee",
+                    sql.Decimal(10,2),
+                    service_fee
+                )
+
+                .input(
+                    "subtotal",
+                    sql.Decimal(10,2),
+                    subtotal
+                )
+
+                .input(
+                    "tax",
+                    sql.Decimal(10,2),
+                    tax
                 )
 
                 .input(
@@ -109,7 +163,27 @@ ORDER BY b.bill_id DESC
 
                         bill_date,
 
+                        consultation_fee,
+
+                        appointment_fee,
+
+                        medicine_fee,
+
+                        service_fee,
+
+                        subtotal,
+
+                        tax,
+
                         total_amount,
+
+                        paid_amount,
+
+                        balance_amount,
+
+                        payment_status,
+
+                        payment_method,
 
                         status
 
@@ -125,7 +199,27 @@ ORDER BY b.bill_id DESC
 
                         GETDATE(),
 
+                        @consultation_fee,
+
+                        @appointment_fee,
+
+                        @medicine_fee,
+
+                        @service_fee,
+
+                        @subtotal,
+
+                        @tax,
+
                         @total_amount,
+
+                        0.00,
+
+                        @total_amount,
+
+                        'pending',
+
+                        'Pending',
 
                         @status
 
@@ -171,30 +265,31 @@ ORDER BY b.bill_id DESC
 
                         b.bill_date,
 
+                        b.consultation_fee,
+                        b.appointment_fee,
+                        b.medicine_fee,
+                        b.service_fee,
+                        b.subtotal,
+                        b.tax,
                         b.total_amount,
-
+                        b.paid_amount,
+                        b.balance_amount,
+                        b.payment_status,
+                        b.payment_method,
                         b.status,
 
                         p.name AS patient_name,
-
                         p.phone,
-
                         p.age,
 
                         d.name AS doctor_name,
-
                         d.specialization,
 
                         pd.id AS item_id,
-
                         m.medicine_id,
-
                         m.name AS medicine_name,
-
                         pd.quantity,
-
                         m.price AS unit_price,
-
                         (
                             pd.quantity *
                             m.price

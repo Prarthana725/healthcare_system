@@ -32,7 +32,8 @@ export default function PatientDashboard() {
     const [message, setMessage] = useState('');
     const [appointmentForm, setAppointmentForm] = useState({
         doctor_id: '',
-        date: ''
+        date: '',
+        appointment_time: ''
     });
 
     const user = JSON.parse(localStorage.getItem('user'));
@@ -147,13 +148,14 @@ export default function PatientDashboard() {
                 body: JSON.stringify({
                     patient_id: data.patient.patient_id || data.patient.id,
                     doctor_id: appointmentForm.doctor_id,
-                    date: appointmentForm.date
+                    date: appointmentForm.date,
+                    appointment_time: appointmentForm.appointment_time
                 })
             });
 
             if (res.ok) {
                 setMessage('Appointment booked successfully ✅');
-                setAppointmentForm({ doctor_id: '', date: '' });
+                setAppointmentForm({ doctor_id: '', date: '', appointment_time: '' });
                 setDoctorSearch('');
                 loadInitialData(data.patient.patient_id || data.patient.id);
                 setActiveSection('appointments');
@@ -175,7 +177,7 @@ export default function PatientDashboard() {
                 body: JSON.stringify({ status })
             });
             if (res.ok) {
-                loadInitialData(userId);
+                loadInitialData(data.patient.patient_id);
             } else {
                 alert('Failed to cancel the appointment.');
             }
@@ -517,6 +519,51 @@ export default function PatientDashboard() {
                                             required style={inputStyle}
                                         />
                                     </div>
+                                    <div>
+    <label style={formLabel}>
+        Select Time Slot
+    </label>
+
+    <select
+        value={appointmentForm.appointment_time}
+        onChange={(e) =>
+            setAppointmentForm({
+                ...appointmentForm,
+                appointment_time: e.target.value
+            })
+        }
+        required
+        style={inputStyle}
+    >
+        <option value="">
+            -- Select Time --
+        </option>
+
+        <option value="09:00 AM">
+            09:00 AM
+        </option>
+
+        <option value="10:00 AM">
+            10:00 AM
+        </option>
+
+        <option value="11:00 AM">
+            11:00 AM
+        </option>
+
+        <option value="02:00 PM">
+            02:00 PM
+        </option>
+
+        <option value="03:00 PM">
+            03:00 PM
+        </option>
+
+        <option value="04:00 PM">
+            04:00 PM
+        </option>
+    </select>
+</div>
                                     <button type="submit" style={{ ...buttonStyle, width: '100%', padding: '16px' }}>Confirm Appointment</button>
                                 </form>
                                 {message && <div style={messageStyle}>{message}</div>}
@@ -531,6 +578,7 @@ export default function PatientDashboard() {
                                         <thead>
                                             <tr style={tableHeaderRow}>
                                                 <th style={tableHead}>Date</th>
+                                                <th style={tableHead}>Time</th>
                                                 <th style={tableHead}>Diagnosis/Medicine</th>
                                                 <th style={tableHead}>Doctor</th>
                                             </tr>
@@ -539,6 +587,7 @@ export default function PatientDashboard() {
                                             {data.prescriptions.map((p, i) => (
                                                 <tr key={i}>
                                                     <td style={{ ...tableData, fontWeight: 'bold' }}>{new Date(p.date).toLocaleDateString()}</td>
+                                                    <td style={tableData}>{p.appointment_time || '-'}</td>
                                                     <td style={{ ...tableData, color: '#0f766e', fontWeight: 'bold' }}>{p.display_medicines}</td>
                                                     <td style={tableData}>{p.doctor_name}</td>
                                                 </tr>
