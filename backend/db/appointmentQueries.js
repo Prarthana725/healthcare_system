@@ -19,6 +19,8 @@ class AppointmentQueries {
 
                         a.date,
 
+                        a.appointment_time,
+
                         a.status,
 
                         p.patient_id,
@@ -72,6 +74,8 @@ class AppointmentQueries {
                         a.appointment_id,
 
                         a.date,
+
+                        a.appointment_time,
 
                         a.status,
 
@@ -173,6 +177,8 @@ class AppointmentQueries {
 
                         a.status,
 
+                          a.appointment_time,
+
                         p.name AS patient_name,
 
                         d.doctor_id,
@@ -230,6 +236,8 @@ class AppointmentQueries {
 
                         a.status,
 
+                          a.appointment_time,
+
                         p.patient_id,
 
                         p.name AS patient_name,
@@ -264,7 +272,8 @@ class AppointmentQueries {
     async createAppointment(
         patientId,
         doctorId,
-        date
+        date,
+        appointmentTime
     ) {
 
         const pool =
@@ -290,6 +299,11 @@ class AppointmentQueries {
                     sql.Date,
                     date
                 )
+                .input(
+    "time",
+    sql.VarChar,
+    appointmentTime
+)
 
                 .query(`
 
@@ -300,6 +314,8 @@ class AppointmentQueries {
                         doctor_id,
 
                         date,
+
+                        appointment_time,
 
                         status
 
@@ -316,6 +332,8 @@ class AppointmentQueries {
 
                         @date,
 
+                        @time,
+
                         'pending'
 
                     )
@@ -330,6 +348,7 @@ class AppointmentQueries {
         id,
         patientId,
         doctorId,
+        appointmentTime,
         date
     ) {
 
@@ -362,6 +381,11 @@ class AppointmentQueries {
                     sql.Date,
                     date
                 )
+                .input(
+                   "time",
+                    sql.VarChar,
+                    appointmentTime
+              )
 
                 .query(`
 
@@ -374,6 +398,9 @@ class AppointmentQueries {
                         doctor_id = @did,
 
                         date = @date
+
+                        appointment_time = @time
+
 
                     WHERE appointment_id = @id
 

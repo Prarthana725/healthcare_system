@@ -53,14 +53,20 @@ class AppointmentController {
             const {
                 patient_id,
                 doctor_id,
-                date
+                date,
+                appointment_time
             } = req.body;
 
-            if (!patient_id || !doctor_id || !date) {
-                return res.status(400).json({
-                    error: 'Missing fields'
-                });
-            }
+            if (
+    !patient_id ||
+    !doctor_id ||
+    !date ||
+    !appointment_time
+) {
+    return res.status(400).json({
+        error: 'Missing fields'
+    });
+}
 
             //--------------------------------------------------
             // CREATE APPOINTMENT
@@ -70,7 +76,8 @@ class AppointmentController {
                 await appointmentQueries.createAppointment(
                     patient_id,
                     doctor_id,
-                    date
+                    date,
+                    appointment_time
                 );
 
             //--------------------------------------------------
@@ -87,6 +94,7 @@ class AppointmentController {
             //--------------------------------------------------
             // CREATE BILL
             //--------------------------------------------------
+            console.log("BEFORE CREATE BILL");
 
             const bill =
                 await billQueries.createConsultationBill(

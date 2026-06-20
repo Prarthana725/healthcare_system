@@ -155,12 +155,14 @@ async create(req, res) {
         }
 
           
-            // STOCK CHECK + BILL TOTAL
+            // STOCK CHECK + CHARGES
 
-let totalAmount = 0;
+let medicineTotal = 0;
+const consultationFee = 2000;
+const appointmentFee = 500;
+const serviceFee = 250;
 
 for (const item of details) {
-
     const medicine =
         await medicineQueries.getMedicineById(
             item.medicine_id
@@ -172,61 +174,58 @@ for (const item of details) {
         });
     }
 
-    // STOCK CHECK
-
     if (medicine.quantity < item.quantity) {
         return res.status(400).json({
             error: `Not enough stock for ${medicine.name}`
         });
     }
 
-    // CALCULATE TOTAL
-
-    totalAmount += medicine.price * item.quantity;
+    medicineTotal +=
+        Number(medicine.price || 0) *
+        Number(item.quantity || 0);
 }
-// CREATE PRESCRIPTION
+
+const subtotal =
+    Number(consultationFee) +
+    Number(appointmentFee) +
+    Number(medicineTotal) +
+    Number(serviceFee);
+
+const tax = Number((subtotal * 0.05).toFixed(2));
+const totalAmount = Number((subtotal + tax).toFixed(2));
 
 const result =
     await prescriptionQueries.createPrescriptionWithDetails(
         patient_id,
         doctor_id,
         date,
-        details
-    );
-
-// REDUCE STOCK
-
-for (const item of details) {
-    await medicineQueries.reduceStock(
-        item.medicine_id,
-        item.quantity
-    );
-}
-
- // AUTO CREATE BILL
-
-const bill =
-    await billQueries.createBill(
-        result.prescriptionId,
-        patient_id,
-        doctor_id,
+        details,
+        consultationFee,
+        appointmentFee,
+        medicineTotal,
+        serviceFee,
+        subtotal,
+        tax,
         totalAmount
     );
-
-// SUCCESS
 
 res.status(201).json({
     message: 'Prescription created successfully',
     prescriptionId: result.prescriptionId,
-    bill
+    bill: result.bill
 });
 
 } catch (error) {
 
-    console.error(
-        'Create Error:',
-        error.message
-    );
+    console.log("========== FULL ERROR ==========");
+
+    console.error(error);
+
+    console.log("========== ERROR MESSAGE ==========");
+
+    console.error(error.message);
+
+    console.log("========== END ==========");
 
     res.status(500).json({
         error: error.message
