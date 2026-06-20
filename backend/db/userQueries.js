@@ -19,6 +19,30 @@ async function getAllUsers() {
     return result.recordset;
 }
 
+async function usernameExists(username) {
+    const connection = await getConnection();
+    const result = await connection.request()
+        .input('username', sql.VarChar, username)
+        .query(`
+            SELECT user_id
+            FROM users
+            WHERE username = @username
+        `);
+    return result.recordset.length > 0;
+}
+
+async function patientUserExists(patient_id) {
+    const connection = await getConnection();
+    const result = await connection.request()
+        .input('patient_id', sql.Int, patient_id)
+        .query(`
+            SELECT user_id
+            FROM users
+            WHERE patient_id = @patient_id
+        `);
+    return result.recordset.length > 0;
+}
+
 async function doctorExists(doctor_id) {
     const connection = await getConnection();
     const result = await connection.request()
@@ -140,6 +164,8 @@ async function deleteUser(user_id) {
 
 module.exports = {
     getAllUsers,
+    usernameExists,
+    patientUserExists,
     doctorExists,
     patientExists,
     createUser,

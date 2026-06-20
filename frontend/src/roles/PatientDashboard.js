@@ -155,7 +155,7 @@ export default function PatientDashboard() {
                 setMessage('Appointment booked successfully ✅');
                 setAppointmentForm({ doctor_id: '', date: '' });
                 setDoctorSearch('');
-                loadInitialData(userId);
+                loadInitialData(data.patient.patient_id || data.patient.id);
                 setActiveSection('appointments');
             } else {
                 const errData = await res.json();

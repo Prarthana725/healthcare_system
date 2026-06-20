@@ -143,9 +143,25 @@ router.post('/', async (req, res) => {
             phone
         } = req.body;
 
+        if (!name || !age || !phone) {
+            return res.status(400).json({ message: 'Missing required fields: name, age, phone' });
+        }
+
         const pool = await getConnection();
 
-        await pool.request()
+        const existing = await pool.request()
+            .input('phone', sql.VarChar, phone)
+            .query(`
+                SELECT patient_id
+                FROM patients
+                WHERE phone = @phone
+            `);
+
+        if (existing.recordset.length > 0) {
+            return res.status(409).json({ message: 'A patient with this phone number already exists.' });
+        }
+
+        const result = await pool.request()
             .input('name', sql.VarChar, name)
             .input('age', sql.Int, age)
             .input('phone', sql.VarChar, phone)
@@ -163,11 +179,14 @@ router.post('/', async (req, res) => {
                     @age,
                     @phone,
                     'Active'
-                )
+                );
+                SELECT SCOPE_IDENTITY() AS patient_id;
             `);
 
+        const patientId = result.recordset[0]?.patient_id;
         res.status(201).json({
-            message: 'Patient created successfully'
+            message: 'Patient created successfully',
+            patient_id: patientId
         });
 
     } catch (err) {
@@ -180,6 +199,28 @@ router.post('/', async (req, res) => {
     }
 });
 
+
+// GET PATIENTS WITHOUT USER ACCOUNTS
+
+router.get('/unlinked', async (req, res) => {
+    try {
+        const pool = await getConnection();
+        const result = await pool.request()
+            .query(`
+                SELECT p.*
+                FROM patients p
+                LEFT JOIN users u
+                    ON p.patient_id = u.patient_id
+                WHERE u.patient_id IS NULL
+                ORDER BY p.patient_id DESC
+            `);
+
+        res.json(result.recordset);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
 
 // UPDATE PATIENT
 

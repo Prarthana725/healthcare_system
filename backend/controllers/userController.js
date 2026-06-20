@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt');
 const userQueries = require('../db/userQueries');
 
 class UserController {
@@ -36,6 +37,12 @@ class UserController {
                 });
             }
 
+            if (await userQueries.usernameExists(username)) {
+                return res.status(409).json({
+                    error: 'Username already exists. Please choose a different one.'
+                });
+            }
+
             if (parsedRoleId === 2) {
                 if (parsedDoctorId === null || Number.isNaN(parsedDoctorId)) {
                     return res.status(400).json({
@@ -62,11 +69,19 @@ class UserController {
                         error: 'Selected patient profile does not exist'
                     });
                 }
+
+                if (await userQueries.patientUserExists(parsedPatientId)) {
+                    return res.status(409).json({
+                        error: 'A user account is already linked to this patient profile.'
+                    });
+                }
             }
+
+            const hashedPassword = await bcrypt.hash(password, 10);
 
             const user = await userQueries.createUser(
                 username,
-                password,
+                hashedPassword,
                 parsedRoleId,
                 parsedDoctorId,
                 parsedPatientId

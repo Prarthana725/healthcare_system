@@ -13,11 +13,12 @@ function Login() {
     const [rememberMe, setRememberMe] = useState(false);
 
     // --- 2. NEW Password Reset States ---
-    const [view, setView] = useState('login'); // 'login', 'forgot', 'verify', 'reset'
+    const [view, setView] = useState('login'); // 'login', 'register', 'forgot', 'verify', 'reset'
     const [resetEmail, setResetEmail] = useState('');
     const [otp, setOtp] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [success, setSuccess] = useState('');
+    const [registerForm, setRegisterForm] = useState({ name: '', age: '', phone: '', username: '', password: '' });
 
     const navigate = useNavigate();
 
@@ -126,6 +127,28 @@ function Login() {
             }, 3000);
         } catch (err) {
             setError(err.message || 'Failed to reset password.');
+        }
+        setLoading(false);
+    }
+
+    async function handleRegister(e) {
+        e.preventDefault();
+        setError('');
+        setSuccess('');
+        setLoading(true);
+        try {
+            const res = await fetch(`${API_URL}/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(registerForm)
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Registration failed.');
+
+            localStorage.setItem('user', JSON.stringify(data.user));
+            navigate('/patient-dashboard');
+        } catch (err) {
+            setError(err.message || 'Registration failed.');
         }
         setLoading(false);
     }
@@ -365,6 +388,86 @@ function Login() {
                                         }}>
                                         {loading ? 'Signing In...' : <>Sign In &nbsp;→</>}
                                     </button>
+                                    <div style={{ textAlign: 'center', marginTop: 18 }}>
+                                        <button type="button" onClick={() => { setView('register'); setError(''); setSuccess(''); }}
+                                            style={{ ...styles.button, background: '#e2e8f0', color: '#0f172a', width: '100%' }}>
+                                            Create patient account
+                                        </button>
+                                    </div>
+                                </form>
+                            )}
+
+                            {view === 'register' && (
+                                <form onSubmit={handleRegister} style={styles.form}>
+                                    <div style={styles.inputWrap}>
+                                        <span style={styles.inputIcon}>Name</span>
+                                        <input
+                                            className="login-input"
+                                            type="text"
+                                            placeholder="Full name"
+                                            value={registerForm.name}
+                                            onChange={(e) => setRegisterForm({ ...registerForm, name: e.target.value })}
+                                            required
+                                            style={styles.input}
+                                        />
+                                    </div>
+                                    <div style={styles.inputWrap}>
+                                        <span style={styles.inputIcon}>Age</span>
+                                        <input
+                                            className="login-input"
+                                            type="number"
+                                            placeholder="Age"
+                                            min="0"
+                                            value={registerForm.age}
+                                            onChange={(e) => setRegisterForm({ ...registerForm, age: e.target.value })}
+                                            required
+                                            style={styles.input}
+                                        />
+                                    </div>
+                                    <div style={styles.inputWrap}>
+                                        <span style={styles.inputIcon}>Phone</span>
+                                        <input
+                                            className="login-input"
+                                            type="text"
+                                            placeholder="Phone number"
+                                            value={registerForm.phone}
+                                            onChange={(e) => setRegisterForm({ ...registerForm, phone: e.target.value })}
+                                            required
+                                            style={styles.input}
+                                        />
+                                    </div>
+                                    <div style={styles.inputWrap}>
+                                        <span style={styles.inputIcon}>Username</span>
+                                        <input
+                                            className="login-input"
+                                            type="text"
+                                            placeholder="Choose username"
+                                            value={registerForm.username}
+                                            onChange={(e) => setRegisterForm({ ...registerForm, username: e.target.value })}
+                                            required
+                                            style={styles.input}
+                                        />
+                                    </div>
+                                    <div style={styles.inputWrap}>
+                                        <span style={styles.inputIcon}>Password</span>
+                                        <input
+                                            className="login-input"
+                                            type="password"
+                                            placeholder="Choose password"
+                                            value={registerForm.password}
+                                            onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
+                                            required
+                                            style={styles.input}
+                                        />
+                                    </div>
+                                    <button type="submit" disabled={loading} className="signin-btn" style={{ ...styles.button, opacity: loading ? 0.75 : 1 }}>
+                                        {loading ? 'Registering...' : <>Register &nbsp;→</>}
+                                    </button>
+                                    <div style={{ textAlign: 'center', marginTop: '10px' }}>
+                                        <span className="forgot-link" onClick={() => { setView('login'); setError(''); setSuccess(''); }} style={styles.forgotLink}>
+                                            ← Back to Sign In
+                                        </span>
+                                    </div>
                                 </form>
                             )}
 
