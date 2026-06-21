@@ -403,7 +403,7 @@ export default function AdminDashboard() {
             });
             if (res.ok) {
                 setApptMessage('success');
-                setApptForm({ patient_id: '', doctor_id: '', date: '', time: '', status: 'Scheduled' });
+                setApptForm({ patient_id: '', doctor_id: '', date: '', appointment_time:'', status: 'Scheduled' });
                 setEditingApptId(null);
                 loadAppointments(); loadStats();
             } else { setApptMessage('error'); }
@@ -412,7 +412,7 @@ export default function AdminDashboard() {
     }
 
     const handleEditAppointment = (appt) => {
-        setApptForm({ patient_id: appt.patient_id, doctor_id: appt.doctor_id, date: appt.date, time: appt.time, status: appt.status });
+        setApptForm({ patient_id: appt.patient_id, doctor_id: appt.doctor_id, date: appt.date, appointment_time: appt.appointment_time, status: appt.status });
         setEditingApptId(appt.appointment_id || appt.id);
         setActiveMenu(null);
     };
@@ -1089,7 +1089,7 @@ export default function AdminDashboard() {
                                 </div>
                                 <div>
                                     <label style={labelSt}>Time</label>
-                                    <input type="time" value={apptForm.time} onChange={e => setApptForm({ ...apptForm, time: e.target.value })} required style={inputSt} />
+                                    <input type="time" value={apptForm.appointment_time} onChange={e => setApptForm({ ...apptForm, appointment_time: e.target.value })} required style={inputSt} />
                                 </div>
                             </div>
                             <div style={{ display: 'flex', gap: '10px' }}>
@@ -1141,7 +1141,7 @@ export default function AdminDashboard() {
                                                     <span style={{ padding: '4px 10px', borderRadius: 6, fontSize: 13, fontWeight: 600, background: '#f1f5f9', color: '#64748b' }}>{a.doctor_id}</span>
                                                 </td>
                                                 <td style={{ ...tdSt, color: '#475569', fontSize: 14 }}>{a.date}</td>
-                                                <td style={{ ...tdSt, color: '#0f172a', fontWeight: 600 }}>{a.time}</td>
+                                                <td style={{ ...tdSt, color: '#0f172a', fontWeight: 600 }}>{a.appointment_time}</td>
                                                 <td style={tdSt}><span style={statBadge}>{a.status}</span></td>
 
                                                 <td style={{ ...tdSt, position: 'relative' }}>

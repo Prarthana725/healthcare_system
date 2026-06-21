@@ -99,23 +99,38 @@ export default function BillTable({
                     minWidth: "140px",
                   }}
                 >
-                  <button
-                    onClick={() => {
-                      setSelectedBill(b);
-                      setShowInvoice(true);
-                    }}
-                    style={{
-                      background: "#2563eb",
-                      color: "white",
-                      border: "none",
-                      padding: "10px",
-                      borderRadius: "10px",
-                      cursor: "pointer",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    👁 View Invoice
-                  </button>
+                 <button
+  onClick={() => {
+    console.log(
+  "CONSULTATION:",
+  b.consultation_fee,
+  "APPOINTMENT:",
+  b.appointment_fee,
+  "MEDICINE:",
+  b.medicine_fee,
+  "SERVICE:",
+  b.service_fee,
+  "TAX:",
+  b.tax,
+  "TOTAL:",
+  b.total_amount
+);
+
+    setSelectedBill(b);
+    setShowInvoice(true);
+  }}
+  style={{
+    background: "#2563eb",
+    color: "white",
+    border: "none",
+    padding: "10px",
+    borderRadius: "10px",
+    cursor: "pointer",
+    fontWeight: "bold",
+  }}
+>
+  👁 View Invoice
+</button>
 
                   {!isPaid && (
                     <button
