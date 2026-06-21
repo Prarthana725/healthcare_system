@@ -667,113 +667,101 @@ async createConsultationBill(
 
     const pool = await getConnection();
 
-    //--------------------------------------------------
-    // TAX
-    //--------------------------------------------------
+  //--------------------------------------------------
+// CALCULATIONS
+//--------------------------------------------------
 
-    const tax = consultationFee * 0.05;
+const appointmentFee = 500;
+const serviceFee = 250;
 
-    const grandTotal =
-        consultationFee + tax;
+const subtotal =
+    consultationFee +
+    appointmentFee +
+    serviceFee;
 
-    //--------------------------------------------------
-    // CREATE BILL
-    //--------------------------------------------------
+const tax =
+    subtotal * 0.05;
 
-    const billResult =
-        await pool.request()
+const grandTotal =
+    subtotal + tax;
 
-            .input('appointment_id', sql.Int, appointmentId)
-            .input('patient_id', sql.Int, patientId)
-            .input('doctor_id', sql.Int, doctorId)
-            .input('subtotal', sql.Decimal(10,2), consultationFee)
-            .input('tax', sql.Decimal(10,2), tax)
-            .input('total_amount', sql.Decimal(10,2), grandTotal)
+//--------------------------------------------------
+// CREATE BILL
+//--------------------------------------------------
 
-            .query(`
-
-                INSERT INTO bills (
-
-                    appointment_id,
-                    patient_id,
-                    doctor_id,
-                    subtotal,
-                    tax,
-                    total_amount,
-                    paid_amount,
-                    balance_amount,
-                    payment_status,
-                    payment_method,
-                    status,
-                    bill_date
-
-                )
-
-                OUTPUT INSERTED.bill_id
-
-                VALUES (
-
-                    @appointment_id,
-                    @patient_id,
-                    @doctor_id,
-                    @subtotal,
-                    @tax,
-                    @total_amount,
-                    0,
-                    @total_amount,
-                    'pending',
-                    'Pending',
-                    'pending',
-                    GETDATE()
-
-                )
-
-            `);
-
-    const billId =
-        billResult.recordset[0].bill_id;
-
-    //--------------------------------------------------
-    // BILL ITEM
-    //--------------------------------------------------
-
+const billResult =
     await pool.request()
 
-        .input('bill_id', sql.Int, billId)
-        .input('item_name', sql.VarChar, 'Doctor Consultation Fee')
-        .input('quantity', sql.Int, 1)
-        .input('unit_price', sql.Decimal(10,2), consultationFee)
-        .input('total_price', sql.Decimal(10,2), consultationFee)
+        .input('appointment_id', sql.Int, appointmentId)
+        .input('patient_id', sql.Int, patientId)
+        .input('doctor_id', sql.Int, doctorId)
+
+        .input('consultation_fee', sql.Decimal(10,2), consultationFee)
+        .input('appointment_fee', sql.Decimal(10,2), appointmentFee)
+        .input('medicine_fee', sql.Decimal(10,2), 0)
+        .input('service_fee', sql.Decimal(10,2), serviceFee)
+
+        .input('subtotal', sql.Decimal(10,2), subtotal)
+        .input('tax', sql.Decimal(10,2), tax)
+        .input('total_amount', sql.Decimal(10,2), grandTotal)
 
         .query(`
 
-            INSERT INTO bill_items (
+            INSERT INTO bills (
 
-                bill_id,
-                item_name,
-                quantity,
-                unit_price,
-                total_price
+                appointment_id,
+                patient_id,
+                doctor_id,
+
+                consultation_fee,
+                appointment_fee,
+                medicine_fee,
+                service_fee,
+
+                subtotal,
+                tax,
+                total_amount,
+
+                paid_amount,
+                balance_amount,
+                payment_status,
+                payment_method,
+                status,
+                bill_date
 
             )
 
+            OUTPUT INSERTED.bill_id
+
             VALUES (
 
-                @bill_id,
-                @item_name,
-                @quantity,
-                @unit_price,
-                @total_price
+                @appointment_id,
+                @patient_id,
+                @doctor_id,
+
+                @consultation_fee,
+                @appointment_fee,
+                @medicine_fee,
+                @service_fee,
+
+                @subtotal,
+                @tax,
+                @total_amount,
+
+                0,
+                @total_amount,
+                'pending',
+                'Pending',
+                'pending',
+                GETDATE()
 
             )
 
         `);
 
-    return {
-        bill_id: billId,
-        total_amount: grandTotal
-    };
-}
+const billId =
+    billResult.recordset[0].bill_id;
+        }
 
 //--------------------------------------------------
 // PARTIAL PAYMENT

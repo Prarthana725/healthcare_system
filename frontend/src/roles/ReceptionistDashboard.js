@@ -129,6 +129,7 @@ export default function ReceptionistDashboard() {
                 if (bRes.ok) {
                     let bData = await bRes.json();
                     bData = Array.isArray(bData) ? bData : [];
+                    console.log("FULL BILLS:", bData);
                     bData = bData.map(b => {
                         const pat = fetchedPatients.find(p => String(p.patient_id || p.id) === String(b.patient_id));
                         const doc = fetchedDoctors.find(d => String(d.doctor_id || d.id) === String(b.doctor_id));
