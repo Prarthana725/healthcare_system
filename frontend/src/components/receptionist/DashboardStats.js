@@ -13,6 +13,7 @@ export default function DashboardStats({
   todayAppointments,
   pendingBills,
   totalRevenue,
+  lowStockCount,
   statsGrid,
   statCard,
   statTopRow,
@@ -23,6 +24,8 @@ export default function DashboardStats({
 }) {
   return (
     <div style={statsGrid}>
+
+      {/* TOTAL PATIENTS */}
       <div style={statCard}>
         <div style={statTopRow}>
           <div style={{ ...iconBox, background: "#f3e8ff", color: "#9333ea" }}>
@@ -36,6 +39,7 @@ export default function DashboardStats({
         <div style={statLabel}>Total Patients</div>
       </div>
 
+      {/* TOTAL APPOINTMENTS */}
       <div style={statCard}>
         <div style={statTopRow}>
           <div style={{ ...iconBox, background: "#e0f2fe", color: "#0284c7" }}>
@@ -49,6 +53,7 @@ export default function DashboardStats({
         <div style={statLabel}>Total Appointments</div>
       </div>
 
+      {/* TODAY APPOINTMENTS */}
       <div style={statCard}>
         <div style={statTopRow}>
           <div style={{ ...iconBox, background: "#dcfce7", color: "#16a34a" }}>
@@ -62,6 +67,7 @@ export default function DashboardStats({
         <div style={statLabel}>Today's Appointments</div>
       </div>
 
+      {/* PENDING PAYMENTS */}
       <div style={statCard}>
         <div style={statTopRow}>
           <div style={{ ...iconBox, background: "#ffedd5", color: "#ea580c" }}>
@@ -75,6 +81,7 @@ export default function DashboardStats({
         <div style={statLabel}>Pending Payments</div>
       </div>
 
+      {/* TOTAL REVENUE */}
       <div style={statCard}>
         <div style={statTopRow}>
           <div style={{ ...iconBox, background: "#ffe4e6", color: "#e11d48" }}>
@@ -87,6 +94,25 @@ export default function DashboardStats({
         <div style={statValue}>Rs. {totalRevenue}</div>
         <div style={statLabel}>Total Revenue</div>
       </div>
+
+      {/* LOW STOCK MEDICINES */}
+      <div style={statCard}>
+        <div style={statTopRow}>
+          <div style={{ ...iconBox, background: "#fef3c7", color: "#d97706" }}>
+            💊
+          </div>
+          <span style={{ ...trendBadge, color: "#d97706", background: "#fef3c7" }}>
+            BI
+          </span>
+        </div>
+        <div style={statValue}>
+          {lowStockCount || 0}
+        </div>
+        <div style={statLabel}>
+          Low Stock Medicines
+        </div>
+      </div>
+
     </div>
   );
 }

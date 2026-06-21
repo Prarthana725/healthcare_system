@@ -71,6 +71,19 @@ class MedicineQueries {
 
         return result.recordset;
     }
+    // LOW STOCK COUNT
+async getLowStockCount() {
+
+    const pool = await getConnection();
+
+    const result = await pool.request().query(`
+        SELECT COUNT(*) AS total
+        FROM medicines
+        WHERE quantity < 10
+    `);
+
+    return result.recordset[0];
+}
 
     // MEDICINE USAGE (JOIN)
     async getMedicinesWithUsage() {
