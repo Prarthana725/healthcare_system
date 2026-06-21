@@ -21,6 +21,7 @@ export default function ReceptionistDashboard() {
     const [appointments, setAppointments] = useState([]);
     const [doctors, setDoctors] = useState([]);
     const [bills, setBills] = useState([]);
+    const [lowStockCount, setLowStockCount] = useState(0);
     const [paymentMethods, setPaymentMethods] = useState({});
     const [paymentAmounts, setPaymentAmounts] = useState({});
 
@@ -88,14 +89,19 @@ export default function ReceptionistDashboard() {
         try {
             await loadInactivePatients();
             // Fetch everything at once for smooth cross-referencing
-            const [pRes, aRes, dRes] = await Promise.all([
+            const [pRes, aRes, dRes, lowStockRes] = await Promise.all([
                 fetch(`${API_URL}/patients`),
                 fetch(`${API_URL}/appointments`),
-                fetch(`${API_URL}/doctors`)
+                fetch(`${API_URL}/doctors`),
+                fetch(`${API_URL}/medicines/low-stock-count`)
             ]);
             const pData = await pRes.json();
             const aData = await aRes.json();
             const dData = await dRes.json();
+            const lowStockData = await lowStockRes.json();
+               setLowStockCount(
+                    lowStockData.total || 0
+                            );
 
             const fetchedPatients = Array.isArray(pData) ? pData : [];
             const fetchedDoctors = Array.isArray(dData) ? dData : [];
@@ -447,6 +453,7 @@ export default function ReceptionistDashboard() {
                             todayAppointments={todayAppointments}
                             pendingBills={pendingBills}
                             totalRevenue={totalRevenue}
+                            lowStockCount={lowStockCount}
                             statsGrid={statsGrid}
                             statCard={statCard}
                             statTopRow={statTopRow}

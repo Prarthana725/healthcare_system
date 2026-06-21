@@ -8,6 +8,7 @@ router.post('/', medicineController.create);
 
 // Specific routes
 router.get('/low-stock', medicineController.getLowStock);
+router.get('/low-stock-count',medicineController.getLowStockCount);
 router.get('/with-usage', medicineController.getWithUsage);
 router.post('/issue', medicineController.issue);
 router.get('/issue-history', medicineController.issueHistory);

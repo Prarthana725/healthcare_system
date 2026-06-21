@@ -39,7 +39,26 @@ class MedicineController {
             res.status(500).json({ error: 'Failed to fetch low stock medicines' });
         }
     }
+// LOW STOCK COUNT
+async getLowStockCount(req, res) {
 
+    try {
+
+        const data =
+            await medicineQueries.getLowStockCount();
+
+        res.json(data);
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            error: 'Failed to fetch count'
+        });
+
+    }
+}
     // Get medicines with usage count (JOIN query)
     async getWithUsage(req, res) {
         try {
