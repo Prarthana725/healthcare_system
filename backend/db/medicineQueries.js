@@ -219,7 +219,8 @@ async getLowStockCount() {
         medicineId,
         name,
         quantity,
-        price
+        price,
+        category
     ) {
 
         const pool =
@@ -251,6 +252,11 @@ async getLowStockCount() {
                     sql.Decimal(10, 2),
                     price || 0
                 )
+                .input(
+    "category",
+    sql.VarChar,
+    category || null
+)
 
                 .query(`
 
@@ -262,7 +268,9 @@ async getLowStockCount() {
 
                         quantity=@quantity,
 
-                        price=@price
+                        price=@price,
+
+                        category=@category
 
                     WHERE medicine_id=@id
 

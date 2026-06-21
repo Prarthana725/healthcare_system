@@ -92,23 +92,62 @@ async getLowStockCount(req, res) {
     }
 
     // Update medicine
-    async update(req, res) {
-        try {
-            const { id } = req.params;
-            const { name, quantity } = req.body;
-            if (!name || quantity === undefined) {
-                return res.status(400).json({ error: 'Missing required fields: name, quantity' });
-            }
-            const result = await medicineQueries.updateMedicine(id, name, quantity);
-            if (result[0] === 0) {
-                return res.status(404).json({ error: 'Medicine not found' });
-            }
-            res.json({ message: 'Medicine updated successfully' });
-        } catch (error) {
-            console.error('Error updating medicine:', error);
-            res.status(500).json({ error: 'Failed to update medicine' });
+  async update(req, res) {
+    try {
+
+        const { id } = req.params;
+
+        const {
+            name,
+            quantity,
+            price,
+            category
+        } = req.body;
+
+        if (
+            !name ||
+            quantity === undefined ||
+            price === undefined
+        ) {
+            return res.status(400).json({
+                error:
+                    'Missing required fields'
+            });
         }
+
+        const result =
+            await medicineQueries.updateMedicine(
+                id,
+                name,
+                quantity,
+                price,
+                category
+            );
+
+        if (result[0] === 0) {
+            return res.status(404).json({
+                error: 'Medicine not found'
+            });
+        }
+
+        res.json({
+            message:
+                'Medicine updated successfully'
+        });
+
+    } catch (error) {
+
+        console.error(
+            'Error updating medicine:',
+            error
+        );
+
+        res.status(500).json({
+            error:
+                'Failed to update medicine'
+        });
     }
+}
 
     // ISSUE MEDICINE
     async issue(req, res) {
