@@ -15,6 +15,7 @@ const billRoutes = require('./routes/bills');
 const viewRoutes = require('./routes/views');
 const forgotPasswordRoutes = require('./routes/auth.forgotPassword');
 const statsRoutes = require('./routes/stats');
+const reportsRoutes = require('./routes/reports');
 
 const app = express();
 
@@ -35,11 +36,12 @@ app.use('/api/prescriptions', prescriptionRoutes);
 app.use('/api/bills', billRoutes);
 app.use('/api/views', viewRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/reports', reportsRoutes);
 
 // --- THE MASTER STATS ROUTE ---
 app.get('/api/hospital-stats', async (req, res) => {
     try {
-        const pool = await getConnection(); 
+        const pool = await getConnection();
 
         // Get standard counts
         const patients = await pool.request().query('SELECT COUNT(*) AS total FROM patients');
@@ -47,7 +49,7 @@ app.get('/api/hospital-stats', async (req, res) => {
         const medicines = await pool.request().query('SELECT COUNT(*) AS total FROM medicines');
         const appointments = await pool.request().query('SELECT COUNT(*) AS total FROM appointments');
         const totalUsers = await pool.request().query('SELECT COUNT(*) AS total FROM users');
-        
+
         // Get specific counts for percentages
         const inStockMeds = await pool.request().query('SELECT COUNT(*) AS total FROM medicines WHERE quantity > 0');
         const compAppts = await pool.request().query("SELECT COUNT(*) AS total FROM appointments WHERE status = 'Completed'");
@@ -87,7 +89,7 @@ app.get('/api/hospital-stats', async (req, res) => {
             activeUsers: activeUsersValue || uCount,
             loginsToday: loginsTodayValue,
             totalActivities: totalActivitiesValue,
-            
+
             // ✅ SEND THE CALCULATED PERCENTAGES
             doctorTrend: doctorPct,
             patientTrend: patientPct,

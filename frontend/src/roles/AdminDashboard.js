@@ -35,6 +35,8 @@ const navItems = [
     { icon: '📅', label: 'Appointments' },
 ];
 
+
+
 export default function AdminDashboard() {
     const navigate = useNavigate();
 
@@ -48,6 +50,11 @@ export default function AdminDashboard() {
     const [activeNav, setActiveNav] = useState('Dashboard');
     const [showPass, setShowPass] = useState(false);
     const [activeMenu, setActiveMenu] = useState(null);
+
+
+    const [topMedicines, setTopMedicines] = useState([]);
+    const [doctorPerformance, setDoctorPerformance] = useState([]);
+    const [patientVisits, setPatientVisits] = useState([]);
 
     // Form States
     const [form, setForm] = useState({ username: '', password: '', role_id: '', doctor_id: '', patient_id: '' });
@@ -87,6 +94,9 @@ export default function AdminDashboard() {
         loadAvailablePatientProfiles();
         loadPharmacy();
         loadAppointments();
+        loadTopMedicines();
+        loadDoctorPerformance();
+        loadPatientVisits();
     }, []);
 
     async function loadStats() {
@@ -149,6 +159,37 @@ export default function AdminDashboard() {
             const res = await fetch(`${API_URL}/appointments`);
             setAppointmentsList(await res.json());
         } catch (err) { console.error(err); }
+    }
+
+
+    async function loadTopMedicines() {
+        try {
+            const res = await fetch(`${API_URL}/reports/top-medicines`);
+            const data = await res.json();
+            setTopMedicines(data);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    async function loadDoctorPerformance() {
+        try {
+            const res = await fetch(`${API_URL}/reports/doctor-performance`);
+            const data = await res.json();
+            setDoctorPerformance(data);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    async function loadPatientVisits() {
+        try {
+            const res = await fetch(`${API_URL}/reports/patient-visits`);
+            const data = await res.json();
+            setPatientVisits(data);
+        } catch (err) {
+            console.error(err);
+        }
     }
 
     // ==========================================
@@ -420,9 +461,51 @@ export default function AdminDashboard() {
                         ))}
                     </div>
 
+                    {/* BI ANALYTICS SECTION */}
+                    <div div style={{ marginTop: 30, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20 }}>
+
+                        {/* TOP MEDICINES */}
+                        <div style={{ background: 'white', borderRadius: 16, padding: 20 }}>
+                            <h3 style={{ marginBottom: 15 }}>💊 Top Medicines</h3>
+
+                            {topMedicines.slice(0, 5).map((item, index) => (
+                                <div key={index} style={{ display: 'flex', justifyContent: 'space-between', padding: 6 }}>
+                                    <span>{item.name}</span>
+                                    <b>{item.total_used}</b>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* DOCTOR PERFORMANCE */}
+                        <div style={{ background: 'white', borderRadius: 16, padding: 20 }}>
+                            <h3 style={{ marginBottom: 15 }}>🩺 Doctor Performance</h3>
+
+                            {doctorPerformance.slice(0, 5).map((item, index) => (
+                                <div key={index} style={{ display: 'flex', justifyContent: 'space-between', padding: 6 }}>
+                                    <span>{item.name}</span>
+                                    <b>{item.total_appointments}</b>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* PATIENT VISITS */}
+                        <div style={{ background: 'white', borderRadius: 16, padding: 20 }}>
+                            <h3 style={{ marginBottom: 15 }}>👤 Patient Visits</h3>
+
+                            {patientVisits.slice(0, 5).map((item, index) => (
+                                <div key={index} style={{ display: 'flex', justifyContent: 'space-between', padding: 6 }}>
+                                    <span>{item.name}</span>
+                                    <b>{item.total_visits}</b>
+                                </div>
+                            ))}
+                        </div>
+
+                    </div>
+
                     <div style={{ marginTop: 'auto', background: '#0d1f2d', borderRadius: 20, padding: '30px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', flexWrap: 'wrap', gap: '24px', boxShadow: '0 10px 25px rgba(13,31,45,0.15)' }}>
                         <div>
                             <div style={{ fontWeight: 800, fontSize: 18 }}>System Overview</div>
+
                             <div style={{ fontSize: 14, opacity: 0.6, marginTop: 6 }}>Quick overview of system statistics</div>
                         </div>
                         <div style={{ display: 'flex', gap: '48px', flexWrap: 'wrap' }}>
@@ -432,17 +515,25 @@ export default function AdminDashboard() {
                                 { icon: '🕐', value: stats.loginsToday, label: 'Total Logins Today' },
                                 { icon: '📋', value: stats.totalActivities, label: 'Total Activities' }
                             ].map(({ icon, value, label }) => (
+
                                 <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+
                                     <div style={{ width: 52, height: 52, borderRadius: 14, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>{icon}</div>
                                     <div>
                                         <div style={{ fontSize: 28, fontWeight: 800, lineHeight: 1 }}>{value}</div>
                                         <div style={{ fontSize: 13, opacity: 0.6, marginTop: 6, fontWeight: 500 }}>{label}</div>
+
                                     </div>
+
                                 </div>
                             ))}
+
+
                         </div>
+
                     </div>
-                </div>
+
+                </div >
             );
         }
 
