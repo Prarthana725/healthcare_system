@@ -462,42 +462,132 @@ export default function AdminDashboard() {
                     </div>
 
                     {/* BI ANALYTICS SECTION */}
-                    <div div style={{ marginTop: 30, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20 }}>
+                    <div style={{
+                        marginTop: 32,
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                        gap: 24,
+                        fontFamily: 'system-ui, -apple-system, sans-serif'
+                    }}>
 
                         {/* TOP MEDICINES */}
-                        <div style={{ background: 'white', borderRadius: 16, padding: 20 }}>
-                            <h3 style={{ marginBottom: 15 }}>💊 Top Medicines</h3>
-
-                            {topMedicines.slice(0, 5).map((item, index) => (
-                                <div key={index} style={{ display: 'flex', justifyContent: 'space-between', padding: 6 }}>
-                                    <span>{item.name}</span>
-                                    <b>{item.total_used}</b>
-                                </div>
-                            ))}
+                        <div style={{
+                            background: '#ffffff',
+                            borderRadius: 16,
+                            padding: 24,
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                            border: '1px solid #f3f4f6'
+                        }}>
+                            <h3 style={{ margin: '0 0 20px 0', fontSize: '1.125rem', fontWeight: 600, color: '#1f2937', display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <span>💊</span> Top Medicines
+                            </h3>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                {topMedicines.slice(0, 5).map((item, index) => (
+                                    <div key={index} style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        padding: '10px 12px',
+                                        borderRadius: 8,
+                                        background: index % 2 === 0 ? '#f9fafb' : 'transparent'
+                                    }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                            <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#9ca3af', width: 16 }}>{index + 1}</span>
+                                            <span style={{ fontSize: '0.95rem', fontWeight: 500, color: '#4b5563' }}>{item.name}</span>
+                                        </div>
+                                        <span style={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 600,
+                                            color: '#2563eb',
+                                            background: '#eff6ff',
+                                            padding: '4px 10px',
+                                            borderRadius: 9999
+                                        }}>
+                                            {item.total_used}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
 
                         {/* DOCTOR PERFORMANCE */}
-                        <div style={{ background: 'white', borderRadius: 16, padding: 20 }}>
-                            <h3 style={{ marginBottom: 15 }}>🩺 Doctor Performance</h3>
-
-                            {doctorPerformance.slice(0, 5).map((item, index) => (
-                                <div key={index} style={{ display: 'flex', justifyContent: 'space-between', padding: 6 }}>
-                                    <span>{item.name}</span>
-                                    <b>{item.total_appointments}</b>
-                                </div>
-                            ))}
+                        <div style={{
+                            background: '#ffffff',
+                            borderRadius: 16,
+                            padding: 24,
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                            border: '1px solid #f3f4f6'
+                        }}>
+                            <h3 style={{ margin: '0 0 20px 0', fontSize: '1.125rem', fontWeight: 600, color: '#1f2937', display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <span>🩺</span> Doctor Performance
+                            </h3>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                {doctorPerformance.slice(0, 5).map((item, index) => (
+                                    <div key={index} style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        padding: '10px 12px',
+                                        borderRadius: 8,
+                                        background: index % 2 === 0 ? '#f9fafb' : 'transparent'
+                                    }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                            <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#9ca3af', width: 16 }}>{index + 1}</span>
+                                            <span style={{ fontSize: '0.95rem', fontWeight: 500, color: '#4b5563' }}>{item.name}</span>
+                                        </div>
+                                        <span style={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 600,
+                                            color: '#059669',
+                                            background: '#ecfdf5',
+                                            padding: '4px 10px',
+                                            borderRadius: 9999
+                                        }}>
+                                            {item.total_appointments} appts
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
 
                         {/* PATIENT VISITS */}
-                        <div style={{ background: 'white', borderRadius: 16, padding: 20 }}>
-                            <h3 style={{ marginBottom: 15 }}>👤 Patient Visits</h3>
-
-                            {patientVisits.slice(0, 5).map((item, index) => (
-                                <div key={index} style={{ display: 'flex', justifyContent: 'space-between', padding: 6 }}>
-                                    <span>{item.name}</span>
-                                    <b>{item.total_visits}</b>
-                                </div>
-                            ))}
+                        <div style={{
+                            background: '#ffffff',
+                            borderRadius: 16,
+                            padding: 24,
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                            border: '1px solid #f3f4f6'
+                        }}>
+                            <h3 style={{ margin: '0 0 20px 0', fontSize: '1.125rem', fontWeight: 600, color: '#1f2937', display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <span>👤</span> Patient Visits
+                            </h3>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                {patientVisits.slice(0, 5).map((item, index) => (
+                                    <div key={index} style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        padding: '10px 12px',
+                                        borderRadius: 8,
+                                        background: index % 2 === 0 ? '#f9fafb' : 'transparent'
+                                    }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                            <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#9ca3af', width: 16 }}>{index + 1}</span>
+                                            <span style={{ fontSize: '0.95rem', fontWeight: 500, color: '#4b5563' }}>{item.name}</span>
+                                        </div>
+                                        <span style={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 600,
+                                            color: '#7c3aed',
+                                            background: '#f5f3ff',
+                                            padding: '4px 10px',
+                                            borderRadius: 9999
+                                        }}>
+                                            {item.total_visits} visits
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
 
                     </div>
