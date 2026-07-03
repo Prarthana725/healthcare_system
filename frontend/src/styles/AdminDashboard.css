@@ -1,0 +1,814 @@
+/* ==========================================================================
+   🏥 CLINICAL THEME VARIABLES (SaaS ERP Standard)
+   ========================================================================== */
+:root {
+  --clinical-bg: #f4f6f9;               /* Soft institutional gray-blue */
+  --clinical-sidebar: #0b132b;          /* Ultra deep midnight navy */
+  --clinical-sidebar-active: #1c2541;   /* Selected nav block */
+  --clinical-card-bg: #ffffff;
+  
+  /* Brand Medical Accents */
+  --med-primary: #0284c7;               /* Clean Hospital Blue */
+  --med-primary-gradient: linear-gradient(135deg, #0284c7, #0369a1);
+  --med-teal: #0d9488;                  /* Clinical Teal */
+  
+  /* Text System */
+  --text-primary: #1e293b;              /* Dark charcoal for high readability */
+  --text-muted: #64748b;                /* Secondary text */
+  --text-light: #94a3b8;
+  
+  /* Structural Tokens */
+  --border-light: #e2e8f0;
+  --radius-panel: 12px;
+  --radius-control: 8px;
+  --radius-badge: 6px;
+  
+  /* Shadows (Flat, clean enterprise depth) */
+  --shadow-flat: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+  --shadow-panel: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+  --shadow-overlay: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  
+  --fx-transition: all 0.15s ease-in-out;
+}
+
+/* ==========================================================================
+   BASE WORKSPACE
+   ========================================================================== */
+.admin-container {
+  display: flex;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--clinical-bg);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================================================
+   SIDEBAR NAV (Hospital Core Navigation)
+   ========================================================================== */
+.sidebar {
+  width: 260px;
+  background-color: var(--clinical-sidebar);
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 0;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-brand-wrapper {
+  padding: 0 24px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 20px;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-control);
+  background: var(--med-primary-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+}
+
+.brand-title {
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  color: #f8fafc;
+}
+
+.brand-subtitle {
+  font-size: 10px;
+  color: #64748b;
+  margin-top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+}
+
+.dashboard-nav-wrapper {
+  padding: 0 12px;
+  margin-bottom: 4px;
+}
+
+.dashboard-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: var(--radius-control);
+  color: #94a3b8;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13.5px;
+  transition: var(--fx-transition);
+}
+
+.dashboard-nav-item:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.dashboard-nav-item.active {
+  background: var(--med-primary-gradient);
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.2);
+}
+
+.nav-section-title {
+  padding: 20px 24px 8px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: #475569;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 0 12px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-radius: var(--radius-control);
+  cursor: pointer;
+  font-size: 13.5px;
+  margin-bottom: 2px;
+  font-weight: 500;
+  color: #94a3b8;
+  transition: var(--fx-transition);
+}
+
+.nav-item:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.nav-item.active {
+  background-color: var(--clinical-sidebar-active);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.nav-item-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-item-icon {
+  font-size: 15px;
+}
+
+.nav-arrow {
+  opacity: 0.3;
+  font-size: 12px;
+}
+
+.sidebar-footer {
+  padding: 16px 16px 0;
+  margin: 0 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #334155;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.profile-name {
+  font-weight: 600;
+  font-size: 13.5px;
+  color: #f1f5f9;
+}
+
+.profile-role {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 1px;
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: var(--radius-control);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: var(--fx-transition);
+}
+
+.logout-btn:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+
+/* ==========================================================================
+   MAIN DASHBOARD WORKSPACE
+   ========================================================================== */
+.main-content {
+  flex: 1;
+  padding: 32px 40px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.header-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.header-subtitle {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.date-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--clinical-card-bg);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-control);
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  box-shadow: var(--shadow-flat);
+}
+
+.dashboard-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 24px;
+}
+
+/* ==========================================================================
+   🏥 CLINICAL KPI CARDS (Executive Stats)
+   ========================================================================== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.stat-card {
+  background-color: var(--clinical-card-bg);
+  border-radius: var(--radius-panel);
+  border: 1px solid var(--border-light);
+  padding: 20px;
+  box-shadow: var(--shadow-flat);
+  transition: var(--fx-transition);
+}
+
+.stat-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: var(--shadow-panel);
+}
+
+.stat-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.stat-card-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stat-card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background-color: #f0fdfa; /* Teal Tint */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+/* Row variations to denote clinical categorization */
+.stat-card:nth-child(2) .stat-card-icon { background-color: #eff6ff; } /* Blue */
+.stat-card:nth-child(3) .stat-card-icon { background-color: #fef3c7; } /* Amber */
+.stat-card:nth-child(4) .stat-card-icon { background-color: #f5f3ff; } /* Purple */
+
+.stat-card-label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.stat-card-trend {
+  font-size: 11px;
+  font-weight: 700;
+  color: #16a34a;
+  background-color: #dcfce7;
+  border-radius: 9999px;
+  padding: 1px 6px;
+}
+
+.stat-card-value {
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.stat-card-link {
+  margin-top: 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--med-primary);
+  cursor: pointer;
+}
+
+.stat-card-link:hover {
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   BI HOSPITAL ANALYTICS CLINICAL CHARTS/LISTS
+   ========================================================================== */
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.analytics-card {
+  background: var(--clinical-card-bg);
+  border-radius: var(--radius-panel);
+  padding: 20px;
+  box-shadow: var(--shadow-flat);
+  border: 1px solid var(--border-light);
+}
+
+.analytics-card-title {
+  margin: 0 0 14px 0;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.analytics-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.analytics-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: var(--radius-control);
+}
+
+.analytics-row.striped {
+  background-color: #f8fafc;
+}
+
+.analytics-row-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.analytics-rank {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-light);
+  width: 14px;
+}
+
+.analytics-name {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #334155;
+}
+
+.analytics-badge-blue, 
+.analytics-badge-green, 
+.analytics-badge-purple {
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.analytics-badge-blue { color: #02529c; background-color: #e0f2fe; }
+.analytics-badge-green { color: #1565c0; background-color: #e3f2fd; }
+.analytics-badge-purple { color: #4a148c; background-color: #f3e5f5; }
+
+/* ==========================================================================
+   SYSTEM OVERVIEW PANEL (Bottom Enterprise Row)
+   ========================================================================== */
+.system-overview-panel {
+  background-color: #ffffff;
+  border-radius: var(--radius-panel);
+  padding: 20px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text-primary);
+  flex-wrap: wrap;
+  gap: 20px;
+  box-shadow: var(--shadow-flat);
+  border: 1px solid var(--border-light);
+}
+
+.overview-title {
+  font-weight: 700;
+  font-size: 14.5px;
+}
+
+.overview-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.overview-metrics-group {
+  display: flex;
+  gap: 36px;
+  flex-wrap: wrap;
+}
+
+.overview-metric-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.overview-metric-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-control);
+  background-color: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.overview-metric-value {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.overview-metric-label {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 3px;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   DATA PANELS & CORE REGISTRATION FORMS
+   ========================================================================== */
+.data-view-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1.7fr;
+  gap: 24px;
+}
+
+.form-panel, .table-panel {
+  background-color: var(--clinical-card-bg);
+  border-radius: var(--radius-panel);
+  border: 1px solid var(--border-light);
+  padding: 24px;
+  box-shadow: var(--shadow-flat);
+}
+
+.panel-header-inline, .panel-header-between {
+  margin-bottom: 20px;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 14px;
+}
+
+.panel-header-inline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.panel-header-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.panel-header-icon-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.panel-title {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text-primary);
+}
+
+.panel-subtitle {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+   CLINICAL INPUT INTERFACES
+   ========================================================================== */
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.form-field-group, .form-field-grid-patient {
+  display: grid;
+  gap: 12px;
+}
+.form-field-group { grid-template-columns: 1fr 1fr; }
+.form-field-grid-patient { grid-template-columns: 1fr 2fr; }
+
+.input-label {
+  display: block;
+  font-size: 12.5px;
+  color: #475569;
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+
+.form-input {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: var(--radius-control);
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  font-size: 13.5px;
+  font-family: inherit;
+  font-weight: 500;
+  outline: none;
+  box-sizing: border-box;
+  color: var(--text-primary);
+  transition: var(--fx-transition);
+}
+
+.form-input:focus {
+  border-color: var(--med-primary);
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
+}
+
+.password-input-wrapper { position: relative; }
+.password-toggle-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-light);
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+/* ==========================================================================
+   ENTERPRISE HEALTH DATA TABLES
+   ========================================================================== */
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-header-row {
+  background-color: #f8fafc;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.table-th {
+  padding: 10px 14px;
+  font-size: 11.5px;
+  color: #475569;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.table-row {
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.table-row:hover {
+  background-color: #f8fafc;
+}
+
+.table-td {
+  padding: 12px 14px;
+  font-size: 13.5px;
+  color: #334155;
+  font-weight: 500;
+  vertical-align: middle;
+}
+
+.table-td.bold-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.table-td.muted-text {
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+.table-td.nowrap { white-space: nowrap; }
+
+/* ==========================================================================
+   DROPDOWN OVERLAYS (Action Triggers)
+   ========================================================================== */
+.action-cell { position: relative; }
+.action-trigger-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--text-light);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-trigger-btn:hover {
+  background-color: #f1f5f9;
+  color: var(--text-primary);
+}
+
+.dropdown-menu {
+  position: absolute;
+  right: 12px;
+  top: 34px;
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-control);
+  box-shadow: var(--shadow-overlay);
+  padding: 4px;
+  z-index: 999;
+  width: 110px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.dropdown-item {
+  padding: 6px 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  border-radius: var(--radius-badge);
+}
+
+.dropdown-item:hover {
+  background-color: #f1f5f9;
+}
+.dropdown-item.delete { color: #ef4444; }
+.dropdown-item.delete:hover { background-color: #fef2f2; }
+
+/* ==========================================================================
+   BUTTONS & MEDICAL ACCENTS
+   ========================================================================== */
+.submit-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--med-primary-gradient);
+  color: #ffffff;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.submit-btn:hover { opacity: 0.95; }
+
+.cancel-btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: var(--radius-control);
+  background-color: #f1f5f9;
+  color: #475569;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  width: auto;
+}
+.cancel-btn:hover { background-color: #e2e8f0; }
+
+/* ==========================================================================
+   STATUS BADGES & FEEDS
+   ========================================================================== */
+.status-badge {
+  padding: 3px 8px;
+  border-radius: var(--radius-badge);
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+}
+
+.status-badge.active { background-color: #e2f5ea; color: #0f763e; }
+.status-badge.warning { background-color: #fff9db; color: #b25e00; }
+.status-badge.danger { background-color: #ffe3e3; color: #b71212; }
+.status-badge.pill-gray { background-color: #f1f5f9; color: #475569; }
+.status-badge.pill-bordered {
+  background-color: #ffffff;
+  color: #475569;
+  border: 1px solid var(--border-light);
+}
+
+.feedback-msg {
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: var(--radius-control);
+  text-align: center;
+  font-weight: 600;
+  font-size: 13px;
+}
+.feedback-msg.success { background-color: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+.feedback-msg.error { background-color: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
